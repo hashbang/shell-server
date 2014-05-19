@@ -66,7 +66,7 @@
   </body>
 </html><!--
 EOF
-
+shopt -s extglob
 sleep 0.5
 
 function ask {
@@ -122,7 +122,7 @@ echo " shared systems. From here you can run IRC chat clients to talk to us,";
 echo " access to personal file storage and web hosting, and a wide range of";
 echo " development tools. ";
 echo " ";
-read -p " If you agree with the above and wish to continue, hit [Enter] " -n1 -s;
+read -n1 -s -p " If you agree with the above and wish to continue, hit [Enter] ";
 
 echo " ";
 echo " ";
@@ -139,16 +139,16 @@ echo " ";
 echo " Traditionally usernames are first initial and last name ( jdoe ) ";
 echo " but feel free to use whatever you want";
 echo " ";
-echo -n " Username: ";
+printf " Username: ";
 read username;
 
-if ! [[ $username = [[:lower:]]+([[:alnum:]]) && ${#username} -le 31 ]]; then
+if ! [[ $username = [[:lower:]]+([[:alnum:]]) && $username -le 31 ]]; then
+    echo " ";
     echo " \"$username\" is not a valid username."
     echo " Please read the instructions and try again"
     exit
 fi
 
-echo " ";
 echo " ";
 echo " -------------------------------------------------------------------- ";
 echo " ";
