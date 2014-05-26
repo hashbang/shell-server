@@ -62,12 +62,11 @@
       document.getElementsByTagName("head")[0].appendChild(link);
     </script>
     <h1>#!</h1>
-    <code>sh <(curl hashbang.sh)</code>
+    <code>bash <(curl hashbang.sh)</code>
   </body>
 </html><!--
 EOF
 shopt -s extglob
-sleep 0.5
 
 function ask {
     while true; do
@@ -110,17 +109,22 @@ echo "  |_||_|  (__)  3. Be excellent to each other";
 echo "               ";
 echo " We are a diverse community of people who love teaching, and learning.";
 echo " Putting a #! at the beginning of a \"script\" style program tells a ";
-echo " computer that it needs to \"do something\" or \"execute\" this file";
-echo " Likewise we are a community of people that like to \"do stuff\"";
+echo " computer that it needs to \"do something\" or \"execute\" this file.";
+echo " Likewise, we are a community of people that like to \"do stuff\".";
 echo " ";
 echo " If you like technology, and you want to learn to write your first";
 echo " program, learn to use Linux, or even take on interesting challenges";
-echo " with some of the best in the industry. You are in the right place.";
+echo " with some of the best in the industry, you are in the right place.";
 echo "";
 echo " The following will set you up with a \"shell\" account on one of our";
 echo " shared systems. From here you can run IRC chat clients to talk to us,";
 echo " access to personal file storage and web hosting, and a wide range of";
 echo " development tools. ";
+echo " ";
+echo " Everything should work perfectly, unless it doesn't";
+echo " ";
+echo " Please report any issues here: ";
+echo "   -> https://github.com/lrvick/hashbang.sh/issues/";
 echo " ";
 read -n1 -s -p " If you agree with the above and wish to continue, hit [Enter] ";
 
@@ -129,15 +133,16 @@ echo " ";
 echo " -------------------------------------------------------------------- ";
 echo " ";
 
-echo " To create your account we first need a username";
+echo " To create your account we first need a username.";
 echo " ";
-echo " Username must be:";
-echo "  * between between 1-31 characters long";
+echo " A valid username must:";
+echo "  * be between between 1-31 characters long";
 echo "  * consist of only 0-9 and a-z (lowercase only)";
 echo "  * begin with a letter";
 echo " ";
-echo " Traditionally usernames are first initial and last name ( jdoe ) ";
-echo " but feel free to use whatever you want";
+echo " Traditional unix usernames are first initial, optional middle initial,";
+echo " and the first 6 characters of the last name, but feel free to use ";
+echo " whatever you want";
 echo " ";
 printf " Username: ";
 read username;
@@ -191,19 +196,20 @@ if [[ -n $key && -n $username ]]; then
     if ask " Does this look correct?" Y ; then
         echo " ";
         echo " Creating your account...";
+        echo " ";
         curl -H "Content-Type: application/json" \
-        -d '{"username":"$username","key":"$key"}' \
+        -d "{\"username\":\"$username\",\"key\":\"$key\"}" \
         http://new.hashbang.sh/
         echo " ";
         echo " Account Created!";
         echo " ";
         echo " You can now connect any time by entering the command:";
         echo " ";
-        echo " > ssh $username@hashbang.sh";
+        echo " > ssh $username@shell.hashbang.sh";
         echo " ";
     fi
 
     if ask " Do you want us to log you in now?" Y; then
-        ssh $username@hashbang.sh
+        ssh $username@shell.hashbang.sh
     fi
 fi
