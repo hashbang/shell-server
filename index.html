@@ -144,15 +144,19 @@ echo " Traditional unix usernames are first initial, optional middle initial,";
 echo " and the first 6 characters of the last name, but feel free to use ";
 echo " whatever you want";
 echo " ";
-printf " Username: ";
-read username;
 
-if ! [[ $username = [[:lower:]]+([[:alnum:]]) && $username -le 31 ]]; then
-    echo " ";
-    echo " \"$username\" is not a valid username."
-    echo " Please read the instructions and try again"
-    exit
-fi
+until [[ -n $username ]]; do
+    printf " Username: ";
+    read input;
+    if [[ $input = [[:lower:]]+([[:alnum:]]) && $input -le 31 ]]; then
+        username=$input
+    else
+        echo " ";
+        echo " \"$input\" is not a valid username."
+        echo " Please read the instructions and try again"
+        echo " ";
+    fi
+done
 
 echo " ";
 echo " -------------------------------------------------------------------- ";
@@ -178,11 +182,25 @@ if [[ -z $key ]]; then
     fi
 fi
 
-if [[ -z $key ]]; then
-    echo -n " Please enter the path to an existing SSH Public Key: ";
+
+
+until [[ -n $key ]]; do
+    echo " ";
+    echo -n " Please enter path to SSH Public Key: ";
     read keyfile
-    key=$(cat $keyfile)
-fi
+    if [ -f $keyfile ] ; then
+        ssh-keygen -l -f $keyfile > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            key=$(cat $keyfile)
+        else
+            echo " ";
+            echo " \"$keyfile\" is not a valid SSH Public Key";
+        fi
+    else
+       echo " ";
+       echo " \"$keyfile\" does not exist";
+    fi
+done
 
 if [[ -n $key && -n $username ]]; then
     echo " ";
