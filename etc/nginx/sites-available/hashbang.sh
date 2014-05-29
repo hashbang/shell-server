@@ -1,6 +1,6 @@
 server {
     listen 80;
     server_name hashbang.sh;
-    root /home/lrvick/Sites/hashbang;
+    root /var/www/html;
     index index.html;
 }
