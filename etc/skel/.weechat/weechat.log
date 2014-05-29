@@ -1,0 +1,26 @@
+[2014-05-23 14:41:06] WeeChat 0.4.3 (compiled on May 12 2014 10:54:31)
+[2014-05-23 14:41:06] Reading configuration file sec.conf
+[2014-05-23 14:41:06] Reading configuration file weechat.conf
+[2014-05-23 14:41:06] Reading configuration file plugins.conf
+[2014-05-23 14:41:06] Reading configuration file script.conf
+[2014-05-23 14:41:06] Reading configuration file xfer.conf
+[2014-05-23 14:41:06] Reading configuration file rmodifier.conf
+[2014-05-23 14:41:06] Reading configuration file alias.conf
+[2014-05-23 14:41:06] Reading configuration file aspell.conf
+[2014-05-23 14:41:06] Reading configuration file logger.conf
+[2014-05-23 14:41:06] Reading configuration file irc.conf
+[2014-05-23 14:41:06] irc: connecting to server 206.190.128.252/7779 (SSL)...
+[2014-05-23 14:41:06] Reading configuration file relay.conf
+[2014-05-23 14:41:06] Reading configuration file charset.conf
+[2014-05-23 14:41:16] Writing configuration file plugins.conf 
+[2014-05-23 14:41:16] Writing configuration file charset.conf 
+[2014-05-23 14:41:16] Writing configuration file relay.conf 
+[2014-05-23 14:41:16] Writing configuration file irc.conf 
+[2014-05-23 14:41:16] Writing configuration file logger.conf 
+[2014-05-23 14:41:16] Writing configuration file aspell.conf 
+[2014-05-23 14:41:16] Writing configuration file alias.conf 
+[2014-05-23 14:41:16] Writing configuration file rmodifier.conf 
+[2014-05-23 14:41:16] Writing configuration file xfer.conf 
+[2014-05-23 14:41:16] Writing configuration file script.conf 
+[2014-05-23 14:41:16] Writing configuration file weechat.conf 
+[2014-05-23 14:41:16] Writing configuration file sec.conf 

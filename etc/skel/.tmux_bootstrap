@@ -1,0 +1,6 @@
+#!/bin/bash
+
+tmux ls | grep main > /dev/null ||
+	(tmux new-session -d -s main weechat
+	tmux new-window -a)
+	exec tmux attach -t main
