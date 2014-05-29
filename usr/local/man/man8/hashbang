@@ -1,0 +1,97 @@
+.\"Manpage for hashbang
+.TH man 1 "29 May 2014" "0.5" "#! man page"
+
+.SH NAME
+#! \- "shell" service and collective of awesome people.
+
+.SH SYNOPSIS
+
+bash <(curl hashbang.sh)
+
+.SH DESCRIPTION
+
+We are a diverse community of people who love teaching, and learning.
+Putting a #! at the beginning of a "script" style program tells a computer that
+it needs to "do something" or "execute" this file. Likewise, we are a community
+of people that like to "do stuff".
+
+If you like technology, and you want to learn to write your first program, learn
+to use Linux, or even take on interesting challenges with some of the best in
+the industry, you are in the right place.
+
+.SH EXAMPLES
+
+.SH FILES
+
+.SH HISTORY
+
+2004 - Free-for-all usage of a dedicated server hosted at a "The Planet" 
+datacenter in Austin, TX was secured by lrvick. This was made available to him
+via an educational web application provider in exchange for free system
+administration services. Shell accounts were given out to a group of friends
+for personal projects and organized resources and efforts via IRC.
+
+2006 - Having outgrown our shared hosting, the community opted to invest ain 
+a dedicated server to move our projects to lovingly named "Adam". A few months
+later "Eve" was added for redundancy and downtime minimization.
+These were hosted at "SiteGenie" in in Rochester, MN.
+
+2008 - At this time we were hosting many web projects with hundreds of 
+thousands of users, as well as hundreds of users on our IRC/shell services. Our
+community was gaining a reputation in multiple IRC circles and we prided
+ourselves in our overall system security regularly dealing with attacks of many
+kinds. A "Script Kiddie" by the name of Piratox  whom had access to a large
+botnet decided on a show of power against out network. Being unable to get in
+via usual methods, he opted to disrupt us via a large scale A DDOS attack.
+
+The attack was significant enough that the entire SiteGenie datacenter was
+taken offline. We managed to track down Piratox and end the dispute however 
+SiteGenie concluded that they were unprepared to mitigate DDOS attacks of this
+scale and promptly ended our contract. They offered to overnight our harddrives
+to locations of our choosing. Seeing this potential as a possibility, backup
+plans were already in motion.
+
+"Noah" was brought online in the Ohio basement of volunteer admin Echelon.
+Volunteer admin Bluescales rushed the setup of a VPS in a Montana Datacenter.
+He dubbed it "Moses". We quickly routed essential services from backups between
+the two servers while one of the two backup drives containing user files was
+overnighted to Noah, to make shell user files available to our community again
+within 24 hours.
+
+With emergency options in place we sought a new primary server. After
+reviewing our budget and options we opted for a dedicated server at 
+VolumeDrive, in Wilkes Barre, Pennsylvania. We took a chance on them as a newer
+company due to their reputation for their very inexpensive unmetered bandwidth
+plans, and lots of bandwidth testing. "Melchiz" was born.
+
+"Melchiz" became responsible for community services like shells/email/irc, and
+most smaller websites.
+
+VolumeDrive was a good fit for most of our services however, like SiteGenie, 
+they would be unwilling to deal with the unwanted attention that our more
+popular services could bring. To address this we deployed "Samson" in an
+undisclosed location to ensure it would be difficult to target by disruptive
+parties. In order to reliably protect the servers location, "Gideon" was
+deployed in Germany as a dumb proxy. Were it to ever go down, more could rapidly
+take its place. We felt really good about the maintainability of this setup.
+
+2010 - In an attempt to provide better security for Samson a kernel update was
+needed. One of our volunteer admins, Viaken, decided to take on the kernel
+update on his own, and neglected to include the correct SATA driver. On reboot
+Samson was unable to boot. As per a special agreement with the datacenter to get
+free hosting, support could never be contacted about this machine, thus Samson
+was to remain frozen at a kernel panic screen. It may well be hung there to this
+day. This also removed the purpose of Gideon which was taken offline shortly
+after.
+
+We were left with no choice but to risk hosting all services on Melchiz until
+a better solution could be secured.
+
+2013 - After frequent downtime and multiple disputes with VolumeDrive
+(including a case where they mistakenly formatted one of our production hard
+drives), we sought as a community to "go big or go home". We went big and
+secured the dedicated server "og". The specs of og were more than overkill for
+everything we provide, but we knew it would be worth it for our long-term
+goals of widening our free community offerings to the general public. 
+
+2014 - #! shells are now available to the general public. Welcome!
