@@ -18,11 +18,390 @@ of people that like to "do stuff".
 If you like technology and want to learn to write your first program, learn to
 use Linux, or even take on interesting challenges with some of the best in
 the industry, you are in the right place.
-
 .SH EXAMPLES
+.TP
 
-.SH FILES
+.BI ssh\ someuser@hashbang.sh
+Use the "ssh" command to get yourself back into your account from any computer
+that has your 'ssh key" installed.'
+.TP
+.BI cat\ foo
+echo the foo file to the console
 
+.SH AVAILABLE SOFTWARE
+.SS Compilers / Interpreters / Programming Languages
+perl -
+
+python -
+
+ruby - 
+
+haskell -
+
+lua - 
+
+clojure -
+
+go -
+
+nodejs -
+
+cbcl -
+
+ghc -
+
+gcc -
+
+smlnj -
+
+spidermonkey -
+.SS Text Editors
+vim - A popular vi clone, and the IDE of choice of most of the #! regulars.
+Ships by default on all operating systems that matter.
+
+emacs - A very capable scriptable text editor also capable of being a full IDE
+and has all the power of vim implemented in different ways. Not in as wide of
+use as it once was but plenty of skilled hackers still swear by it.
+
+nano -
+
+joe -
+
+pico -
+
+nano -
+
+joe -
+
+pico -
+
+e3 -
+
+ne -
+
+mcedit -
+
+zile -
+
+mg -
+
+jed -
+.SS Password Management
+pass - 
+.SS Cryptography / Hashing
+encfs -
+
+gpg -
+
+md5sum -
+
+shasum -
+
+bcrypt -
+
+ccrypt -
+.SS Time Management
+calcurse -
+
+calendar -
+
+remind -
+
+wyrd -
+
+taskwarrier -
+
+tudu -
+.SS Shells
+bash -
+
+zsh -
+
+fish -
+
+ksh -
+.SS Email
+mutt -
+
+alpine -
+
+slrn -
+
+offlineimap -
+
+mu -
+.SS Math
+ledger -
+units -
+dc -
+qalc -
+bc -
+.SS Chat / IM
+weechat-curses -
+
+irssi -
+
+centerim -
+
+finch -
+
+bitlbee -
+
+barnowl -
+
+pork -
+
+scrollz -
+
+ii -
+
+sic -
+
+erc -
+.SS News Reader
+newsbeuter -
+
+rsstail -
+
+canto -
+
+rawdog -
+.SS Web Browsing
+links -
+
+elinks -
+
+lynx -
+
+w3m -
+
+html2text -
+.SS Database
+sqlite3 -
+
+mariadb -
+
+postresql -
+
+mongodb -
+
+redis -
+.SS File Management
+mc -
+
+scp -
+
+rsync -
+
+rsynccrypto -
+
+duplicity -
+
+vifm -
+
+ranger -
+
+du -
+
+ncdu -
+
+find -
+
+locate -
+
+tree -
+.SS Archiving
+atool -
+
+zip -
+
+unzip -
+
+p7zip -
+
+tar -
+
+dar -
+
+gzip -
+
+zpaq -
+.SS Network
+iptraf -
+
+nethogs -
+
+slurm -
+
+nmap -
+
+ngrep -
+
+tcpdump -
+
+trickle -
+
+ifstat -
+
+iftop -
+
+mtr -
+
+telnet -
+
+netpipes -
+
+ssh -
+
+siege -
+
+lftp -
+
+curl -
+
+rtorrent -
+
+aria2 -
+
+ipcalc -
+
+socat -
+
+netcat -
+
+ssh-copy-id -
+
+zeromq -
+
+rabbitmq -
+.SS Image Tools
+optipng -
+
+imagemagick -
+
+gd -
+.SS Code Management
+cvs -
+
+svn -
+
+mercurial -
+
+git -
+
+tig -
+
+cloc -
+
+diff -
+
+vimdiff -
+
+vimpager -
+
+hub -
+
+ctags -
+
+cmake -
+.SS Games/Toys
+
+zangband -
+
+nethack -
+
+slashem -
+
+cmatrix -
+
+frotz -
+
+bsdgames -
+
+bb -
+
+sl -
+
+bastet -
+
+greed -
+
+gnugo -
+
+gnuchess -
+
+gnushcgi -
+
+moon-buggy -
+
+typespeed -
+.SS MUSH/MOO/MUD Clients
+
+tinyfunge -
+
+tintin -
+
+kbtin -
+
+pennmush -
+.SS System Management Utilities
+bonnie++ -
+
+htop -
+
+dstat -
+
+iotop -
+
+sysdig -
+
+strace -
+
+cpulimit -
+
+cgroups -
+.SS Window/Session Managers
+
+tmux -
+
+screen -
+
+dtach -
+
+byobu -
+
+.SS Misc. / Unsorted (Sort these!)
+pv -
+
+ttyrec - 
+
+tsung - 
+
+xargs - 
+
+parallel - 
+
+tpp - 
+
+ack - 
+
+ag - 
+
+repl - 
+
+watch - 
+
+libev - 
+
+libevent - 
+
+lame - 
+
+cowsay - 
+
+dos2unix - 
+
+unix2dos - 
 .SH HISTORY
 
 2004 - lrvick secured free-for-all usage of a dedicated server, hosted at
@@ -94,3 +473,49 @@ we provided, but we knew it would be worth it for our long-term goals of
 expanding our free community offerings to the general public. 
 
 2014 - #! shells are now available to the general public. Welcome!
+
+.SH TODO
+.SS Update this file
+Lots of fun short terminal examples under EXAMPLES.
+
+TLDR descriptions for all available software.
+
+Continue description with list of general things we provide to users like web 
+hosting, irc services, personal email, community project collaboration. Be
+creative.
+
+.SS Other stuff 
+working user@hashbang.sh MX records for getting real email to shells
+
+man hashbang man page with list of all commands and common things
+
+error handling on provisor
+
+come up with method for users to set passwords for themselves
+
+benchmarking 
+
+how many users with tmux sessions connected to irc can we handle?
+
+Implement 20k/s bandwidth limit for all free users
+
+Implement 5gb storage space limit or all free users
+
+implement 256m memory limit for all free users
+
+spruce up tmux status line for new users (What should we put in it?)
+
+update docs to tell people how to get back to their shell, and back to non irc
+tab.
+
+installer should make alias to get back in
+
+.SS You can help!
+
+Fork, make changes, and submit Github Pull Requests Here:
+
+https://github.com/lrvick/hashbang.shi
+
+This man file can be updated here:
+
+https://github.com/lrvick/hashbang.sh/blob/master/usr/local/man/man7/hashbang.7
