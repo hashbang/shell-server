@@ -1,0 +1,3 @@
+[submodule "var/www/html"]
+	path = var/www/html
+	url = https://github.com/hashbangsh/hashbang.sh
