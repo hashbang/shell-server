@@ -1,4 +1,6 @@
-# shell-server
+# Hashbang shell-server
+
+<http://github.com/hashbang/shell-server>
 
 The configuration files for the public hashbang.sh shell server.  Edit our server!
 
