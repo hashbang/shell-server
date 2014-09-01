@@ -1,0 +1,1 @@
+/root/scripts/prune.sh
