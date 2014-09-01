@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 users=$(ls -1 /home/)
 time_now=$(date +%s)
