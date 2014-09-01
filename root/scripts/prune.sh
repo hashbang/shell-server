@@ -22,6 +22,7 @@ for user in $users; do
     )
     if [ $(( (time_now - last_login) / 86400 )) -ge $timeout_days ]; then
         echo "$user: Inactive in ${timeout_days} days. Killing Processes."
+        killall -KILL -u $user
     fi
   fi
 done
