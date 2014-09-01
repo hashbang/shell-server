@@ -4,3 +4,6 @@
 [submodule "etc/skel"]
 	path = etc/skel
 	url = git@github.com:hashbang/dotfiles.git
+[submodule "/var/www/html/new.hashbang.sh"]
+	path = /var/www/html/new.hashbang.sh
+	url = https://github.com/hashbang/provisor.git
