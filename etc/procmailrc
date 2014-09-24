@@ -1,2 +1,2 @@
-ORGMAIL=${HOME}/Mail
+ORGMAIL=${HOME}/Mail/new
 DEFAULT=${ORGMAIL}
