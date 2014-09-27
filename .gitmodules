@@ -1,12 +1,12 @@
 [submodule "var/www/html/hashbang.sh"]
 	path = var/www/html/hashbang.sh
-	url = https://github.com/hashbangsh/hashbang.sh
+        url = https://github.com/hashbang/dotfiles.git
 [submodule "etc/skel"]
 	path = etc/skel
-	url = git@github.com:hashbang/dotfiles.git
-[submodule "/var/www/html/new.hashbang.sh"]
-	path = /var/www/html/new.hashbang.sh
+	url = https://github.com/hashbang/dotfiles.git
+[submodule "var/www/html/new.hashbang.sh"]
+	path = var/www/html/new.hashbang.sh
 	url = https://github.com/hashbang/provisor.git
 [submodule "var/www/html/chat.hashbang.sh"]
 	path = var/www/html/chat.hashbang.sh
-	url = git://github.com/hashbang/chat.git
+	url = https://github.com/hashbang/chat.git
