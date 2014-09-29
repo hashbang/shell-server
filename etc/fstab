@@ -1,7 +1,7 @@
-# <file system>                           <mount point> <type>       <options>                               <dump>  <pass>
-/dev/mapper/vg0-lv0                       /              ext4         errors=remount-ro                        0       1
-UUID=379ef707-e23e-473a-a082-cc924e1b70ab /boot          ext2         defaults                                 0       2
-/dev/mapper/vg0-lv2                       /home          ext4         defaults,nosuid,nodev,usrquota,grpquota  0       2
-/dev/mapper/vg0-lv1                       none           swap         sw,nosuid,noexec,nodev                   0       0
-/dev/sr0                                  /media/cdrom0  udf,iso9660  user,noauto                              0       0
-proc                                      /proc          proc         defaults,hidepid=2                       0       0
+# <file system>                           <mount point> <type>       <options>                      <dump>  <pass>
+/dev/mapper/vg0-lv0                       /              ext4         errors=remount-ro               0       1
+UUID=379ef707-e23e-473a-a082-cc924e1b70ab /boot          ext2         defaults                        0       2
+/dev/mapper/vg0-lv2                       /home          ext4         defaults,nosuid,nodev,usrquota  0       2
+/dev/mapper/vg0-lv1                       none           swap         sw,nosuid,noexec,nodev          0       0
+/dev/sr0                                  /media/cdrom0  udf,iso9660  noauto                          0       0
+proc                                      /proc          proc         defaults,hidepid=2              0       0
