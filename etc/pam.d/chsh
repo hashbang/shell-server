@@ -1,0 +1,3 @@
+# Allow anyone in the users group to chsh
+
+auth		sufficient	pam_wheel.so	trust	group=users	use_uid
