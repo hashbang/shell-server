@@ -1,3 +1,0 @@
-Place custom configuration files for supervisor here. They
-will be read after the main configuration file in
-/etc/supervisor/supervisord.conf
