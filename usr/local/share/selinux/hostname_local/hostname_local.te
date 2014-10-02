@@ -1,0 +1,7 @@
+policy_module(hostname_local, 1.0.0)
+
+require {
+  type hostname_t;
+}
+
+logging_inherit_append_all_logs(hostname_t)

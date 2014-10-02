@@ -1,0 +1,9 @@
+policy_module(slocate_local, 1.0.0)
+
+## Deliberately dont audit denials made to locate utilities.
+require {
+  type locate_t;
+  attribute file_type;
+}
+
+dontaudit locate_t file_type:file all_file_perms;

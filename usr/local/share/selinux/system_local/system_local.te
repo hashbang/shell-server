@@ -1,0 +1,18 @@
+policy_module(system_local, 1.0.1)
+
+require {
+  type load_policy_t;
+  type sshd_t;
+}
+
+## allow load policy to read entropy
+dev_read_rand(load_policy_t)
+dev_read_urand(load_policy_t)
+
+## Allow sshd to read maildirs
+gen_tunable(sshd_allow_user_maildir, false)
+
+
+tunable_policy(sshd_allow_user_maildir, `
+  mta_manage_mail_home_rw_content(sshd_t)
+')
