@@ -20,6 +20,7 @@ Defaults	secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/b
 # User privilege specification
 root	ALL=(ALL:ALL) ALL
 provisor ALL=(ALL) NOPASSWD: /var/www/html/new.hashbang.sh/bin/provisor-create
+%sudo ALL=(ALL) NOPASSWD: /usr/bin/git reset --hard
 
 # Allow members of group sudo to execute any command
 %sudo	ALL=(ALL:ALL) ALL

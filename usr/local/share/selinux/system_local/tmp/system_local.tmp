@@ -3155,266 +3155,353 @@ category c1023;
 
 
 require {
+  type backup_t;
   type load_policy_t;
+  type setfiles_t;
   type sshd_t;
 }
 
+## ignore cap enhancement to backup_t
+dontaudit backup_t self:capability fsetid;
+
 ## allow load policy to read entropy
  	 	
-#line 9
+#line 14
 ##### begin dev_read_rand(load_policy_t) depth: 1
-#line 9
+#line 14
  	
-#line 9
+#line 14
 	
-#line 9
+#line 14
 	
-#line 9
+#line 14
 		require {
-#line 9
+#line 14
 			
-#line 9
+#line 14
 		type device_t, random_device_t;
-#line 9
+#line 14
 	
-#line 9
+#line 14
 		} # end require
-#line 9
+#line 14
 	
-#line 9
+#line 14
 
-#line 9
+#line 14
 
-#line 9
+#line 14
 	
-#line 9
+#line 14
 	allow load_policy_t device_t:dir { getattr search open };
-#line 9
+#line 14
 	allow load_policy_t random_device_t:chr_file { getattr open read lock ioctl };
-#line 9
+#line 14
 
-#line 9
+#line 14
 
-#line 9
+#line 14
 	 	
-#line 9
+#line 14
 ##### end dev_read_rand(load_policy_t) depth: 0
-#line 9
+#line 14
  	
  	 	
-#line 10
+#line 15
 ##### begin dev_read_urand(load_policy_t) depth: 1
-#line 10
+#line 15
  	
-#line 10
+#line 15
 	
-#line 10
+#line 15
 	
-#line 10
+#line 15
 		require {
-#line 10
+#line 15
 			
-#line 10
+#line 15
 		type device_t, urandom_device_t;
-#line 10
+#line 15
 	
-#line 10
+#line 15
 		} # end require
-#line 10
+#line 15
 	
-#line 10
+#line 15
 
-#line 10
+#line 15
 
-#line 10
+#line 15
 	
-#line 10
+#line 15
 	allow load_policy_t device_t:dir { getattr search open };
-#line 10
+#line 15
 	allow load_policy_t urandom_device_t:chr_file { getattr open read lock ioctl };
-#line 10
+#line 15
 
-#line 10
+#line 15
 
-#line 10
+#line 15
 	 	
-#line 10
+#line 15
 ##### end dev_read_urand(load_policy_t) depth: 0
-#line 10
+#line 15
+ 	
+ 	 	
+#line 16
+##### begin dev_read_rand(setfiles_t) depth: 1
+#line 16
+ 	
+#line 16
+	
+#line 16
+	
+#line 16
+		require {
+#line 16
+			
+#line 16
+		type device_t, random_device_t;
+#line 16
+	
+#line 16
+		} # end require
+#line 16
+	
+#line 16
+
+#line 16
+
+#line 16
+	
+#line 16
+	allow setfiles_t device_t:dir { getattr search open };
+#line 16
+	allow setfiles_t random_device_t:chr_file { getattr open read lock ioctl };
+#line 16
+
+#line 16
+
+#line 16
+	 	
+#line 16
+##### end dev_read_rand(setfiles_t) depth: 0
+#line 16
+ 	
+ 	 	
+#line 17
+##### begin dev_read_urand(setfiles_t) depth: 1
+#line 17
+ 	
+#line 17
+	
+#line 17
+	
+#line 17
+		require {
+#line 17
+			
+#line 17
+		type device_t, urandom_device_t;
+#line 17
+	
+#line 17
+		} # end require
+#line 17
+	
+#line 17
+
+#line 17
+
+#line 17
+	
+#line 17
+	allow setfiles_t device_t:dir { getattr search open };
+#line 17
+	allow setfiles_t urandom_device_t:chr_file { getattr open read lock ioctl };
+#line 17
+
+#line 17
+
+#line 17
+	 	
+#line 17
+##### end dev_read_urand(setfiles_t) depth: 0
+#line 17
  	
 
 ## Allow sshd to read maildirs
 
-#line 13
+#line 20
 	bool sshd_allow_user_maildir false;
-#line 13
+#line 20
 
 
 
 
-#line 16
+#line 23
 	
-#line 16
+#line 23
 	
-#line 16
+#line 23
 		require {
-#line 16
+#line 23
 			
-#line 16
+#line 23
 		
-#line 16
+#line 23
 bool sshd_allow_user_maildir;
-#line 16
+#line 23
 
-#line 16
+#line 23
   
-#line 16
+#line 23
 	
-#line 16
+#line 23
 		} # end require
-#line 16
+#line 23
 	
-#line 16
+#line 23
 
-#line 16
+#line 23
 	if (sshd_allow_user_maildir) {
-#line 16
+#line 23
 		
-#line 16
+#line 23
    	 	
-#line 16
+#line 23
 ##### begin mta_manage_mail_home_rw_content(sshd_t) depth: 1
-#line 16
+#line 23
  	
-#line 16
+#line 23
 	
-#line 16
+#line 23
 	
-#line 16
+#line 23
 		require {
-#line 16
+#line 23
 			
-#line 16
+#line 23
 		type mail_home_rw_t;
-#line 16
+#line 23
 	
-#line 16
+#line 23
 		} # end require
-#line 16
+#line 23
 	
-#line 16
+#line 23
 
-#line 16
+#line 23
 
-#line 16
+#line 23
 	 	 	
-#line 16
+#line 23
 ##### begin userdom_search_user_home_dirs(sshd_t) depth: 2
-#line 16
+#line 23
  	
-#line 16
+#line 23
 	
-#line 16
+#line 23
 	
-#line 16
+#line 23
 		require {
-#line 16
+#line 23
 			
-#line 16
+#line 23
 		type user_home_dir_t;
-#line 16
+#line 23
 	
-#line 16
+#line 23
 		} # end require
-#line 16
+#line 23
 	
-#line 16
+#line 23
 
-#line 16
+#line 23
 
-#line 16
+#line 23
 	allow sshd_t user_home_dir_t:dir { getattr search open };
-#line 16
+#line 23
 	 	 	
-#line 16
+#line 23
 ##### begin files_search_home(sshd_t) depth: 3
-#line 16
+#line 23
  	
-#line 16
+#line 23
 	
-#line 16
+#line 23
 	
-#line 16
+#line 23
 		require {
-#line 16
+#line 23
 			
-#line 16
+#line 23
 		type home_root_t;
-#line 16
+#line 23
 	
-#line 16
+#line 23
 		} # end require
-#line 16
+#line 23
 	
-#line 16
+#line 23
 
-#line 16
+#line 23
 
-#line 16
+#line 23
 	allow sshd_t home_root_t:dir { getattr search open };
-#line 16
+#line 23
 	allow sshd_t home_root_t:lnk_file { getattr read };
-#line 16
+#line 23
 
-#line 16
+#line 23
 	 	
-#line 16
+#line 23
 ##### end files_search_home(sshd_t) depth: 2
-#line 16
+#line 23
  	
-#line 16
+#line 23
 
-#line 16
+#line 23
 	 	
-#line 16
+#line 23
 ##### end userdom_search_user_home_dirs(sshd_t) depth: 1
-#line 16
+#line 23
  	
-#line 16
+#line 23
 	
-#line 16
+#line 23
 	allow sshd_t mail_home_rw_t:dir { open read getattr lock search ioctl add_name remove_name write };
-#line 16
+#line 23
 	allow sshd_t mail_home_rw_t:dir { create open getattr setattr read write link unlink rename search add_name remove_name reparent rmdir lock ioctl };
-#line 16
+#line 23
 
-#line 16
+#line 23
 	
-#line 16
+#line 23
 	allow sshd_t mail_home_rw_t:dir { open read getattr lock search ioctl add_name remove_name write };
-#line 16
+#line 23
 	allow sshd_t mail_home_rw_t:file { create open getattr setattr read write append rename link unlink ioctl lock };
-#line 16
+#line 23
 
-#line 16
+#line 23
 	
-#line 16
+#line 23
 	allow sshd_t mail_home_rw_t:dir { open read getattr lock search ioctl add_name remove_name write };
-#line 16
+#line 23
 	allow sshd_t mail_home_rw_t:lnk_file { create read write getattr setattr link unlink rename };
-#line 16
+#line 23
 
-#line 16
+#line 23
 
-#line 16
+#line 23
 	 	
-#line 16
+#line 23
 ##### end mta_manage_mail_home_rw_content(sshd_t) depth: 0
-#line 16
+#line 23
  	
-#line 16
+#line 23
 
-#line 16
+#line 23
 	}
-#line 18
+#line 25
 

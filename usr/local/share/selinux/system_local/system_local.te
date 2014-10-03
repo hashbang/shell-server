@@ -1,13 +1,20 @@
 policy_module(system_local, 1.0.1)
 
 require {
+  type backup_t;
   type load_policy_t;
+  type setfiles_t;
   type sshd_t;
 }
+
+## ignore cap enhancement to backup_t
+dontaudit backup_t self:capability fsetid;
 
 ## allow load policy to read entropy
 dev_read_rand(load_policy_t)
 dev_read_urand(load_policy_t)
+dev_read_rand(setfiles_t)
+dev_read_urand(setfiles_t)
 
 ## Allow sshd to read maildirs
 gen_tunable(sshd_allow_user_maildir, false)
