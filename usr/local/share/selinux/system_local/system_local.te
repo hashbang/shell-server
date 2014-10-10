@@ -1,11 +1,26 @@
-policy_module(system_local, 1.0.1)
+policy_module(system_local, 1.0.3)
 
 require {
+  attribute user_home_content_type;
   type backup_t;
   type load_policy_t;
+  type logrotate_systemctl_t;
   type setfiles_t;
   type sshd_t;
+  type user_home_dir_t;
+  type useradd_t;
 }
+
+## Useradd should be able to create/delete user data at will
+manage_files_pattern(useradd_t, user_home_dir_t, user_home_content_type)
+manage_dirs_pattern(useradd_t, user_home_dir_t, user_home_content_type)
+
+
+cron_read_pipes(logrotate_systemctl_t)
+cron_rw_system_job_pipes(logrotate_systemctl_t)
+cron_use_fds(logrotate_systemctl_t)
+cron_use_system_job_fds(logrotate_systemctl_t)
+init_read_utmp(logrotate_systemctl_t)
 
 ## ignore cap enhancement to backup_t
 dontaudit backup_t self:capability fsetid;
@@ -18,7 +33,6 @@ dev_read_urand(setfiles_t)
 
 ## Allow sshd to read maildirs
 gen_tunable(sshd_allow_user_maildir, false)
-
 
 tunable_policy(sshd_allow_user_maildir, `
   mta_manage_mail_home_rw_content(sshd_t)

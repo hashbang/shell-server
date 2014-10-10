@@ -1,0 +1,17 @@
+policy_module(ssh_keygen_local, 1.0.0)
+
+require {
+  type ssh_keygen_t;
+  type tmp_t, tmpfs_t;
+}
+
+type ssh_keygen_tmp_t;
+files_tmp_file(ssh_keygen_tmp_t)
+
+## Transitions
+filetrans_pattern(ssh_keygen_tmp_t, tmp_t, ssh_keygen_tmp_t, file)
+filetrans_pattern(ssh_keygen_tmp_t, tmpfs_t, ssh_keygen_tmp_t, file)
+
+#### Rules
+manage_files_pattern(ssh_keygen_t, tmp_t, ssh_keygen_tmp_t)
+manage_files_pattern(ssh_keygen_t, tmpfs_t, ssh_keygen_tmp_t)
