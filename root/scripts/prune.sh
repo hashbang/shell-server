@@ -12,7 +12,8 @@ for user in $users; do
     killall -KILL -u $user
     deluser $user
     crontab -r -u $user
-  else # kill processes of users inactive in last $timeout_days days
+  elif [ ! -f "/home/$user/.keep-account" ]; then
+    # kill processes of users inactive in last $timeout_days days
     last_login=$(
         date -d "$(
             last -FRn 1 $user |
