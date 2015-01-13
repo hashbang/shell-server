@@ -6,7 +6,7 @@ SHELL_SOURCES=/root/Sources/shell-server
 printf "\n\n ---- Cloning #! Shell-Server Repo  ---- \n\n"
 apt-get install -y git
 rm -rf $SHELL_SOURCES
-mkdir $SHELL_SOURCES
+mkdir -p $SHELL_SOURCES
 git clone https://github.com/hashbang/shell-server $SHELL_SOURCES
 
 printf "\n\n ---- Updating To Jessie  ---- \n\n"
