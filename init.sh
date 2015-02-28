@@ -26,14 +26,21 @@ printf "\n\n ---- Installing Packages  ---- \n\n"
 # Note: Do not add anything that requires X11 to
 # this list or lrvick will murder you in the face.
 apt-get install \
+build-essential \
 perl \
 python \
 ruby \
 finger \
-mktemp
+mktemp \
+luarocks \
 lua5.1 \
+lua5.2 \
+lua5.2-dev \
+luajit \
 golang \
 nodejs \
+nodejs-legacy \
+npm \
 sbcl \
 ghc \
 gcc \
