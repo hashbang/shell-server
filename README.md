@@ -1,3 +1,7 @@
+## Note this repo is deprecated in favor of http://github.com/hashbang/shell-etc which is now what is in production.
+## This is here for reference, until everything is migrated over.
+
+
 # Hashbang shell-server
 
 <http://github.com/hashbang/shell-server>
