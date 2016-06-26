@@ -30,9 +30,16 @@ RUN cd /lib/systemd/system/sysinit.target.wants/; \
     rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
     rm -f /lib/systemd/system/basic.target.wants/*;
 
+# Import external etc folder to ensure re-build on etc changes
+ADD etc /etc-git
+
 # Run our generic #! shellbox setup script
 ADD setup.sh /
 RUN bash /setup.sh
+
+# Set upstream to /etc-git to allow for mounting host repo
+RUN git --git-dir=/etc/.git --work-tree=/etc remote rm origin; \
+    git --git-dir=/etc/.git --work-tree=/etc remote add origin /etc-git
 
 # Configure journald to be visible on stdout and `docker logs`
 RUN echo "ForwardToConsole=yes" >> /etc/systemd/journald.conf
