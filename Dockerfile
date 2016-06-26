@@ -31,13 +31,9 @@ RUN bash /setup.sh
 RUN git --git-dir=/etc/.git --work-tree=/etc remote rm origin; \
     git --git-dir=/etc/.git --work-tree=/etc remote add origin /etc-git
 
-# Configure journald to be visible on stdout and `docker logs`
-RUN echo "ForwardToConsole=yes" >> /etc/systemd/journald.conf
-
-RUN systemctl set-default multi-user.target
-
 # Allow incoming ports
 EXPOSE 22
 
 # Start systemd
 ENTRYPOINT ["/lib/systemd/systemd"]
+CMD ["systemd.unit=multi-user.target"]
