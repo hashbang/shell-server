@@ -28,14 +28,6 @@ fi
 cp /etc-git/apt/preferences /etc/apt/preferences
 cp /etc-git/apt/sources.list /etc/apt/sources.list
 
-# Set fastest apt mirror from httpredir but don't use directly.
-apt_mirror=$( \
-	curl -s -D - http://httpredir.debian.org/demo/debian/ | \
-	awk '/^Link:/ { print $2 }' | \
-	sed -e 's@<http://\(.*\)/debian/>;@\1@g' \
-)
-sed -i "s/httpredir.debian.org/$apt_mirror/" /etc/apt/sources.list
-
 apt-get update
 apt-cache dumpavail | dpkg --update-avail
 dpkg --clear-selections
