@@ -1,0 +1,36 @@
+sudo: required
+services:
+  - docker
+
+cache:
+  directories:
+    - $HOME/bootstrap-vz
+  pip: {}
+
+addons:
+  apt:
+    packages:
+      - kpartx
+      - parted
+      - debootstrap
+      - python-termcolor
+      - python-jsonschema
+      - python-docopt
+      - python-yaml
+      - python-pip
+
+env:
+  global:
+    - REPO=hashbang/shell-server
+
+before_install:
+  - "[ -d ~/bootstrap-vz/.git ] || git clone https://github.com/andsens/bootstrap-vz.git ~/bootstrap-vz"
+  - git -C ~/bootstrap-vz pull --ff-only
+  - sudo -H pip install fysom pyrfc3339
+  
+script:
+  - "[ -d ./etc/.git ] || git clone https://github.com/hashbang/shell-etc.git ./etc"
+  - sudo $HOME/bootstrap-vz/bootstrap-vz manifest.yml
+
+after_success:
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then docker login -u $DOCKER_USER -p $DOCKER_PASS && docker tag shell-server $REPO:latest && docker push $REPO; fi
