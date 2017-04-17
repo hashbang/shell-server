@@ -24,7 +24,7 @@ env:
     - REPO=hashbang/shell-server
 
 before_install:
-  - "[ -d ~/bootstrap-vz/.git ] || git clone https://github.com/andsens/bootstrap-vz.git ~/bootstrap-vz"
+  - "[ -d ~/bootstrap-vz/.git ] || git clone https://github.com/hashbang/bootstrap-vz.git ~/bootstrap-vz"
   - git -C ~/bootstrap-vz pull --ff-only
   - sudo -H pip install fysom pyrfc3339
   
