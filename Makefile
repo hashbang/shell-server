@@ -1,10 +1,13 @@
-.PHONY: all
+.PHONY: all docker qemu clean
 
-all:
+clean:
+	rm -rf dist
+
+all: clean
 	packer build packer.json
 
-docker:
+docker: clean
 	packer build -only docker packer.json
 
-qemu:
+qemu: clean
 	packer build -only qemu packer.json
