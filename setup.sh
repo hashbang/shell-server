@@ -36,6 +36,11 @@ git -C /etc clean -df
 # which got copied over in the previous step
 etckeeper init
 
+# Fix some things that maintainer scripts expect
+# Those should probably be filed as Debian bugs...
+mkdir -p /var/lib/bitlbee
+mkdir -p /usr/local/lib/luarocks/rocks-5.1 #WTF is that even needed?
+
 # Update the apt and dpkg caches
 apt-get update
 apt-cache dumpavail | dpkg --update-avail
