@@ -9,6 +9,7 @@ die() {
 }
 
 # Some basic assumptions
+apt update
 apt install -y apt-transport-https etckeeper
 
 if [ -d /etc-git/ ]; then
@@ -19,10 +20,18 @@ else
 fi
 
 
+# Fix some things that maintainer scripts expect
+# Those should probably be filed as Debian bugs...
+mkdir -p /var/lib/bitlbee
+mkdir -p /usr/local/lib/luarocks/rocks-5.1 #WTF is that even needed?
+apt install gawk # gawk is required for python2.7-minimal
+
+
 # Make sure the root can git-commit
 # This can happen when pkg updates result in conffile changes
 git config --global user.name  "Enoch Root"
 git config --global user.email "root@hashbang.sh"
+
 
 # Apply the new config
 # It is done this way to avoid removing things that are in .gitignore
@@ -36,10 +45,6 @@ git -C /etc clean -df
 # which got copied over in the previous step
 etckeeper init
 
-# Fix some things that maintainer scripts expect
-# Those should probably be filed as Debian bugs...
-mkdir -p /var/lib/bitlbee
-mkdir -p /usr/local/lib/luarocks/rocks-5.1 #WTF is that even needed?
 
 # Update the apt and dpkg caches
 apt-get update
@@ -57,9 +62,11 @@ apt-get upgrade
 aptitude purge -y -q ~c
 apt-get clean
 
+
 # Use msmtp as sendmail(1) implementation, Postfix's is silly
 dpkg-divert /usr/sbin/sendmail
 ln -sf /usr/bin/msmtp /usr/sbin/sendmail
+
 
 # Disable users knowing about other users
 for f in /var/run/utmp /var/log/wtmp /var/log/lastlog; do
@@ -67,18 +74,22 @@ for f in /var/run/utmp /var/log/wtmp /var/log/lastlog; do
     setfacl -m 'group:adm:r' "$f" # Readable by the adm group
 done
 
+
 # If running inside a docker container, exit now
 if [ -f /.dockerenv ]; then
     exit 0
 fi
+
 
 # Turn on logging to disk
 mkdir -p /var/log/journal
 systemd-tmpfiles --create --prefix /var/log/journal
 pkill -USR1 systemd-journal || true # use 'journalctl --flush' once available
 
+
 # Take /etc/default/grub into account
 update-grub
+
 
 # Minimize the size of the disk image if fstrim is available
 if [ -x /sbin/fstrim ]; then
