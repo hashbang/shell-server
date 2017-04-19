@@ -18,6 +18,12 @@ else
     git clone https://github.com/hashbang/shell-etc.git /etc-git
 fi
 
+
+# Make sure the root can git-commit
+# This can happen when pkg updates result in conffile changes
+git config --global user.name  "Enoch Root"
+git config --global user.email "root@hashbang.sh"
+
 # Apply the new config
 # It is done this way to avoid removing things that are in .gitignore
 rm -rf /etc/.git
