@@ -70,6 +70,6 @@ pkill -USR1 systemd-journal || true # use 'journalctl --flush' once available
 update-grub
 
 # Minimize the size of the disk image if fstrim is available
-if [ -x /sbin/fstrim ];
+if [ -x /sbin/fstrim ]; then
    fstrim -av
 fi
