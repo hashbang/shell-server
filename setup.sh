@@ -8,6 +8,10 @@ die() {
     exit 1
 }
 
+in_docker() {
+    [ -f /.dockerenv ]
+}
+
 # Some basic assumptions
 apt update
 apt install -y apt-transport-https etckeeper
@@ -76,7 +80,7 @@ done
 
 
 # If running inside a docker container, exit now
-if [ -f /.dockerenv ]; then
+if in_docker; then
     exit 0
 fi
 
