@@ -10,6 +10,7 @@
       "format": "qcow2",
       "headless": "{{ user `headless` }}",
       "accelerator": "kvm",
+      "disk_interface": "virtio-scsi",
       "disk_size": "{{ user `disk_size` }}",
       "iso_url": "https://cdimage.debian.org/debian-cd/8.7.1/amd64/iso-cd/debian-8.7.1-amd64-netinst.iso",
       "iso_checksum": "749a15b7690769dd99e85d6104182a03d370b04b36106ec7cfaf6a551aa89fb4",
