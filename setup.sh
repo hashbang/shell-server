@@ -24,7 +24,7 @@ fi
 # Those should probably be filed as Debian bugs...
 mkdir -p /var/lib/bitlbee
 mkdir -p /usr/local/lib/luarocks/rocks-5.1 #WTF is that even needed?
-apt install gawk # gawk is required for python2.7-minimal
+apt install -y gawk # gawk is required for python2.7-minimal
 
 
 # Make sure the root can git-commit
@@ -55,7 +55,7 @@ dpkg --clear-selections
 dpkg --set-selections < /etc/packages.txt
 
 # Install packages, keep the configuration from git
-apt-get dselect-upgrade -o Dpkg::Options::="--force-confold" -q -y
+apt-get dselect-upgrade -o Dpkg::Options::="--force-confold" -q -y --force-yes
 apt-get upgrade
 
 # Purge uninstalled packages and the package cache
