@@ -37,6 +37,13 @@ git config --global user.name  "Enoch Root"
 git config --global user.email "root@hashbang.sh"
 
 
+# Deal with Docker quirks
+if in_docker; then
+    echo 'resolvconf resolvconf/linkify-resolvconf boolean false' | \
+	debconf-set-selections
+fi
+
+
 # Apply the new config
 # It is done this way to avoid removing things that are in .gitignore
 rm -rf /etc/.git
