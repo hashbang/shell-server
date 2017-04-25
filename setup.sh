@@ -56,7 +56,6 @@ git -C /etc clean -df
 # which got copied over in the previous step
 etckeeper init
 
-
 # Update the apt and dpkg caches
 apt-get update
 apt-cache dumpavail | dpkg --update-avail
@@ -73,11 +72,9 @@ apt-get upgrade
 aptitude purge -y -q ~c
 apt-get clean
 
-
 # Use msmtp as sendmail(1) implementation, Postfix's is silly
 dpkg-divert /usr/sbin/sendmail
 ln -sf /usr/bin/msmtp /usr/sbin/sendmail
-
 
 # Disable users knowing about other users
 for f in /var/run/utmp /var/log/wtmp /var/log/lastlog; do
@@ -85,22 +82,41 @@ for f in /var/run/utmp /var/log/wtmp /var/log/lastlog; do
     setfacl -m 'group:adm:r' "$f" # Readable by the adm group
 done
 
-
-# If running inside a docker container, exit now
+# Make docker-specific changes and exit
 if in_docker; then
+	cd /lib/systemd/system/sysinit.target.wants/
+	ls | grep -v systemd-tmpfiles-setup.service | xargs rm -f
+	rm -f /lib/systemd/system/sockets.target.wants/*udev*
+	systemctl mask -- \
+		tmp.mount \
+		etc-hostname.mount \
+		etc-hosts.mount \
+		etc-resolv.conf.mount \
+		-.mount \
+		swap.target \
+		getty.target \
+		getty-static.service \
+		dev-mqueue.mount \
+		systemd-tmpfiles-setup-dev.service \
+		systemd-remount-fs.service \
+		systemd-ask-password-wall.path \
+		systemd-logind.service && \
+	systemctl set-default multi-user.target || true
+	ln -s /lib/systemd/system/systemd-logind.service /etc/systemd/system/multi-user.target.wants/systemd-logind.service
+	ln -s /lib/systemd/system/dbus.socket /etc/systemd/system/sockets.target.wants/dbus.socket
+	sed -ri /etc/systemd/journald.conf -e 's!^#?Storage=.*!Storage=volatile!'
+    echo 'ForwardToConsole=yes' >> /etc/systemd/journald.conf
+    systemctl set-default multi-user.target
+    systemctl enable ssh
     exit 0
 fi
 
-
-# Turn on logging to disk
 mkdir -p /var/log/journal
 systemd-tmpfiles --create --prefix /var/log/journal
 pkill -USR1 systemd-journal || true # use 'journalctl --flush' once available
 
-
 # Take /etc/default/grub into account
 update-grub
-
 
 # Minimize the size of the disk image if fstrim is available
 if [ -x /sbin/fstrim ]; then

@@ -36,7 +36,25 @@
       "name": "docker",
       "type": "docker",
       "image": "debian:jessie",
-      "export_path": "dist/docker.tar"
+      "commit": "true",
+      "changes": [
+        "ENV container=docker",
+        "VOLUME ['/sys/fs/cgroup','/run','/run/lock','/tmp']",
+        "EXPOSE 20 80 443",
+        "ENTRYPOINT /sbin/init"
+      ]
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "docker-tag",
+      "only": ["docker"],
+      "repository": "hashbang/shell-server",
+      "tag": "latest"
+    },
+    {
+      "type": "vagrant",
+      "only": ["qemu"]
     }
   ],
   "provisioners": [
