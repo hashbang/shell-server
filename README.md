@@ -24,6 +24,7 @@ Generally you want to use our pre-built images as follows.
   docker run \
     -ti \
     -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
+    -p 2222:22 \
     --stop-signal SIGRTMIN+3 \
     --cap-add=SYS_ADMIN \
     --cap-add SYS_RESOURCE \
