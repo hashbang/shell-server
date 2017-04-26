@@ -20,9 +20,12 @@ pulling data from several locations:
 Generally you want to use our pre-built images as follows.
 
 ### Docker ###
+
+  Start server:
   ```
   docker run \
     -ti \
+    --name shell-server \
     -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
     -p 2222:22 \
     --stop-signal SIGRTMIN+3 \
@@ -30,6 +33,16 @@ Generally you want to use our pre-built images as follows.
     --cap-add SYS_RESOURCE \
     --entrypoint "/sbin/init" \
     hashbang/shell-server:latest
+  ```
+
+  Root shell:
+  ```
+  docker exec -it shell-server bash
+  ```
+
+  User shell:
+  ```
+  ssh -p2222 your-hashbang-user@localhost
   ```
 
 [etckeeper]: http://etckeeper.branchable.com/
