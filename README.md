@@ -23,7 +23,7 @@ Or build a specific image type such as vagrant:
 make vagrant
 ```
 
-All artifacts will be in the ```$PWD/dist```.
+All artifacts will be placed in ```$PWD/dist```.
 
 ## Publishing ##
 
