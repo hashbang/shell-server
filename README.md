@@ -48,7 +48,7 @@ You will need a #! account to use these, as they authenticate users against
 our NSS services by default.
 
 These are intended to mirror the flow of you setting up a federated server as
-per the Deployment section of this Readme.
+per the [Deployment] section of this Readme.
 
 For a -fully- local development infrastructure consider the e2e
 testing/development suite found in the [hashbang] repo.
@@ -181,7 +181,7 @@ To set this up on a live server, perform the following:
     wget https://raw.githubusercontent.com/hashbang/shell-server/master/scripts/setup.sh
     bash setup.sh
     ```
-
+[Deployment]: #deployment
 [etckeeper]: http://etckeeper.branchable.com/
 [hashbang]: http://github.com/hashbang/hashbang/
 [shell-etc]: https://github.com/hashbang/shell-etc/
