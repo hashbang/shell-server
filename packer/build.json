@@ -89,7 +89,17 @@
     },
     {
       "type": "shell-local",
-      "inline": ["cp .packer/build/qemu/packer-qemu dist/qemu-{{ user `version` }}.qcow2"],
+      "inline": [
+        "ln -s docker-{{ user `version` }}.tar.gz dist/docker-latest.tar.gz"
+      ],
+      "only": ["docker"]
+    },
+    {
+      "type": "shell-local",
+      "inline": [
+        "cp .packer/build/qemu/packer-qemu dist/qemu-{{ user `version` }}.qcow2",
+        "ln -s qemu-{{ user `version` }}.qcow2 dist/qemu-latest.qcow2"
+      ],
       "only": ["qemu"]
     },
     {
@@ -100,7 +110,11 @@
     },
     {
       "type": "shell-local",
-      "inline": ["cp .packer/build/virtualbox/*.ova dist/virtualbox-{{ user `version` }}.ova"],
+      "inline": [
+        "cp .packer/build/virtualbox/*.ova dist/virtualbox-{{ user `version` }}.ova",
+        "ln -s virtualbox-{{ user `version` }}.ova dist/docker-latest.ova",
+        "ln -s vagrant-{{ user `version` }}.box dist/vagrant-latest.box"
+      ],
       "only": ["virtualbox"]
     },
     {
