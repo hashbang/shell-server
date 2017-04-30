@@ -1,6 +1,7 @@
 .PHONY: all docker qemu vagrant clean
 
 SHELL=/bin/bash
+export CHECKPOINT_DISABLE := 1
 export PACKER_CACHE_DIR := \
 	$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))/.packer/cache
 export VERSION := $(shell date -u +%Y%m%d%H%M)
@@ -9,7 +10,8 @@ clean:
 	rm -rf dist
 	rm -rf .packer/build
 
-all: clean docker qemu vagrant
+all: clean
+	packer build --parallel=false packer/build.json
 
 docker:
 	rm -rf dist/*docker*
@@ -28,10 +30,4 @@ vagrant:
 	packer build -only virtualbox packer/build.json
 
 publish:
-	for file in dist/*; do \
-		gpg \
-			--local-user D2C4C74D8FAA96F5 \
-			--detach-sig \
-			$$file ; \
-	done
-	packer build packer/publish.json
+	bash scripts/publish.sh
