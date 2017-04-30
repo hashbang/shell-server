@@ -25,7 +25,7 @@ make vagrant
 
 All artifacts will be placed in ```$PWD/dist```.
 
-## Publishing ##
+## Releasing ##
 
 1. Copy config sample and populate with your credentials as desired:
 
@@ -34,9 +34,9 @@ All artifacts will be placed in ```$PWD/dist```.
     vim config.json
     ```
 
-2. Build all image types
+2. Build, sign, and publish all image types
     ```
-    make publish
+    make build release
     ```
 ## Development ##
 

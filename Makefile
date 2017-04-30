@@ -29,5 +29,5 @@ vagrant:
 	rm -rf .packer/build/virtualbox
 	packer build -only virtualbox packer/build.json
 
-publish:
-	bash scripts/publish.sh
+release:
+	bash scripts/release.sh
