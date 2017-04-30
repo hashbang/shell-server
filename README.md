@@ -12,20 +12,22 @@ pulling data from several locations:
 
 ## Building ##
 
-  Build all image types
-  ```
-  make all
-  ```
+Build all image types
+
+```
+make all
+```
 
 ## Publishing ##
 
-  1. Copy config sample and populate with your credentials as desired:
+1. Copy config sample and populate with your credentials as desired:
+
     ```
     cp config.sample.json config.json
     vim config.json
     ```
 
-  2. Build all image types
+2. Build all image types
     ```
     make publish
     ```
@@ -46,66 +48,66 @@ testing/development suite found in the [hashbang] repo.
 
 ### Docker ###
 
-  Start server:
-  ```
-  docker run \
-    -ti \
-    --name shell-server \
-    -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
-    -p 2222:22 \
-    --stop-signal SIGRTMIN+3 \
-    --cap-add SYS_ADMIN \
-    --cap-add SYS_RESOURCE \
-    hashbang/shell-server:latest \
-    /sbin/init
-  ```
+Start server:
+```
+docker run \
+  -ti \
+  --name shell-server \
+  -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
+  -p 2222:22 \
+  --stop-signal SIGRTMIN+3 \
+  --cap-add SYS_ADMIN \
+  --cap-add SYS_RESOURCE \
+  hashbang/shell-server:latest \
+  /sbin/init
+```
 
-  Root shell:
-  ```
-  docker exec -it shell-server bash
-  ```
+Root shell:
+```
+docker exec -it shell-server bash
+```
 
-  User shell:
-  ```
-  ssh -p2222 your-hashbang-user@localhost
-  ```
+User shell:
+```
+ssh -p2222 your-hashbang-user@localhost
+```
 
 ### Vagrant ###
 
-  Start server:
-  ```
-  vagrant init hashbang/shell-server
-  vagrant up
-  ```
+Start server:
+```
+vagrant init hashbang/shell-server
+vagrant up
+```
 
-  Root shell:
-  ```
-  vagrant ssh
-  ```
+Root shell:
+```
+vagrant ssh
+```
 
-  User shell:
-  ```
-  ssh -p2222 your-hashbang-user@localhost
-  ```
+User shell:
+```
+ssh -p2222 your-hashbang-user@localhost
+```
 
 ### Qemu ###
 
-  Download Image:
-  ```
-  wget https://builds.hashbang.sh/shell-server/qemu-latest.qcow2
-  ```
+Download Image:
+```
+wget https://builds.hashbang.sh/shell-server/qemu-latest.qcow2
+```
 
-  Start server:
-  ```
-  ```
+Start server:
+```
+```
 
-  Root shell:
-  ```
-  ```
+Root shell:
+```
+```
 
-  User shell:
-  ```
-  ```
+User shell:
+```
+```
 
 ### LXC ###
 TBD
