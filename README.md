@@ -21,8 +21,8 @@ pulling data from several locations:
 
   1. Copy config sample and populate with your credentials as desired:
     ```
-    cp packer.cfg.sample packer.cfg
-    vim packer.cfg
+    cp config.sample.json config.json
+    vim config.json
     ```
 
   2. Build all image types
@@ -118,14 +118,63 @@ TBD
 TBD
 
 ### Bare Meal ###
-TBD
+To set this up on a live server, perform the following:
 
-## Design ##
+1. Adjust partitions to match [fstab.sample]
+
+    Typically you would specify a secondary drive for /home when you provision
+    your server allowing you to use fstab.sample almost as-is.
+
+    Sometimes that is not an option.
+
+    To reprovision a single disk live system consider these steps:
+
+    1. Go to the "Virtual Console" feature in your provider.
+    2. Reboot to Grub bootloader screen
+    3. Hit <Enter> on first boot option
+    4. Add ```break=premount``` to the end of the kernel line
+    5. <Ctrl-X> to boot
+    6. Copy rootfs files into ram
+      ```
+      mkdir /mnt
+      modprobe ext4
+      mount /dev/sda1 /mnt
+      cp -R /mnt/* /
+      umount /dev/sda1
+      ```
+    7. Shrink rootfs and create /home partition
+      ```
+      e2fsck -f /dev/sda1
+      resize2fs /dev/sda1 20G
+      echo "d
+      1
+      n
+      p
+      1
+
+      +20G
+      w
+      n
+      p
+      2
 
 
-The only supported Deployment methods at this time are
+      " | fdisk /dev/sda1
+      ```
+    8. Reboot
+    9. Adjust fstab to match: [fstab.sample]
+    10. Reboot
+
+2. Run setup script
+
+    ```bash
+    ssh $INSTANCE_IP
+    wget https://raw.githubusercontent.com/hashbang/shell-server/master/scripts/setup.sh
+    bash setup.sh
+    ```
 
 [etckeeper]: http://etckeeper.branchable.com/
 [hashbang]: http://github.com/hashbang/hashbang/
 [shell-etc]: https://github.com/hashbang/shell-etc/
 [dotfiles]:  https://github.com/hashbang/dotfiles/
+[fstab.sample]: https://raw.githubusercontent.com/hashbang/shell-etc/master/fstab.sample
