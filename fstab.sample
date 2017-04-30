@@ -1,6 +1,0 @@
-# <file system> <mount point> <type>   <options>                 <dump> <pass>
-/dev/xvda1      /             ext3     errors=remount-ro,noatime,barrier=0 0 1
-/dev/xvda2      /home         ext4     defaults,nosuid,nodev,usrquota      0 2
-proc            /proc         proc     defaults,hidepid=2                  0 0
-udev            /dev          devtmpfs defaults,nosuid,noatime             0 0
-devpts          /dev/pts      devpts   defaults,newinstance,ptmxmode=0666  0 0
