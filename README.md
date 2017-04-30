@@ -97,7 +97,7 @@ User shell:
 ssh -p2222 your-hashbang-user@localhost
 ```
 
-### Qemu ###
+### Libvirt/KVM ###
 
 Download Image:
 ```
@@ -106,14 +106,26 @@ wget https://builds.hashbang.sh/shell-server/qemu-latest.qcow2
 
 Start server:
 ```
+virt-install \
+  --name shell-server \
+  --os-type linux \
+  --ram 512 \
+  --vcpus 2 \
+  --disk path=qemu-latest.qcow2 \
+  --network network:default \
+  --noautoconsole \
+  --import \
+  --force
 ```
 
 Root shell:
 ```
+TBD
 ```
 
 User shell:
 ```
+virsh --connect qemu+ssh://username@shell-server/system
 ```
 
 ### LXC ###
