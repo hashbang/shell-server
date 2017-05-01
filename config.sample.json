@@ -4,5 +4,6 @@
   "docker_user": "username",
   "docker_pass": "password",
   "atlas_token": "token",
-  "bintray_token": "token"
+  "bintray_user": "username",
+  "bintray_key": "api_key"
 }
