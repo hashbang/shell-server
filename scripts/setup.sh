@@ -116,7 +116,9 @@ systemd-tmpfiles --create --prefix /var/log/journal
 pkill -USR1 systemd-journal || true # use 'journalctl --flush' once available
 
 # Take /etc/default/grub into account
-update-grub
+if ! in_docker; then
+    update-grub
+fi
 
 # Minimize the size of the disk image if fstrim is available
 if [ -x /sbin/fstrim ]; then
