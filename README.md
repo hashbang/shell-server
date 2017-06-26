@@ -23,7 +23,7 @@ Or build a specific image type such as vagrant:
 make vagrant
 ```
 
-All artifacts will be placed in ```$PWD/dist```.
+All artifacts will be placed in `$PWD/dist`.
 
 ## Releasing ##
 
@@ -50,7 +50,7 @@ our NSS services by default.
 These are intended to mirror the flow of you setting up a federated server as
 per the [Deployment] section of this Readme.
 
-For a -fully- local development infrastructure consider the e2e
+For completely self-hosted development infrastructure consider the e2e
 testing/development suite found in the [hashbang] repo.
 
 ### Docker ###
@@ -58,7 +58,7 @@ testing/development suite found in the [hashbang] repo.
 Start server:
 ```
 docker run \
-  -ti \
+  -it \
   --name shell-server \
   -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
   -p 2222:22 \
@@ -138,7 +138,7 @@ TBD
 ### DigitalOcean ###
 TBD
 
-### Bare Meal ###
+### Bare Metal ###
 To set this up on a live server, perform the following:
 
 1. Adjust partitions to match [fstab.sample]
