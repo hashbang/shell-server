@@ -40,7 +40,7 @@ git config --global user.email "root@hashbang.sh"
 # Deal with Docker quirks
 if in_docker; then
     echo 'resolvconf resolvconf/linkify-resolvconf boolean false' | \
-	debconf-set-selections
+    debconf-set-selections
 fi
 
 
@@ -84,27 +84,27 @@ done
 
 # Make docker-specific changes and exit
 if in_docker; then
-	cd /lib/systemd/system/sysinit.target.wants/
-	ls | grep -v systemd-tmpfiles-setup.service | xargs rm -f
-	rm -f /lib/systemd/system/sockets.target.wants/*udev*
-	systemctl mask -- \
-		tmp.mount \
-		etc-hostname.mount \
-		etc-hosts.mount \
-		etc-resolv.conf.mount \
-		-.mount \
-		swap.target \
-		getty.target \
-		getty-static.service \
-		dev-mqueue.mount \
-		systemd-tmpfiles-setup-dev.service \
-		systemd-remount-fs.service \
-		systemd-ask-password-wall.path \
-		systemd-logind.service && \
-	systemctl set-default multi-user.target || true
-	ln -s /lib/systemd/system/systemd-logind.service /etc/systemd/system/multi-user.target.wants/systemd-logind.service
-	ln -s /lib/systemd/system/dbus.socket /etc/systemd/system/sockets.target.wants/dbus.socket
-	sed -ri /etc/systemd/journald.conf -e 's!^#?Storage=.*!Storage=volatile!'
+    cd /lib/systemd/system/sysinit.target.wants/
+    ls | grep -v systemd-tmpfiles-setup.service | xargs rm -f
+    rm -f /lib/systemd/system/sockets.target.wants/*udev*
+    systemctl mask -- \
+        tmp.mount \
+        etc-hostname.mount \
+        etc-hosts.mount \
+        etc-resolv.conf.mount \
+        -.mount \
+        swap.target \
+        getty.target \
+        getty-static.service \
+        dev-mqueue.mount \
+        systemd-tmpfiles-setup-dev.service \
+        systemd-remount-fs.service \
+        systemd-ask-password-wall.path \
+        systemd-logind.service && \
+    systemctl set-default multi-user.target || true
+    ln -s /lib/systemd/system/systemd-logind.service /etc/systemd/system/multi-user.target.wants/systemd-logind.service
+    ln -s /lib/systemd/system/dbus.socket /etc/systemd/system/sockets.target.wants/dbus.socket
+    sed -ri /etc/systemd/journald.conf -e 's!^#?Storage=.*!Storage=volatile!'
     echo 'ForwardToConsole=yes' >> /etc/systemd/journald.conf
     systemctl set-default multi-user.target
     systemctl enable ssh
