@@ -69,7 +69,7 @@ apt-get dselect-upgrade -o Dpkg::Options::="--force-confold" -q -y --force-yes
 apt-get upgrade
 
 # Purge uninstalled packages and the package cache
-aptitude purge -y -q ~c
+aptitude purge -y -q '~c'
 apt-get clean
 
 # Use msmtp as sendmail(1) implementation, Postfix's is silly
