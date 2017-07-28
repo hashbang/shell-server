@@ -2,7 +2,7 @@
   "variables": {
     "disk_size": "100000",
     "headless": "true",
-    "iso_url": "https://cdimage.debian.org/debian-cd/8.8.0/amd64/iso-cd/debian-8.8.0-amd64-netinst.iso",
+    "iso_url": "https://cdimage.debian.org/cdimage/archive/8.8.0/amd64/iso-cd/debian-8.8.0-amd64-netinst.iso",
     "iso_checksum": "2c07ff8cc766767610566297b8729740f923735e790c8e78b718fb93923b448e",
     "version": "{{ env `VERSION`}}"
   },
