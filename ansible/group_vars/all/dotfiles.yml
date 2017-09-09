@@ -1,0 +1,11 @@
+---
+- repository: "https://github.com/hashbang/dotfiles"
+  stow:
+    - bash
+    - git
+    - gnupg
+    - hashbang
+    - ssh
+    - tmux
+    - weechat
+    - zsh

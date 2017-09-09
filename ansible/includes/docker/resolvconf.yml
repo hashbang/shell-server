@@ -1,0 +1,6 @@
+---
+# Do not install resolvconf packages
+
+- shell: |
+    debconf-set-selections <<< \
+            "resolvconf resolvconf/linkify-resolvconf" boolean false

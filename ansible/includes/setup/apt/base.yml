@@ -1,0 +1,18 @@
+---
+- apt_repository:
+    repo: deb https://deb.torproject.org/torproject.org jessie main
+
+- apt_repository:
+    repo: deb https://weechat.org/debian jessie main
+- apt_repository:
+    repo: deb-src https://weechat.org/debian jessie main
+
+- name: Update apt repositories
+  apt:
+    update_cache: yes
+
+- name: Update and install required packages
+  apt:
+    name: "{{ item }}"
+  with_items:
+    - apt-transport-https

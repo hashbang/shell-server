@@ -14,19 +14,12 @@ all: clean
 	packer build --parallel=false packer/build.json
 
 docker:
-	rm -rf dist/*docker*
-	rm -rf .packer/build/docker
 	packer build -only docker packer/build.json
 
 qemu:
-	rm -rf dist/*qemu*
-	rm -rf .packer/build/qemu
 	packer build -only qemu packer/build.json
 
 vagrant:
-	rm -rf dist/*vagrant*
-	rm -rf dist/*virtualbox*
-	rm -rf .packer/build/virtualbox
 	packer build -only virtualbox packer/build.json
 
 release:

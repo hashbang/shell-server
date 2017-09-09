@@ -1,0 +1,18 @@
+---
+
+
+- include: includes/setup/apt/base.yml
+- include: includes/setup/misc.yml
+
+- include: includes/setup/install-config.yml
+- include: includes/docker/resolvconf.yml
+- include: includes/setup/apt/configure-selections.yml
+
+- include: includes/config/tools/msmtp.yml
+# optional depending on whether or not we version-control the unit files
+# which we probably won't
+- include: includes/docker/disable-systemd-units.yml
+
+- include: includes/machine/setup-journal.yml
+- include: includes/machine/update-grub.yml
+- include: includes/machine/fstrim.yml
