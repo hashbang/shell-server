@@ -116,16 +116,6 @@
         "ln -s vagrant-{{ user `version` }}.box dist/vagrant-latest.box"
       ],
       "only": ["virtualbox"]
-    },
-    {
-      "type": "manifest",
-      "output": ".packer/build/manifest.json",
-      "strip_path": true
-    },
-    {
-      "type": "checksum",
-      "checksum_types": ["md5","sha1", "sha256", "sha512"],
-      "output": ".packer/build/checksums.txt"
     }
   ]]
 }
