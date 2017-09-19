@@ -22,7 +22,7 @@
       "ssh_username": "root",
       "ssh_password": "shell",
       "shutdown_command": "shutdown -h now",
-      "ssh_wait_timeout": "60m",
+      "ssh_wait_timeout": "120m",
       "boot_wait": "2s",
       "boot_command": [
         "<esc><wait><wait>",
