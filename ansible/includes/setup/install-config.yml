@@ -1,28 +1,29 @@
 ---
-- name: Lua config files
-  template:
-    src: templates/lua/{{ item }}
-    dest: /etc/{{ item }}
-    owner: root
-  with_items:
-    - luarocks/config-5.3.lua
-    - luarocks/config-5.1.lua
-    - luarocks/config-5.2.lua
+- tasks:
+  - name: Lua config files
+    template:
+      src: templates/lua/{{ item }}
+      dest: /etc/{{ item }}
+      owner: root
+    with_items:
+      - luarocks/config-5.3.lua
+      - luarocks/config-5.1.lua
+      - luarocks/config-5.2.lua
 
-- name: msmtp config file
-  template:
-    src: templates/msmtp/msmtprc.j2
-    dest: /etc/msmtprc.j2
-    owner: root
+  - name: msmtp config file
+    template:
+      src: templates/msmtp/msmtprc.j2
+      dest: /etc/msmtprc.j2
+      owner: root
 
-- name: systemd config files
-  template:
-    src: templates/systemd/{{ item }}
-    dest: /etc/{{ item }}
-    owner: root
-  with_items:
-    - systemd/system/crontab@.service
-    - systemd/system/crontab@day.service
-    - systemd/system/crontab@.timer
-    - systemd/system/crontab.target
-    - systemd/journald.conf
+  - name: systemd config files
+    template:
+      src: templates/systemd/{{ item }}
+      dest: /etc/{{ item }}
+      owner: root
+    with_items:
+      - systemd/system/crontab@.service
+      - systemd/system/crontab@day.service
+      - systemd/system/crontab@.timer
+      - systemd/system/crontab.target
+      - systemd/journald.conf

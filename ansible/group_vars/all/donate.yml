@@ -1,4 +1,4 @@
 ---
 - bitcoin: "1DtTvCLiUMhs21QcETQzLyiqxoopUjqBSU"
-  google_wallet: "donate@hashbang.sh"
-  paypal: "http://goo.gl/aSQWy0"
+- google_wallet: "donate@hashbang.sh"
+- paypal: "http://goo.gl/aSQWy0"

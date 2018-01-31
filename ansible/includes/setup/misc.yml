@@ -1,17 +1,18 @@
 ---
 # Fix some assumptions that shouldn't need to be fixed
-- shell: mkdir -p /var/lib/bitlbee
-- shell: mkdir -p /usr/local/lib/luarocks/rocks-5.1
+- tasks:
+  - shell: mkdir -p /var/lib/bitlbee
+  - shell: mkdir -p /usr/local/lib/luarocks/rocks-5.1
 
-- apt:  # Required to install python2.7-minimal
-    name: gawk
+  - apt:  # Required to install python2.7-minimal
+      name: gawk
 
-# Set up modes for some (currently) user-readable files
+  # Set up modes for some (currently) user-readable files
 
-- shell: |
-    chmod 0660 "{{ item }}"
-    setfacl -m 'group:adm:r' "{{ item }}"
-  with_items:
-    - /var/run/utmp
-    - /var/log/wtmp
-    - /var/log/lastlog
+  - shell: |
+      chmod 0660 "{{ item }}"
+      setfacl -m 'group:adm:r' "{{ item }}"
+    with_items:
+      - /var/run/utmp
+      - /var/log/wtmp
+      - /var/log/lastlog

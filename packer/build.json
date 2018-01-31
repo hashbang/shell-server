@@ -1,9 +1,9 @@
 {
   "variables": {
     "disk_size": "100000",
-    "headless": "true",
-    "iso_url": "https://cdimage.debian.org/cdimage/archive/8.8.0/amd64/iso-cd/debian-8.8.0-amd64-netinst.iso",
-    "iso_checksum": "2c07ff8cc766767610566297b8729740f923735e790c8e78b718fb93923b448e",
+    "headless": "false",
+    "iso_url": "https://cdimage.debian.org/cdimage/archive/8.10.0/amd64/iso-cd/debian-8.10.0-amd64-netinst.iso",
+    "iso_checksum": "896cc42998edf65f1db4eba83581941fb2a584f2214976432b841af96b17ccda",
     "version": "{{ env `VERSION`}}"
   },
   "builders": [
@@ -77,8 +77,12 @@
   ],
   "provisioners": [
     {
-      "type": "shell",
-      "script": "scripts/setup.sh"
+        "type": "shell",
+        "inline": ["apt install --yes python-apt"]
+    },
+    {
+      "type": "ansible",
+      "playbook_file": "ansible/main.yml"
     }
   ],
   "post-processors": [[
