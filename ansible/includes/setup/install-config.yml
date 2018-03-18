@@ -1,5 +1,6 @@
 ---
-- tasks:
+- hosts: all
+  tasks:
   - name: Lua config files
     template:
       src: templates/lua/{{ item }}

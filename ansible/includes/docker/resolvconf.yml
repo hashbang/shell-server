@@ -1,7 +1,7 @@
 ---
 # Do not install resolvconf packages
-
-- tasks:
+- hosts: all
+  tasks:
   - shell: |
       debconf-set-selections <<< \
               "resolvconf resolvconf/linkify-resolvconf" boolean false
