@@ -1,9 +1,11 @@
 {
   "variables": {
-    "disk_size": "100000",
-    "headless": "false",
-    "iso_url": "https://cdimage.debian.org/cdimage/archive/8.10.0/amd64/iso-cd/debian-8.10.0-amd64-netinst.iso",
-    "iso_checksum": "896cc42998edf65f1db4eba83581941fb2a584f2214976432b841af96b17ccda",
+    "disk_size": "10000",
+    "memory": "4G",
+    "cpus": "2",
+    "headless": "true",
+    "iso_url": "https://cdimage.debian.org/debian-cd/9.4.0/amd64/iso-cd/debian-9.4.0-amd64-netinst.iso",
+    "iso_checksum": "124d270006703f2111224dec3bf7a9d01450168be41d4834f88fdd035552b044",
     "version": "{{ env `VERSION`}}"
   },
   "builders": [
@@ -32,6 +34,10 @@
         "interface=auto ",
         "url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
         "<enter>"
+      ],
+      "qemuargs": [
+        [ "-m", "{{ user `memory` }}" ],
+        [ "-smp", "cpus={{ user `cpus`}}"]
       ],
       "output_directory": ".packer/build/qemu/"
     },
