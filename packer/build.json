@@ -24,7 +24,7 @@
       "ssh_username": "root",
       "ssh_password": "shell",
       "shutdown_command": "shutdown -h now",
-      "ssh_wait_timeout": "60m",
+      "ssh_wait_timeout": "120m",
       "boot_wait": "2s",
       "boot_command": [
         "<esc><wait><wait>",
@@ -126,16 +126,6 @@
         "ln -s vagrant-{{ user `version` }}.box dist/vagrant-latest.box"
       ],
       "only": ["virtualbox"]
-    },
-    {
-      "type": "manifest",
-      "output": ".packer/build/manifest.json",
-      "strip_path": true
-    },
-    {
-      "type": "checksum",
-      "checksum_types": ["md5","sha1", "sha256", "sha512"],
-      "output": ".packer/build/checksums.txt"
     }
   ]]
 }
