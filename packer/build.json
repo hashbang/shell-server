@@ -1,9 +1,11 @@
 {
   "variables": {
-    "disk_size": "100000",
+    "disk_size": "10000",
+    "memory": "4G",
+    "cpus": "2",
     "headless": "true",
-    "iso_url": "https://cdimage.debian.org/debian-cd/8.8.0/amd64/iso-cd/debian-8.8.0-amd64-netinst.iso",
-    "iso_checksum": "2c07ff8cc766767610566297b8729740f923735e790c8e78b718fb93923b448e",
+    "iso_url": "https://cdimage.debian.org/debian-cd/9.4.0/amd64/iso-cd/debian-9.4.0-amd64-netinst.iso",
+    "iso_checksum": "124d270006703f2111224dec3bf7a9d01450168be41d4834f88fdd035552b044",
     "version": "{{ env `VERSION`}}"
   },
   "builders": [
@@ -32,6 +34,10 @@
         "interface=auto ",
         "url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
         "<enter>"
+      ],
+      "qemuargs": [
+        [ "-m", "{{ user `memory` }}" ],
+        [ "-smp", "cpus={{ user `cpus`}}"]
       ],
       "output_directory": ".packer/build/qemu/"
     },
@@ -77,8 +83,12 @@
   ],
   "provisioners": [
     {
-      "type": "shell",
-      "script": "scripts/setup.sh"
+        "type": "shell",
+        "inline": ["apt install --yes python-apt"]
+    },
+    {
+      "type": "ansible",
+      "playbook_file": "ansible/main.yml"
     }
   ],
   "post-processors": [[

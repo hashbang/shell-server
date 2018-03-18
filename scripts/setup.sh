@@ -43,6 +43,7 @@ if in_docker; then
     debconf-set-selections
 fi
 
+# config/install-base
 
 # Apply the new config
 # It is done this way to avoid removing things that are in .gitignore
@@ -76,6 +77,7 @@ apt-get clean
 dpkg-divert /usr/sbin/sendmail
 ln -sf /usr/bin/msmtp /usr/sbin/sendmail
 
+# setup/misc.yml
 # Disable users knowing about other users
 for f in /var/run/utmp /var/log/wtmp /var/log/lastlog; do
     chmod 0660 "$f"               # Not readable by default users

@@ -1,0 +1,21 @@
+---
+- hosts: all
+  tasks:
+
+  - name: Prevent user access to some sensitive files
+    block:
+      - file:
+          mode: 0660
+          path: '{{ item }}'
+        with_items:
+          - /var/run/utmp
+          - /var/log/wtmp
+          - /var/log/lastlog
+      - acl:
+          path: '{{ item }}'
+          entry: 'group:adm:r'
+          state: present
+        with_items:
+          - /var/run/utmp
+          - /var/log/wtmp
+          - /var/log/lastlog

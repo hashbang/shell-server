@@ -1,0 +1,23 @@
+---
+- hosts: all
+
+- import_playbook: includes/setup/apt/base.yml
+- import_playbook: includes/setup/misc.yml
+
+# none of the templates for these exist yet
+#- import_playbook: includes/setup/install-config.yml
+
+# somehow conditionally include this only if target is docker
+#- import_playbook: includes/docker/resolvconf.yml
+
+# Everything under this point doesn't exist?
+#- import_playbook: includes/setup/apt/configure-selections.yml
+#- import_playbook: includes/config/tools/msmtp.yml
+
+# optional depending on whether or not we version-control the unit files
+# which we probably won't
+#- import_playbook: includes/docker/disable-systemd-units.yml
+
+#- import_playbook: includes/machine/setup-journal.yml
+#- import_playbook: includes/machine/update-grub.yml
+#- import_playbook: includes/machine/fstrim.yml
