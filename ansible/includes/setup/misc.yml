@@ -19,3 +19,93 @@
           - /var/run/utmp
           - /var/log/wtmp
           - /var/log/lastlog
+
+  - name: Install Postfix Aliases
+    lineinfile:
+      path: /etc/aliases
+      line: 'root: root@hashbang.sh'
+
+  - name: Install Administrator PGP keys
+    block:
+      - name: create temporary build directory
+        tempfile:
+          state: directory
+          register: gnupghome
+      - name: Import administrator PGP keys from keyserver
+        shell: |
+          GNUPGHOME={{ gnupghome.path }} \
+          gpg \
+            -q \
+            --batch \
+            --keyserver pool.sks-keyservers.net \
+            --recv-keys {{ item }};
+        args:
+          executable: /bin/bash
+        with_items:
+          - 0x954A3772D62EF90E4B31FBC6C91A9911192C187A # daurnimator
+          - 0x0A1F87C7936EB2461C6A9D9BAD9970F98EB884FD # DeviaVir
+          - 0xC92FE5A3FBD58DD3EC5AA26BB10116B8193F2DBD # drGrove
+          - 0xF2B7999666D83093F8D4212926CDD32189AA2885 # dpflug
+          - 0xAE2D535ABD2E5B42CE1E97110527B4EFFB4A3AEB # kellerfuchs
+          - 0x6B61ECD76088748C70590D55E90A401336C8AAA9 # lrvick
+          - 0xA251FDF79171F98674EB2176FCC2D6E33BA86209 # ryan
+      - name: Export administrator pgp keys to combined keychain file
+        shell: |
+          GNUPGHOME={{ gnupghome.path }} \
+          gpg \
+            -q \
+            --batch \
+            --yes \
+            --export \
+            --export-options export-clean,export-minimal \
+            -o /var/lib/hashbang/admins.gpg
+        args:
+          executable: /bin/bash
+
+  - name: Setup cron job to kill processes of stale accounts
+    copy:
+      dest: /etc/cron.daily/clean-lurkers
+      content: |
+        #!/bin/sh
+        # See https://xkcd.com/686/ -- Admin mourning
+
+        DAYS=30
+
+        for range in 1000-59999 65536-4294967293; do
+            for user in $(lastlog -b "$DAYS" -t "$((DAYS + 2))" -u "$range" | \
+                          tail -n +2 | cut -d' ' -f1); do
+                if [ ! -f "/home/${user}/.keep-account" ]; then
+                    loginctl terminate-user "$user"
+                fi
+            done
+        done
+
+  - name: Ensure haveged uses 2048 bit watermark
+    lineinfile:
+      path: /etc/default/haveged
+      regexp: "^DAEMON_ARGS="
+      line: "DAEMON_ARGS=\"-w 2048\""
+
+  - name: Set default locale to en_US.UTF-8
+    lineinfile:
+      path: /etc/default/locale
+      regexp: "^LANG"
+      line: "LANG=en_US.UTF8"
+
+  - name: Set up filesystem checking at boot to automatically fix errors
+    lineinfile:
+      path: /etc/default/rcS
+      regexp: "FSCKFIX"
+      line: "FSCKFIX=yes"
+
+  - name: Default shell for new users to bash
+    lineinfile:
+      path: /etc/default/useradd
+      regexp: "SHELL="
+      line: "SHELL=/bin/bash"
+
+  - name: Default Mail location in homedir
+    lineinfile:
+      path: /etc/environment
+      line: "MAIL=~/Mail"
+

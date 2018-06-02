@@ -1,0 +1,1860 @@
+## The following file is temporary.
+## Remove sections from this file as you add them to ansible configurations
+
+reverted:
+--- b/ferm/ferm.conf
++++ a/ferm/ferm.conf
+@@ -5,48 +5,25 @@
+ 
+ table filter {
+     chain INPUT {
++	policy ACCEPT;
+-        policy DROP;
+ 
++	# connection tracking
++	mod state state INVALID DROP;
++    }
+-        # connection tracking
+-        mod state state INVALID DROP;
+-        mod state state (ESTABLISHED RELATED) ACCEPT;
+ 
++    chain OUTPUT {
++	policy ACCEPT;
+-        # allow local packet
+-        interface lo ACCEPT;
+ 
++	# connection tracking
++	mod state state INVALID DROP;
+-        # respond to ping
+-        proto icmp ACCEPT; 
+ 
++	# Feathercoin mining pool
++	daddr (176.31.126.191 188.165.223.132) REJECT;
+-        # allow IPsec
+-        proto udp dport 500 ACCEPT;
+-        proto (esp ah) ACCEPT;
+ 
++	# bitcoinshell.mooo.com
++	daddr (92.222.41.125) REJECT;
+-        # allow SSH connections
+-        proto tcp dport ssh ACCEPT;
+-    }
+-    chain OUTPUT {
+-        policy ACCEPT;
+ 
++	# Bitcoin-related protocols
++	proto (udp tcp) dport (8082 8332 8333 50002) REJECT;
+-        # connection tracking
+-        #mod state state INVALID DROP;
+-        mod state state (ESTABLISHED RELATED) ACCEPT;
+-    }
+-    chain FORWARD {
+-        policy DROP;
+-
+-        # connection tracking
+-        mod state state INVALID DROP;
+-        mod state state (ESTABLISHED RELATED) ACCEPT;
+     }
+ }
+-
+-# IPv6:
+-#domain ip6 {
+-#    table filter {
+-#        chain INPUT {
+-#            policy ACCEPT;
+-#            # ...
+-#        }
+-#        # ...
+-#    }
+-#}
+reverted:
+--- /dev/null
++++ a/fstab.sample
+@@ -0,0 +1,6 @@
++proc            /proc         proc     defaults,hidepid=2                  0 0
++udev            /dev          devtmpfs defaults,nosuid,noatime             0 0
++devpts          /dev/pts      devpts   defaults,newinstance,ptmxmode=0666  0 0
+reverted:
+--- /dev/null
++++ a/gemrc
+@@ -0,0 +1 @@
++gem: --user-install --bindir ~/.gem/bin
+reverted:
+--- /dev/null
++++ a/gnupg/hashbang-admins.gpg
+@@ -0,0 +1 @@
++/var/lib/hashbang/admins.gpg
+\ No newline at end of file
+reverted:
+--- /dev/null
++++ a/hashbang/welcome
+@@ -0,0 +1,11 @@
++#!/bin/sh
++
++cat /etc/hashbang/welcome.pre
++
++if [ -n "$TMUX" ]; then
++	sed "s/\\\$USER/${USER}/" /etc/hashbang/welcome.tmux
++else
++	sed "s/\\\$USER/${USER}/" /etc/hashbang/welcome.notmux
++fi
++
++cat /etc/hashbang/welcome.post
+reverted:
+--- /dev/null
++++ a/hashbang/welcome.notmux
+@@ -0,0 +1,11 @@
++ Things to explore:
++
++   * You can start 'tmux' to enter a tmux session.
++     Help will be displayed when tmux is started.
++
++   * You can resume a detached tmux session at any time.
++     Use 'tmux attach' to resume your tmux session.
++
++   * Your Hashbang email address is $USER@hashbang.sh
++     The `mutt` email client is preconfigured for you.
++
+reverted:
+--- /dev/null
++++ a/hashbang/welcome.post
+@@ -0,0 +1,8 @@
++   * To learn more about us and our offerings type: man hashbang
++
++ Like what we're doing? Consider donating to expand our efforts.
++   * Bitcoin       - [ 1DtTvCLiUMhs21QcETQzLyiqxoopUjqBSU ]
++   * Google Wallet - [ donate@hashbang.sh ]
++   * PayPal        - [ http://goo.gl/aSQWy0 ]
++
++ Community shell servers generously sponsored by: (http://atlantic.net)
+reverted:
+--- /dev/null
++++ a/hashbang/welcome.pre
+@@ -0,0 +1,7 @@
++   _  _    __
++ _| || |_ |  |  Welcome to #!. This network has three rules:
++|_  __  _||  |
++ _| || |_ |  |  1. When people need help, teach. Don't do it for them
++|_  __  _||__|  2. Don't use our resources for closed source projects
++  |_||_|  (__)  3. Be excellent to each other
++
+reverted:
+--- /dev/null
++++ a/hashbang/welcome.tmux
+@@ -0,0 +1,14 @@
++ Things to explore:
++
++   * You are in a 'tmux' session. There are three tabs below.
++     Navigate with <Ctrl-b> + a tab number.
++
++   * You are already in our IRC channel in "tab 1"
++     Type <Ctrl-B> + 1 to reach it and chat with us.
++
++   * Your Hashbang email address is: $USER@hashbang.sh
++     Type <Ctrl-B> + 2 to check your emails in mutt
++
++   * You can detach from this tmux session with <Ctrl-b> + <d>
++     You can also re-attach outside of tmux with 'tmux attach'
++
+reverted:
+--- /dev/null
++++ a/initramfs-tools/scripts/repartition-drive
+@@ -0,0 +1,18 @@
++#!/bin/bash
++
++mount | grep /dev/sda && echo "/dev/sda mounted. Aborting" && exit
++test -e /dev/sda2 && echo "/dev/sda2 already exists. Aborting" && exit
++
++mkdir /mnt
++modprobe ext4
++mount /dev/sda1 /mnt
++cp -R /mnt/lib /
++cp -R /mnt/lib64 /
++cp -R /mnt/bin /
++cp -R /mnt/sbin /
++cp -R /mnt/usr /
++umount /dev/sda1
++e2fsck -f /dev/sda1
++resize2fs /dev/sda1 20G
++echo -e "d\nn\n\n\n\n+20G\nn\np\n\n\n\nw\n" | fdisk /dev/sda
++mkfs.ext4 /dev/sda2
+reverted:
+--- b/login.defs
++++ a/login.defs
+@@ -148,7 +148,7 @@
+ #
+ ERASECHAR	0177
+ KILLCHAR	025
++UMASK		027
+-UMASK		022
+ 
+ #
+ # Password aging controls:
+reverted:
+--- b/logrotate.conf
++++ a/logrotate.conf
+@@ -18,7 +18,7 @@
+ /var/log/wtmp {
+     missingok
+     monthly
++    create 0660 root utmp
+-    create 0664 root utmp
+     rotate 1
+ }
+ 
+reverted:
+--- b/luarocks/config-5.1.lua
++++ a/luarocks/config-5.1.lua
+@@ -1,4 +1,5 @@
++variables = {
++	LUA_INTERPRETER = "/usr/bin/lua5.1";
++	LUA_INCDIR = "/usr/include/lua5.1";
+-rocks_trees = {
+-   home..[[/.luarocks]],
+-   [[/usr/local]]
+ }
++rocks_subdir = "/lib/luarocks/rocks-5.1"
+reverted:
+--- /dev/null
++++ a/luarocks/config-5.2.lua
+@@ -0,0 +1,7 @@
++export_lua_path = "export LUA_PATH_5_2='%s'";
++export_lua_cpath = "export LUA_CPATH_5_2='%s'";
++variables = {
++	LUA_INTERPRETER = "/usr/bin/lua5.2";
++	LUA_INCDIR = "/usr/include/lua5.2";
++}
++rocks_subdir = "/lib/luarocks/rocks-5.2"
+reverted:
+--- /dev/null
++++ a/luarocks/config-5.3.lua
+@@ -0,0 +1,7 @@
++export_lua_path = "export LUA_PATH_5_3='%s'";
++export_lua_cpath = "export LUA_CPATH_5_3='%s'";
++variables = {
++	LUA_INTERPRETER = "/usr/bin/lua5.3";
++	LUA_INCDIR = "/usr/include/lua5.3";
++}
++rocks_subdir = "/lib/luarocks/rocks-5.3"
+reverted:
+--- /dev/null
++++ a/mailname
+@@ -0,0 +1 @@
++hashbang.sh
+reverted:
+--- /dev/null
++++ a/man/man7/hashbang.7
+@@ -0,0 +1,431 @@
++.\"   Man page for hashbang
++.TH man 7 "29 May 2014" "0.5" "#! man page"
++
++.SH NAME
++#! \- "shell" service and collective of awesome people.
++
++.SH SYNOPSIS
++
++bash <(curl hashbang.sh)
++
++.SH DESCRIPTION
++
++We are a diverse community of people who love teaching and learning.
++Putting a #! at the beginning of a "script" style program tells a computer that
++it needs to "do something" or "execute" the file. Likewise, we are a community
++of people that like to "do stuff".
++
++If you like technology and want to learn to write your first program, learn to
++use Linux, or even take on interesting challenges with some of the best in
++the industry, you are in the right place.
++.SH EXAMPLES
++.TP
++
++.BI ssh\ someuser@hashbang.sh
++Use the "ssh" command to get yourself back into your account from any computer
++that has your private key.
++.TP
++.BI cat\ foo
++echo the foo file to the console
++
++.SH AVAILABLE SOFTWARE
++.SS Account Management
++hashbangctl - An account management program which can update your ssh keys, account name, and default shell.
++.SS Compilers / Interpreters / Programming Languages
++perl - A high-level, general-purpose dynamic programming language. Commonly
++referred to as "the duct tape of the internet."
++
++python - A high-level, general-purpose programming language that emphasizes
++code readability.
++
++ruby - A dynamic, object-oriented general-purpose programming language.
++
++haskell [ghc] - A standardized, general-purpose programming language with non-strict
++semantics and strong static typing.
++
++lua - A lightweight multi-paradigm programming language designed as a scripting
++language.
++
++clojure - A general-purpose programming language with an emphasis on functional
++programming. It is a dialect of the Lisp programming language.
++
++go - A statically-typed language developed at Google with syntax loosely derived from C with
++garbage collection.
++
++nodejs - A cross-platform runtime environment for server-side and network
++applications written in javascript.
++
++sbcl - (Steel Bank Common Lisp) A Lisp implementation that features a high
++performance native compiler, Unicode support, and threading.
++
++ghc - (The Glorious Glasgow Haskell Compilation System) a native code compiler
++for Haskell.
++
++gcc - (GNU Compiler Collection) A compiler system that supports C, C++ and
++various other programming languages.
++
++smlnj -(Standard ML of New Jersey) a compiler and programming environment for
++Standard ML
++.SS Text Editors
++vim - A popular vi clone and the IDE of choice of most of the #! regulars.
++Ships by default on all operating systems that matter.
++
++emacs - A very capable scriptable text editor also capable of being a full IDE
++with all the power of vim implemented in different ways. Not in as wide of
++use as it once was but plenty of skilled hackers still swear by it.
++
++nano - A text editor that emulates the Pico text editor and is part of the GNU
++Project.
++
++joe - (Joe's Own Editor) a text editor designed for ease of use.
++
++pico - (Pine Composer) a text editor originally integrated with the pine e-mail
++client and designed at the Office of Computing and Communications at the
++University of Washington.
++
++mcedit - Internal text editor for the Midnight Commander file manager.
++
++zile - An Emacs like text editor that is less resource intensive.
++.SS Password Management
++pass - A shell based password manager.
++.SS Cryptography / Hashing
++encfs - A FUSE-based cryptographic filesystem that transparently encrypts files
++using an arbitrary directory as storage for the encrypted files.
++
++gpg - (GNU Privacy Guard) A GPL Licensed alternative to the PGP suite of
++cryptographic software compliant with RFC 4880.
++
++md5sum - Calculates and verifies 128-bit MD5 hashes as described in RFC 1321.
++
++shasum - Calculates and verifies SHA hashes.
++
++bcrypt - A key derivation function for passwords based on the Blowfish cipher.
++.SS Time Management
++calendar - Checks current directory or CALENDAR_DIR environment variable for a
++file named calendar and displays appointments and reminders.
++
++remind - A sophisticated reminder service.
++
++wyrd - A text-based front-end to the Remind program.
++
++tudu - A command-line tool to manage TODO lists hierarchically.
++.SS Shells
++bash - (Bourne Again Shell) The standard shell on most Linux and unix-like
++systems which is a GNU replacement for the Unix Bourne shell. A linux classic
++brah.
++
++zsh - (Z Shell) An extension of the Bourne shell extended with features from
++ksh and tcsh.
++
++fish - (Friendly Interactive Shell) An attempt to make a more interactive,
++user-friendly shell.
++
++ksh - (Korn Shell) A shell backwards compatible with the Bourne shell but also
++includes many features of the C shell.
++.SS Email
++mutt - A text-based email client. "All mail clients suck. This one just sucks
++less."
++.SS Math
++units - Unit conversion utility.
++
++dc - A reverse-polish desk calculator which supports arbitrary-precision
++arithmetic.
++
++qalc - A small simple to use command-line calculator.
++
++bc - An arbitrary precision calculator language
++
++.SS Chat / IM
++weechat-curses - Wee Enhanced Environment for Chat (Curses version)
++
++irssi - A text-based IRC client written in the C programming language.
++
++finch - A console-based instant messaging client based on the libpurple
++library.
++
++bitlbee - Bitlbee brings Instant Messaging to IRC clients. It has support for 
++multiple IM networks/protocols including Google Talk.
++
++.RS
++To use bitlbee in weechat enter
++.RS
++.B
++/server add bitlbee irc.hashbang.sh/6610
++.RE
++then
++.RS
++.B
++/connect bitlbee 
++.RE
++this will force join you into the 
++.B
++&bitlbee
++channel. If you are interested in using Google Talk follow this guide 
++http://wiki.bitlbee.org/HowtoGtalk
++.RE
++
++.SS Web Browsing
++elinks - Similar to links, but also supports Form Input, Password Management,
++and Tabbed Browsing
++
++lynx - A general purpose distributed information web browser.
++
++w3m - A text based web browser and pager.
++
++html2text - Reads an HTML document and outputs plain text characters.
++.SS Database
++redis [redis-*] - A networked, in-memory, key-value data store with optional durability
++written in ANSI C.
++.SS File Management
++mc - (Midnight Commander) A text-based file manager similar to Norton
++Commander.
++
++scp - (Secure Copy) A client that uses the Secure Shell protocol to securely
++transfer files between hosts. 
++
++rsync - A file synchronization and file transfer program that minimizes network
++data transfer by using a form of delta encoding called the rsync algorithm.
++
++duplicity - A software suite that provides encrypted, digitally signed,
++versioned, remote backups of files.
++
++ranger - A text-based file manager written in Python.
++
++du - (disc usage) Estimates file space usage on a filesystem.
++
++ncdu - A simple ncurses disk usage analyzer.
++
++stow - A symlink manager. Helpful for managing several locally-installed things.
++
++find - Used to search the filesystem for a particular file.
++
++locate - Searches a prebuilt database for files on a filesystem.
++
++tree - A recursive directory listing program that produces a depth-indented
++listing of files.
++.SS Archiving
++atool - A script for managing file archives of various types.
++
++zip - A PKZIP compatible compression and file packaging utility.
++
++unzip - Utility for uncompressing PKZIP compressed files.
++
++p7zip - A program for compressing and uncompressing 7-zip compressed files.
++
++tar - Utility used for compressing and uncompressing tar files.
++
++gzip - An application used to create gzip compressed files.
++
++zpaq - A program for creating journaling or append-only compression files.
++.SS Network
++iperf - A bandwidth measurement utility.
++
++nmap - (Network Mapper) A security scanner used to discover hosts and services
++on a computer network.
++
++mtr - (Matt's TraceRoute) Combines the functionality of the traceroute and ping
++programs in a single network diagnostic tool.
++
++telnet - Used to communicate with another host using the telnet protocol.
++
++ssh - A client used to connect to a host using the Secure Shell protocol.
++
++siege - A multi-threaded http load testing and benchmarking utility.
++
++lftp - A file transfer program that allows sophisticated ftp, http and other
++connections to other hosts.
++
++curl - A tool used to transfer data from or to a server using HTTP, HTTPS, FTP,
++FTPS, SCP, SFTP, TFTP, DICT, TELNET, LDAP or FILE).
++
++aria2 [aria2c] - A utility for downloading files via HTTP(S), FTP, BitTorrent, and
++Metalink.
++
++ipcalc - A program that calculates IP information for a host.
++
++socat - (SOcket CAT) A command line based utility that establishes two
++bidirectional byte streams and transfers data between them.
++
++netcat - A networking utility which reads and writes data across networks from
++the command line.
++
++ssh-copy-id - A script that uses SSH to copy a public key to a remote machine's
++authorized_keys.
++.SS Image Tools
++imagemagick [convert, mogrify, ...] - A software suits used to create, edit, and compose bitmap images.
++
++.SS Code Management
++cvs - (Concurrent Versions System) A revision control system using
++client-server architecture.
++
++svn - (Subversion) A software versioning and revision control system
++maintained by apache and designed as a successor to CVS
++
++mercurial [hg] - A distributed revision control system designed for high
++performance, scalability, and decentralization.
++
++git - A distributed version control system with an emphasis on speed, data
++integrity, and support for distributed, non-linear workflows.
++
++tig - A text-mode interface for git.
++
++cloc - Counts and computes differences of lines of source code and comments.
++
++diff - Compares files line by line.
++
++vimdiff - Edits 2 - 4 versions of a file with vim while showing differences.
++
++ctags - A programming tool that generates an index file of names found in
++source and header files of various programming languages.
++
++cmake - Software for managing the build process of software using a
++compiler-independent method.
++
++shellcheck - Linter for shell scripts
++.SS Games/Toys
++
++zangband - A dungeon-crawling roguelike game derived from Angband and based on
++Roger Zelazny's The Chronicles of Amber.
++
++nethack - A roguelike game descended from the game Hack and Rogue.
++
++slashem - (Super Lotsa Added Stuff Hack - Extended Magic) is a variant of the
++roguelike game NetHack that offers extra features, monsters, and items.
++
++frotz - An interpreter for Infocom games and other z-machine games.
++
++bsdgames [adventure, ...] - A collection of text games from BSD systems.
++
++bastet - (Bastard Tetris) A Tetris clone.
++
++gnugo - Open source implementation of the game Go.
++
++gnuchess - Chess
++.SS System Management Utilities
++htop - An interactive system-monitor process-viewer.
++
++strace - Application for tracing system calls and signals.
++
++cgroups - (Control Groups) A kernel feature to limit, account, and isolate
++resource usage of process groups.
++
++command-not-found - (Debian) Suggest a package when the user calls a command
++that could not be found.
++
++.SS Window/Session Managers
++
++tmux - An Application used to multiplex several virtual consoles, allowing a
++user to access multiple separate terminal sessions inside a single terminal.
++
++screen - Application used to multiplex several virtual consoles, allowing a
++user to access multiple separate terminal sessions in a single terminal.
++
++byobu - An enhancement for the terminal multiplexers Screen or Tmux that can be
++used to provide on screen notification or status as well as tabbed multi-window
++management.
++.SS Misc. / Unsorted (Sort these!)
++pv - Monitors the progress of data through a pipe.
++
++tsung - Used to stress test HTTP, WebDAV, LDAP, MySQL, PostgreSQL, SOAP, and
++XMPP servers.
++
++xargs - Used to build and execute command lines from standard input.
++
++parallel - Shell tool for executing jobs in parallel using one or more
++computers.
++
++ag - A significantly faster replacement to ACK with a built in VCS.
++
++watch - Executes a program periodically, showing the output fullscreen.
++
++libev - A high-performance event loop for C.
++
++libevent - Provides a mechanism to execute a callback function when a specific
++event occurs on a file descriptor or after a timeout has been reached.
++
++cowsay - Generates ASCII pictures of a cow with a message.
++
++dos2unix - Converts line breaks in a text file from DOS format to Unix format.
++
++unix2dos - Converts line breaks in a text file from Unix format to DOS format.
++.SH HISTORY
++2004 - lrvick secured free-for-all usage of a dedicated server, hosted at
++"The Planet" datacenter in Austin, TX, in exchange for providing free system
++administration services to an educational web application provider. He
++distributed shell accounts to a group of friends for personal projects,
++organizing resources and efforts via IRC.
++
++2006 - Having outgrown the shared server, the community opted to invest in our
++own dedicated server, lovingly named "Adam". All projects were migrated over,
++and a few months later "Eve" was added for redundancy and to minimize downtime.
++These were hosted at SiteGenie in Rochester, MN.
++
++2008 - As a hosting service, we hosted many web projects visited by hundreds of
++thousands of users, in addition to seeing hundreds of users on our IRC and
++shell services. Our community was known in multiple IRC circles to have very
++well-developed overall system security, and we regularly dealt with various
++types of attacks trying to break through. A "Script Kiddie" named Piratox,
++unable to break in through any usual methods, opted to make use of a large
++botnet, disrupting us with a large scale DDOS attack.
++
++The attack was significant enough that the entire SiteGenie datacenter was
++taken offline. Though we tracked down Piratox and ended the dispute, SiteGenie
++was unprepared to deal with the possibility of further DDOS attacks of similar
++scale and promptly ended our contract. They generously offered to overnight our
++hard drives to any location we chose. Seeing the potential in this, we involved
++it in the backup plans that had already been set in motion.
++
++Echelon, a volunteer admin, brought "Noah" online in his Ohio basement.
++Bluescales, another volunteer admin, rushed to setup a VPS in a Montana
++Datacenter. He dubbed it "Moses". We quickly routed essential services from
++backups between the two servers while one of the two backup drives containing
++user files was overnighted to Noah. Shell user files were available to our
++community again within 24 hours.
++
++With emergency options in place, we sought a new primary server. After
++reviewing our budget and options, we opted for a dedicated server at a newer
++company, VolumeDrive, in Wilkes Barre, Pennsylvania. We took a chance on them
++due to their reputation for inexpensive, unmetered bandwidth plans with
++regular bandwidth testing. "Melchiz" was born, and quickly became responsible
++for community services including shells, email, and IRC, as well as hosting
++most smaller websites.
++
++VolumeDrive was a good fit for most of our services; however, like SiteGenie, 
++they were unwilling to deal with the unwanted attention that our historical
++reputation could bring. To address this, we deployed "Samson" in an undisclosed
++location, ensuring it would be difficult to target by disruptive parties.
++"Gideon" was deployed in Germany as a dumb proxy to more reliably protect
++Samson's location. Were it to ever go down, more could rapidly take its place.
++We felt really good about the maintainability of this setup.
++
++2010 - Samson needed a kernel update to address security issues that had
++recently come to light. One of our volunteer admins, Viaken, decided to take on
++the kernel update on his own, but did not include the correct SATA driver. On
++reboot, Samson experienced a kernel panic. Per a special agreement with the
++datacenter, hosting was available and free so long as support was never
++contacted. Thus, Samson was to remain frozen at a kernel panic screen, and
++may still be hung there to this day. Gideon, now purposeless, was taken
++offline shortly thereafter.
++
++We were left with no choice but to risk hosting all services on Melchiz until
++a better solution could be secured.
++
++2013 - After frequent downtime and multiple disputes with VolumeDrive
++(including a case where they mistakenly formatted one of our production hard
++drives), our community sought to "go big or go home". We went big and secured
++the dedicated server "Og". Og's specs were more than overkill for everything
++we provided, but we knew it would be worth it for our long-term goals of
++expanding our free community offerings to the general public. 
++
++2014 - #! shells are now available to the general public. Welcome!
++
++
++.SH You can help!
++
++Fork, make changes, and submit Github Pull Requests here:
++
++https://github.com/hashbang/shell-etc
++
++This man file can be updated here:
++
++https://github.com/hashbang/shell-etc/blob/master/man/man7/hashbang.7
+reverted:
+--- b/manpath.config
++++ a/manpath.config
+@@ -20,6 +20,7 @@
+ MANDATORY_MANPATH			/usr/man
+ MANDATORY_MANPATH			/usr/share/man
+ MANDATORY_MANPATH			/usr/local/share/man
++MANDATORY_MANPATH			/etc/man
+ #---------------------------------------------------------
+ # set up PATH to MANPATH mapping
+ # ie. what man tree holds man pages for what binary directory.
+@@ -69,6 +70,7 @@
+ MANDB_MAP	/usr/local/share/man	/var/cache/man/local
+ MANDB_MAP	/usr/X11R6/man		/var/cache/man/X11R6
+ MANDB_MAP	/opt/man		/var/cache/man/opt
++MANDB_MAP	/etc/man		/var/cache/man/etc
+ #
+ #---------------------------------------------------------
+ # Program definitions.  These are commented out by default as the value
+reverted:
+--- /dev/null
++++ a/msmtprc
+@@ -0,0 +1,25 @@
++# Global defaults
++defaults
++aliases /etc/aliases
++logfile ~/.msmtp.log
++
++# Hashbang account
++# Required for msmtp to function as sendmail
++account hashbang.sh
++host mail.hashbang.sh
++
++# Sender address
++auto_from on
++maildomain hashbang.sh
++
++# TLS configuration
++tls on
++tls_trust_file /etc/ssl/certs/ca-certificates.crt
++
++# Syslog logging with facility LOG_MAIL instead of the default LOG_USER.
++# Only applies to the #! account
++syslog LOG_MAIL
++
++
++# Make hashbang the default account
++account default : hashbang.sh
+reverted:
+--- /dev/null
++++ a/npmrc
+@@ -0,0 +1 @@
++prefix = ${HOME}/.npm-packages
+reverted:
+--- b/nslcd.conf
++++ a/nslcd.conf
+@@ -7,10 +7,10 @@
+ gid nslcd
+ 
+ # The location at which the LDAP server(s) should be reachable.
++uri ldaps://ldap.hashbang.sh/
+-uri ldap://92.242.140.21/
+ 
+ # The search base that will be used for all queries.
++base dc=hashbang,dc=sh
+-base dc=example,dc=net
+ 
+ # The LDAP protocol version to use.
+ #ldap_version 3
+@@ -24,7 +24,7 @@
+ 
+ # SSL options
+ #ssl off
++tls_reqcert never
+-#tls_reqcert never
+ tls_cacertfile /etc/ssl/certs/ca-certificates.crt
+ 
+ # The search scope.
+reverted:
+--- b/nsswitch.conf
++++ a/nsswitch.conf
+@@ -18,4 +18,4 @@
+ rpc:            db files
+ 
+ netgroup:       nis sss
++sudoers:        files
+-sudoers:        files sss
+reverted:
+--- b/pam.d/atd
++++ a/pam.d/atd
+@@ -6,5 +6,5 @@
+ @include common-auth
+ @include common-account
+ session    required   pam_loginuid.so
++session    substack   common-session-noninteractive
+-@include common-session-noninteractive
+ session    required   pam_limits.so
+reverted:
+--- b/pam.d/chsh
++++ a/pam.d/chsh
+@@ -1,20 +1,3 @@
++# Allow anyone in the users group to chsh
+-#
+-# The PAM configuration file for the Shadow `chsh' service
+-#
+-
+-# This will not allow a user to change their shell unless
+-# their current one is listed in /etc/shells. This keeps
+-# accounts with special shells from changing them.
+-auth       required   pam_shells.so
+-
+-# This allows root to change user shell without being
+-# prompted for a password
+-auth		sufficient	pam_rootok.so
+-
+-# The standard Unix authentication modules, used with
+-# NIS (man nsswitch) as well as normal /etc/passwd and
+-# /etc/shadow entries.
+-@include common-auth
+-@include common-account
+-@include common-session
+ 
++auth		sufficient	pam_wheel.so	trust	group=users	use_uid
+\ No newline at end of file
+reverted:
+--- b/pam.d/common-account
++++ a/pam.d/common-account
+@@ -13,16 +13,10 @@
+ # pam-auth-update(8) for details.
+ #
+ 
++# Disallow non-root logins when /etc/nologin exists.
++account	required	pam_nologin.so
++
++account	sufficient	pam_sss.so
++account	sufficient	pam_unix.so
++account	sufficient	pam_localuser.so
++account	required	pam_deny.so
+-# here are the per-package modules (the "Primary" block)
+-account	[success=1 new_authtok_reqd=done default=ignore]	pam_unix.so 
+-# here's the fallback if no module succeeds
+-account	requisite			pam_deny.so
+-# prime the stack with a positive return value if there isn't one already;
+-# this avoids us returning an error just because nothing sets a success code
+-# since the modules above will each just jump around
+-account	required			pam_permit.so
+-# and here are more per-package modules (the "Additional" block)
+-account	sufficient			pam_localuser.so 
+-account	[default=bad success=ok user_unknown=ignore]	pam_sss.so 
+-account	[success=ok new_authtok_reqd=done ignore=ignore user_unknown=ignore authinfo_unavail=ignore default=bad]	pam_ldap.so minimum_uid=1000
+-# end of pam-auth-update config
+reverted:
+--- b/pam.d/common-auth
++++ a/pam.d/common-auth
+@@ -7,21 +7,7 @@
+ # (e.g., /etc/shadow, LDAP, Kerberos, etc.).  The default is to use the
+ # traditional Unix authentication mechanisms.
+ #
+-# As of pam 1.0.1-6, this file is managed by pam-auth-update by default.
+-# To take advantage of this, it is recommended that you configure any
+-# local modules either before or after the default block, and use
+-# pam-auth-update to manage selection of other modules.  See
+-# pam-auth-update(8) for details.
+ 
++auth	sufficient                      pam_sss.so
++auth	sufficient                      pam_unix.so use_first_pass
++auth	required			pam_deny.so
+-# here are the per-package modules (the "Primary" block)
+-auth	[success=3 default=ignore]	pam_unix.so nullok_secure
+-auth	[success=2 default=ignore]	pam_sss.so use_first_pass
+-auth	[success=1 default=ignore]	pam_ldap.so minimum_uid=1000 use_first_pass
+-# here's the fallback if no module succeeds
+-auth	requisite			pam_deny.so
+-# prime the stack with a positive return value if there isn't one already;
+-# this avoids us returning an error just because nothing sets a success code
+-# since the modules above will each just jump around
+-auth	required			pam_permit.so
+-# and here are more per-package modules (the "Additional" block)
+-# end of pam-auth-update config
+reverted:
+--- b/pam.d/common-password
++++ a/pam.d/common-password
+@@ -15,22 +15,7 @@
+ #
+ # See the pam_unix manpage for other options.
+ 
+-# As of pam 1.0.1-6, this file is managed by pam-auth-update by default.
+-# To take advantage of this, it is recommended that you configure any
+-# local modules either before or after the default block, and use
+-# pam-auth-update to manage selection of other modules.  See
+-# pam-auth-update(8) for details.
+-
+-# here are the per-package modules (the "Primary" block)
+ password	requisite			pam_pwquality.so retry=3
+-password	[success=3 default=ignore]	pam_unix.so obscure use_authtok try_first_pass sha512
+ password	sufficient			pam_sss.so use_authtok
++password	sufficient                      pam_unix.so obscure use_authtok try_first_pass sha512
+-password	[success=1 default=ignore]	pam_ldap.so minimum_uid=1000 try_first_pass
+-# here's the fallback if no module succeeds
+ password	requisite			pam_deny.so
+-# prime the stack with a positive return value if there isn't one already;
+-# this avoids us returning an error just because nothing sets a success code
+-# since the modules above will each just jump around
+-password	required			pam_permit.so
+-# and here are more per-package modules (the "Additional" block)
+-# end of pam-auth-update config
+reverted:
+--- b/pam.d/common-session
++++ a/pam.d/common-session
+@@ -6,23 +6,8 @@
+ # at the start and end of sessions of *any* kind (both interactive and
+ # non-interactive).
+ #
+-# As of pam 1.0.1-6, this file is managed by pam-auth-update by default.
+-# To take advantage of this, it is recommended that you configure any
+-# local modules either before or after the default block, and use
+-# pam-auth-update to manage selection of other modules.  See
+-# pam-auth-update(8) for details.
+ 
++session	substack	common-session-noninteractive
++
++session	optional	pam_mkhomedir.so
++session	optional	pam_umask.so      usergroups
+-# here are the per-package modules (the "Primary" block)
+-session	[default=1]			pam_permit.so
+-# here's the fallback if no module succeeds
+-session	requisite			pam_deny.so
+-# prime the stack with a positive return value if there isn't one already;
+-# this avoids us returning an error just because nothing sets a success code
+-# since the modules above will each just jump around
+-session	required			pam_permit.so
+-# and here are more per-package modules (the "Additional" block)
+-session	required	pam_unix.so 
+-session	optional			pam_sss.so 
+-session	[success=ok default=ignore]	pam_ldap.so minimum_uid=1000
+-session	optional	pam_systemd.so 
+-# end of pam-auth-update config
+reverted:
+--- b/pam.d/common-session-noninteractive
++++ a/pam.d/common-session-noninteractive
+@@ -6,21 +6,17 @@
+ # and should contain a list of modules that define tasks to be performed
+ # at the start and end of all non-interactive sessions.
+ #
+-# As of pam 1.0.1-6, this file is managed by pam-auth-update by default.
+-# To take advantage of this, it is recommended that you configure any
+-# local modules either before or after the default block, and use
+-# pam-auth-update to manage selection of other modules.  See
+-# pam-auth-update(8) for details.
+ 
++# Environment setup
++session	required	pam_env.so
++
++# User restrictions
++session	required	pam_namespace.so  unmnt_remnt
++session	required	pam_limits.so
++session	required	pam_systemd.so
++session	required	pam_exec.so       type=open_session /etc/security/limits.sh
++
++# Passwd database handling
++session	sufficient	pam_sss.so
++session	sufficient	pam_unix.so
++session	required	pam_deny.so
+-# here are the per-package modules (the "Primary" block)
+-session	[default=1]			pam_permit.so
+-# here's the fallback if no module succeeds
+-session	requisite			pam_deny.so
+-# prime the stack with a positive return value if there isn't one already;
+-# this avoids us returning an error just because nothing sets a success code
+-# since the modules above will each just jump around
+-session	required			pam_permit.so
+-# and here are more per-package modules (the "Additional" block)
+-session	required	pam_unix.so 
+-session	[success=ok default=ignore]	pam_ldap.so minimum_uid=1000
+-# end of pam-auth-update config
+reverted:
+--- b/pam.d/cron
++++ a/pam.d/cron
+@@ -13,7 +13,7 @@
+ session       required   pam_env.so envfile=/etc/default/locale
+ 
+ @include common-account
++session       substack common-session-noninteractive
+-@include common-session-noninteractive 
+ 
+ # Sets up user limits, please define limits for cron tasks
+ # through /etc/security/limits.conf
+reverted:
+--- b/pam.d/login
++++ a/pam.d/login
+@@ -31,10 +31,6 @@
+ # communicated over insecure lines.
+ auth [success=ok new_authtok_reqd=ok ignore=ignore user_unknown=bad default=die] pam_securetty.so
+ 
+-# Disallows other than root logins when /etc/nologin exists
+-# (Replaces the `NOLOGINS_FILE' option from login.defs)
+-auth       requisite  pam_nologin.so
+-
+ # SELinux needs to be the first session rule. This ensures that any 
+ # lingering context has been cleared. Without out this it is possible 
+ # that a module could execute code in the wrong domain.
+@@ -93,7 +89,7 @@
+ # in /etc/login.defs to make sure that removing a user 
+ # also removes the user's mail spool file.
+ # See comments in /etc/login.defs
++session    optional   pam_mail.so dir=~/Mail standard
+-session    optional   pam_mail.so standard
+ 
+ # Sets the loginuid process attribute
+ session    required     pam_loginuid.so
+reverted:
+--- b/pam.d/sshd
++++ a/pam.d/sshd
+@@ -3,9 +3,6 @@
+ # Standard Un*x authentication.
+ @include common-auth
+ 
+-# Disallow non-root logins when /etc/nologin exists.
+-account    required     pam_nologin.so
+-
+ # Uncomment and edit /etc/security/access.conf if you need to set complex
+ # access limits that are hard to express in sshd_config.
+ # account  required     pam_access.so
+@@ -34,7 +31,7 @@
+ session    optional     pam_motd.so noupdate
+ 
+ # Print the status of the user's mailbox upon successful login.
++session    optional     pam_mail.so dir=~/Mail standard noenv # [1]
+-session    optional     pam_mail.so standard noenv # [1]
+ 
+ # Set up user limits from /etc/security/limits.conf.
+ session    required     pam_limits.so
+reverted:
+--- b/pam.d/sudo
++++ a/pam.d/sudo
+@@ -2,4 +2,4 @@
+ 
+ @include common-auth
+ @include common-account
++session substack common-session-noninteractive
+-@include common-session-noninteractive
+reverted:
+--- b/pam.d/systemd-user
++++ a/pam.d/systemd-user
+@@ -3,7 +3,9 @@
+ # Used by systemd when launching systemd user instances.
+ 
+ @include common-account
++session  substack common-session-noninteractive
++
++session  optional pam_systemd.so
++
++auth     required pam_deny.so
+-@include common-session-noninteractive
+-auth required pam_deny.so
+ password required pam_deny.so
+-session optional pam_systemd.so
+reverted:
+--- b/postfix/dynamicmaps.cf
++++ a/postfix/dynamicmaps.cf
+@@ -4,3 +4,4 @@
+ #====	================================	=============	============
+ tcp	/usr/lib/postfix/dict_tcp.so		dict_tcp_open	
+ sqlite	/usr/lib/postfix/dict_sqlite.so		dict_sqlite_open	
++ldap	/usr/lib/postfix/dict_ldap.so		dict_ldap_open	
+reverted:
+--- b/postfix/main.cf
++++ a/postfix/main.cf
+@@ -1,40 +1,38 @@
++smtpd_banner        = $myhostname ESMTP $mail_name (Debian/GNU)
++biff                = no
+-# See /usr/share/postfix/main.cf.dist for a commented, more complete version
+-
+-
+-# Debian specific:  Specifying a file name will cause the first
+-# line of that file to be used as the name.  The Debian default
+-# is /etc/mailname.
+-#myorigin = /etc/mailname
+-
+-smtpd_banner = $myhostname ESMTP $mail_name (Debian/GNU)
+-biff = no
+-
+-# appending .domain is the MUA's job.
+ append_dot_mydomain = no
++readme_directory    = no
++
++# We serve mail for hashbang.sh only
++mydomain      = hashbang.sh
++myorigin      = $mydomain
++mydestination = $myhostname
++alias_maps    = hash:/etc/aliases
++
++# Relay settings
++relayhost                       = mail.$mydomain
++smtp_tls_security_level         = secure
++smtp_tls_CAfile                 = /etc/ssl/certs/ca-certificates.crt
++smtp_tls_fingerprint_digest     = sha1
++smtp_tls_mandatory_protocols    = !SSLv2,!SSLv3,!TLSv1,!TLSv1.1
++smtp_tls_protocols              = !SSLv2,!SSLv3,!TLSv1,!TLSv1.1
++smtp_tls_exclude_ciphers        = NULL, MD5, DES, RC4
++smtp_tls_mandatory_ciphers      = ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256
++
++# TLS Settings
++smtpd_use_tls                    = yes
++smtpd_tls_cert_file              = /etc/ssl/certs/ssl-cert-snakeoil.pem
++smtpd_tls_key_file               = /etc/ssl/private/ssl-cert-snakeoil.key
+ 
+-# Uncomment the next line to generate "delayed mail" warnings
+-#delay_warning_time = 4h
+-
+-readme_directory = no
+-
+-# TLS parameters
+-smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
+-smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
+-smtpd_use_tls=yes
+ smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
++smtp_tls_session_cache_database  = btree:${data_directory}/smtp_scache
+-smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+ 
++# Delivery configuration
++mailbox_command     = procmail -a "$EXTENSION"
++mailbox_size_limit  = 0
++message_size_limit  = 52428800
++recipient_delimiter = +
+-# See /usr/share/doc/postfix/TLS_README.gz in the postfix-doc package for
+-# information on enabling SSL in the smtp client.
+ 
++# Access restrictions
++authorized_flush_users = root
++authorized_mailq_users = root
+-smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
+-myhostname = hashbang
+-alias_maps = hash:/etc/aliases
+-alias_database = hash:/etc/aliases
+-mydestination = hashbang, localhost.localdomain, , localhost
+-relayhost = 
+-mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
+-mailbox_command = procmail -a "$EXTENSION"
+-mailbox_size_limit = 0
+-recipient_delimiter = +
+-inet_interfaces = all
+reverted:
+--- /dev/null
++++ a/procmailrc
+@@ -0,0 +1,2 @@
++ORGMAIL=${HOME}/Mail/new
++DEFAULT=${ORGMAIL}
+reverted:
+--- b/profile
++++ a/profile
+@@ -32,3 +32,5 @@
+   done
+   unset i
+ fi
++
++umask 077
+reverted:
+--- /dev/null
++++ a/profile.d/dotfiles.sh
+@@ -0,0 +1,68 @@
++###
++# check if the dotfiles must be recreated
++###
++
++# Check both ~/.dotfiles and ~/.bash_profile as we
++# don't want to run if the user has “old style” dotfiles.
++if [ -d ~/.dotfiles ] || [ -f ~/.bash_profile ]; then
++    return
++fi
++
++###
++# pre-clone
++###
++
++# Prepare GnuPG homedir
++export GNUPGHOME=$(mktemp -d --tmpdir gpg.XXXXXX)
++trap "rm -rf -- '${GNUPGHOME}'; unset GNUPGHOME" EXIT
++
++cat > "${GNUPGHOME}/gpg.conf" <<EOF
++# Never, ever, ever do this in your personal gpg.conf
++# However, this is sane when you know you use an empty GNUPGHOME
++keyring /var/lib/hashbang/admins.gpg
++trust-model always
++EOF
++
++###
++# cloning
++###
++
++if ! git clone --recursive https://github.com/hashbang/dotfiles ~/.dotfiles; then
++    cat >&2 <<EOF
++CRITICAL: Failed to clone your dotfiles from
++          https://github.com/hashbang/dotfiles
++EOF
++    rm -rf ~/.dotfiles
++    return
++fi
++
++if ! git -C ~/.dotfiles verify-commit HEAD; then
++    echo "CRITICAL: Failed to verify signature on dotfiles" >&2
++    rm -rf ~/.dotfiles
++    return
++fi
++
++rm -rf -- "${GNUPGHOME}"
++unset GNUPGHOME
++trap - EXIT
++
++###
++# stowing
++###
++
++cd ~/.dotfiles
++stow bash git gnupg hashbang ssh tmux weechat zsh
++cd
++
++###
++# Make sure a proper maildir is in place
++###
++
++mkdir -p ~/Mail/cur ~/Mail/new ~/Mail/tmp
++
++###
++# Edit the welcome message
++###
++
++sed -i "s/{date}/$(date '+%a, %-d %b %Y %T %Z')/g" Mail/new/msg.welcome
++sed -i "s/{username}/$(whoami)/g"                  Mail/new/msg.welcome
+reverted:
+--- /dev/null
++++ a/profile.d/go.sh
+@@ -0,0 +1,3 @@
++# https://github.com/golang/go/wiki/GOPATH
++export GOPATH="/usr/share/gocode:$HOME/.local/gocode"
++export PATH="$GOPATH/bin:$PATH"
+reverted:
+--- /dev/null
++++ a/profile.d/local_path.sh
+@@ -0,0 +1 @@
++export PATH="$HOME/.local/bin:$PATH"
+reverted:
+--- /dev/null
++++ a/profile.d/luarocks_aliases.sh
+@@ -0,0 +1,8 @@
++#!/bin/sh
++alias luarocks-5.1="lua5.1 /usr/bin/luarocks --local"
++alias luarocks-5.2="lua5.2 /usr/bin/luarocks --local"
++alias luarocks-5.3="lua5.3 /usr/bin/luarocks --local"
++# Need to do 5.1 last, as it adds to LUA_PATH, which would be picked up by the other commands
++eval `lua5.3 /usr/bin/luarocks --bin path`
++eval `lua5.2 /usr/bin/luarocks --bin path`
++eval `lua5.1 /usr/bin/luarocks --bin path`
+reverted:
+--- /dev/null
++++ a/profile.d/npm.sh
+@@ -0,0 +1,24 @@
++export PATH="$HOME/.npm-packages/bin:$PATH" # man 1 sh
++export NODE_PATH="$HOME/.npm-packages/lib/node_modules" # man 1 node
++export NPM_CONFIG_PREFIX="$HOME/.npm-packages" # man 7 npm-config
++                                               # NOT man 1 or man 3
++export N_PREFIX="$HOME/.npm-packages" # installs under ~/.npm-packages/n
++
++install_node_version() {
++  mv "$HOME/.npm-packages" "$HOME/.npm-packages-$(node -v)"
++  echo "The previous versions of your NPM packages have moved. They are now"
++  echo "accessible at: $HOME/.npm-packages-$(node -v)"
++  command npm install -g npm
++  command npm install -g n
++  n "$1"
++  command npm install yarn
++}
++
++npm() {
++  echo "Use yarn instead!" >&2
++  if ! command -v yarn >/dev/null; then
++    echo 'Run `install_node_version latest` to update Node and install Yarn' >&2
++    echo 'You can also specify an alias, such as `lts`, `latest`, etc.' >&2
++  fi
++  return 1
++}
+reverted:
+--- /dev/null
++++ a/profile.d/nvm.sh
+@@ -0,0 +1,9 @@
++export NVM_DIR="$HOME/.nvm"
++
++install_nvm() {
++  git clone https://github.com/creationix/nvm "$NVM_DIR"
++  git -C "$NVM_DIR" checkout $(git -C "$NVM_DIR" describe --abbrev=0 --tags --match "v[0-9]*" origin)
++  . "$NVM_DIR/nvm.sh"
++}
++
++[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+reverted:
+--- /dev/null
++++ a/profile.d/user_ruby_bin_directory.sh
+@@ -0,0 +1 @@
++export PATH="$HOME/.gem/bin:$PATH"
+reverted:
+--- /dev/null
++++ a/profile.d/wall.sh
+@@ -0,0 +1,3 @@
++# By default, refuse to receive wall(1) messages from unprivileged users
++# Set `mesg y` in your config if this is the desired behaviour.
++mesg n
+reverted:
+--- /dev/null
++++ a/profile.d/z_manpath.sh
+@@ -0,0 +1 @@
++export MANPATH="${MANPATH:-$(manpath)}"
+reverted:
+--- b/rc.local
++++ a/rc.local
+@@ -1,14 +1 @@
+-#!/bin/sh -e
+-#
+-# rc.local
+-#
+-# This script is executed at the end of each multiuser runlevel.
+-# Make sure that the script will "exit 0" on success or any other
+-# value on error.
+-#
+-# In order to enable or disable this script just change the execution
+-# bits.
+-#
+-# By default this script does nothing.
+-
+ exit 0
+reverted:
+--- /dev/null
++++ a/resolvconf/resolv.conf.d/base
+@@ -0,0 +1 @@
++nameserver 127.0.0.1
+reverted:
+--- /dev/null
++++ a/resolvconf/resolv.conf.d/tail
+@@ -0,0 +1 @@
++domain hashbang.sh
+reverted:
+--- b/security/limits.conf
++++ a/security/limits.conf
+@@ -42,15 +42,7 @@
+ #
+ #<domain>      <type>  <item>         <value>
+ #
++1000:65535           soft    nproc           150
++1000:65535           hard    nproc           200
++1000:65535           soft    nofile          4096
++1000:65535           hard    nofile          10240
+-
+-#*               soft    core            0
+-#root            hard    core            100000
+-#*               hard    rss             10000
+-#@student        hard    nproc           20
+-#@faculty        soft    nproc           20
+-#@faculty        hard    nproc           50
+-#ftp             hard    nproc           0
+-#ftp             -       chroot          /ftp
+-#@student        -       maxlogins       4
+-
+-# End of file
+reverted:
+--- /dev/null
++++ a/security/limits.sh
+@@ -0,0 +1,8 @@
++#!/bin/sh -e
++
++PAM_UID=$(getent passwd "${PAM_USER}" | cut -d: -f3)
++
++if [ "${PAM_UID}" -ge 1000 ]; then
++    /bin/systemctl set-property "user-${PAM_UID}.slice" \
++                   CPUQuota=50% MemoryLimit=512M BlockIOWeight=10
++fi
+reverted:
+--- b/security/namespace.conf
++++ a/security/namespace.conf
+@@ -2,12 +2,9 @@
+ #
+ # See /usr/share/doc/pam-*/txts/README.pam_namespace for more information.
+ #
++# /tmp, /var/tmp and /run/lock are polyinstantiated on a per-user basis,
++# resulting in each user having a different, private directory mounted
++# at those locations.
+-# Uncommenting the following three lines will polyinstantiate
+-# /tmp, /var/tmp and user's home directories. /tmp and /var/tmp will
+-# be polyinstantiated based on the MLS level part of the security context as well as user
+-# name, Polyinstantion will not be performed for user root and adm for directories
+-# /tmp and /var/tmp, whereas home directories will be polyinstantiated for all users.
+-# The user name and context is appended to the instance prefix.
+ #
+ # Note that instance directories do not have to reside inside the
+ # polyinstantiated directory. In the examples below, instances of /tmp
+@@ -23,6 +20,7 @@
+ # caution, as it will reduce security and isolation achieved by
+ # polyinstantiation.
+ #
++#/dev      /dev/inst/           user      root
++/tmp      /tmp/inst/           user      root
++/var/tmp  /var/tmp/inst/       user      root
++/run/lock /run/lock/inst/      user      root
+-#/tmp     /tmp-inst/       	level      root,adm
+-#/var/tmp /var/tmp/tmp-inst/   	level      root,adm
+-#$HOME    $HOME/$USER.inst/     level
+reverted:
+--- b/security/namespace.init
++++ a/security/namespace.init
+@@ -1,25 +1,44 @@
++#!/bin/sh -e
+-#!/bin/sh -p
+ # It receives polydir path as $1, the instance path as $2,
+ # a flag whether the instance dir was newly created (0 - no, 1 - yes) in $3,
+ # and user name in $4.
++
++if [ "$1" = "/dev" ]; then
++	# If we are creating /dev
++	if [ "$3" = 1 ]; then
++		# Major and minor number for devices come from
++		# https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/Documentation/devices.txt
++		mknod -m 666 /dev/null      char  1   3
++		mknod -m 666 /dev/zero      char  1   5
++		mknod -m 666 /dev/full      char  1   7
++		mknod -m 666 /dev/random    char  1   8
++		mknod -m 666 /dev/urandom   char  1   9
++		mknod -m 666 /dev/fuse      char 10 229
++
++		mknod -m 666 /dev/tty       char  5   0
++		chown root:tty /dev/tty
++
++		# Create devpts mountpoint
++		mkdir -m 755 /dev/pts
++
++		# Create the shm directory
++		mkdir -m 1777 /dev/shm
++
++		# Mandatory symlinks
++		ln -s /proc/self/fd  /dev/fd
++		ln -s fd/0           /dev/stdin
++		ln -s fd/1           /dev/stdout
++		ln -s fd/2           /dev/stderr
++		ln -s null           /dev/X0R
++
++		# Recommended symlinks
++		ln -s /run/systemd/journal/dev-log /dev/log
++	fi
++
++	mount -o gid=5,mode=620,ptmxmode=0666 \
++		  -t devpts devpts /dev/pts
++
++	ln -sf pts/ptmx /dev/ptmx
+-#
+-# The following section will copy the contents of /etc/skel if this is a
+-# newly created home directory.
+-if [ "$3" = 1 ]; then
+-        # This line will fix the labeling on all newly created directories
+-        [ -x /sbin/restorecon ] && /sbin/restorecon "$1"
+-        user="$4"
+-        passwd=$(getent passwd "$user")
+-        homedir=$(echo "$passwd" | cut -f6 -d":")
+-        if [ "$1" = "$homedir" ]; then
+-                gid=$(echo "$passwd" | cut -f4 -d":")
+-                cp -rT /etc/skel "$homedir"
+-                chown -R "$user":"$gid" "$homedir"
+-                mask=$(awk '/^UMASK/{gsub("#.*$", "", $2); print $2; exit}' /etc/login.defs)
+-                mode=$(printf "%o" $((0777 & ~$mask)))
+-                chmod ${mode:-700} "$homedir"
+-                [ -x /sbin/restorecon ] && /sbin/restorecon -R "$homedir"
+-        fi
+ fi
+ 
+ exit 0
+reverted:
+--- /dev/null
++++ a/skel/Mail/new/msg.welcome
+@@ -0,0 +1,26 @@
++From: noreply@hashbang.sh
++X-Original-To: {username}@hashbang.sh
++Delivered-To: {username}@hashbang.sh
++MIME-Version: 1.0
++From: The Local Bot <noreply@hashbang.sh>
++Date: {date}
++Subject: Press Enter to open this!
++To: {username} <{username}@hashbang.sh>
++Content-Type: text/plain
++
++Hey! Welcome to #!
++
++Hashbang (The name of the #! symbol) is a community-run online "hackerspace" based off of the core principle of "Teach. Learn. Make things do." We are a community dedicated to helping, teaching, and providing people with resources for educational and productive services. With this in mind, Hashbang (while being called an online hackerspace) does not support nor does it encourage the engagement of illegal or otherwise disruptive activities that may have a negative impact on the resources of other users.
++
++The name of hashbang is based off of the symbol '#!', found at the start of a shell script. This symbol instructs the operating system what program is required to "do" something with the code. Hashbang runs the same way. We try to instruct our users on the tools and skills required to -do- whatever they want for themselves. Likewise if you want something done, -do- it yourself. Don't know how? Ask. We're here to help new people get used to a Linux/Unix environment and to start them off with making software, learning how the terminal and services work... or perhaps helping talk through a challenging work problem someone faces at a major tech company. We welcome all skill levels and backgrounds.
++
++Software is almost never complete, and there might always be something off. Being a community-run service, hashbang encourages users to find bugs within the software and attempt to fix them. Most of our repositories are stored online on GitHub (https://github.com/hashbang) and are easily accessible. If you have any questions about any of our offerings, or just want to chat, you can switch to the first window (ctrl-B then 1) and talk to a number of other users in real time.
++
++Thank you for taking the time to read this welcome message, and welcome to #!
++
++To find out more try 'man hashbang' on one of the terminal tabs [ <Ctrl-b> c ]
++
++Currently, the ~/Public folder isn't exposed over HTTP by default;
++however, users can use the `SimpleHTTPServer.service` systemd unit file (in `~/.config/systemd/user`, modify it to set port) or a `@reboot` crontab entry to run `python3 -m http.server <port>` to provide a webserver exposing it.
++
++This message will self-destruct in 10 seconds.
+reverted:
+--- /dev/null
++++ a/skel/Public/index.html
+@@ -0,0 +1 @@
++Welcome to your #! personal site of things. Edit me!
+reverted:
+--- b/ssh/ssh_config
++++ a/ssh/ssh_config
+@@ -52,3 +52,5 @@
+     HashKnownHosts yes
+     GSSAPIAuthentication yes
+     GSSAPIDelegateCredentials no
++
++UseRoaming no
+reverted:
+--- b/ssh/sshd_config
++++ a/ssh/sshd_config
+@@ -9,11 +9,10 @@
+ Protocol 2
+ # HostKeys for protocol version 2
+ HostKey /etc/ssh/ssh_host_rsa_key
+-HostKey /etc/ssh/ssh_host_dsa_key
+ HostKey /etc/ssh/ssh_host_ecdsa_key
+ HostKey /etc/ssh/ssh_host_ed25519_key
+ #Privilege Separation is turned on for security
++UsePrivilegeSeparation sandbox
+-UsePrivilegeSeparation yes
+ 
+ # Lifetime and size of ephemeral version 1 server key
+ KeyRegenerationInterval 3600
+@@ -30,7 +29,10 @@
+ 
+ RSAAuthentication yes
+ PubkeyAuthentication yes
++
++AuthorizedKeysFile        none
++AuthorizedKeysCommand     /usr/bin/sss_ssh_authorizedkeys
++AuthorizedKeysCommandUser nobody
+-#AuthorizedKeysFile	%h/.ssh/authorized_keys
+ 
+ # Don't read the user's ~/.rhosts and ~/.shosts files
+ IgnoreRhosts yes
+@@ -49,7 +51,7 @@
+ ChallengeResponseAuthentication no
+ 
+ # Change to no to disable tunnelled clear text passwords
++PasswordAuthentication no
+-#PasswordAuthentication yes
+ 
+ # Kerberos options
+ #KerberosAuthentication no
+@@ -81,8 +83,18 @@
+ # be allowed through the ChallengeResponseAuthentication and
+ # PasswordAuthentication.  Depending on your PAM configuration,
+ # PAM authentication via ChallengeResponseAuthentication may bypass
++# the setting of "PermitRootLogin yes".
+-# the setting of "PermitRootLogin without-password".
+ # If you just want the PAM account and session checks to run without
+ # PAM authentication, then enable this but set PasswordAuthentication
+ # and ChallengeResponseAuthentication to 'no'.
+ UsePAM yes
++
++# When using -R with `ssh` client, allow binding to other interfaces when
++# specified. Default is loopback only.
++GatewayPorts clientspecified
++
++
++# Honor authorized_keys and ignore LDAP for root.
++Match User root
++     AuthorizedKeysFile        .ssh/authorized_keys
++     AuthorizedKeysCommand     /bin/true
+reverted:
+--- /dev/null
++++ a/sssd/sssd.conf
+@@ -0,0 +1,24 @@
++[sssd]
++domains = HASHBANG 
++services = nss, pam, ssh
++config_file_version = 2
++
++[nss]
++
++
++[domain/HASHBANG]
++enumerate = TRUE
++id_provider = ldap
++access_provider = ldap
++ldap_uri = ldaps://ldap.hashbang.sh
++ldap_search_base = dc=hashbang,dc=sh
++ldap_tls_reqcert = demand
++ldap_user_search_base = ou=People,dc=hashbang,dc=sh
++ldap_user_ssh_public_key = sshPublicKey
++ldap_pwd_policy = none
++ldap_access_order = host
++ldap_user_authorized_host = host
++cache_credentials = true
++
++[pam]
++id_provider = proxy
+reverted:
+--- b/sudoers
++++ a/sudoers
+@@ -9,6 +9,8 @@
+ Defaults	env_reset
+ Defaults	mail_badpass
+ Defaults	secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
++Defaults	!requiretty, !tty_tickets
++Defaults	use_pty
+ 
+ # Host alias specification
+ 
+reverted:
+--- /dev/null
++++ a/sudoers.d/hashbangctl
+@@ -0,0 +1,3 @@
++# Allow all users to call hashbangctl(1) without
++#   password.
++ALL ALL = NOEXEC: NOPASSWD: /usr/local/bin/hashbangctl
+reverted:
+--- b/sysctl.conf
++++ a/sysctl.conf
+@@ -16,8 +16,8 @@
+ # Uncomment the next two lines to enable Spoof protection (reverse-path filter)
+ # Turn on Source Address Verification in all interfaces to
+ # prevent some spoofing attacks
++net.ipv4.conf.default.rp_filter=1
++net.ipv4.conf.all.rp_filter=1
+-#net.ipv4.conf.default.rp_filter=1
+-#net.ipv4.conf.all.rp_filter=1
+ 
+ # Uncomment the next line to enable TCP/IP SYN cookies
+ # See http://lwn.net/Articles/277146/
+@@ -58,3 +58,12 @@
+ # Log Martian Packets
+ #net.ipv4.conf.all.log_martians = 1
+ #
++net.ipv4.conf.eth0.arp_notify = 1
++vm.swappiness = 60
++
++# Use CoDel (controlled delay) to avoid bufferbloat
++net.core.default_qdisc = fq_codel
++
++# Forbid unprivileged (~ CAP_SYS_ADMIN) processes to
++#  instrument the kernel with perf_event_open(2)
++kernel.perf_event_paranoid = 2
+reverted:
+--- /dev/null
++++ a/sysctl.d/10-dmsg.conf
+@@ -0,0 +1 @@
++kernel.dmesg_restrict = 1
+reverted:
+--- b/systemd/journald.conf
++++ a/systemd/journald.conf
+@@ -8,28 +8,6 @@
+ # See journald.conf(5) for details
+ 
+ [Journal]
++MaxLevelStore=notice
++MaxRetentionSec=1month
++SystemMaxUse=1G
+-#Storage=auto
+-#Compress=yes
+-#Seal=yes
+-#SplitMode=uid
+-#SyncIntervalSec=5m
+-#RateLimitInterval=30s
+-#RateLimitBurst=1000
+-#SystemMaxUse=
+-#SystemKeepFree=
+-#SystemMaxFileSize=
+-#RuntimeMaxUse=
+-#RuntimeKeepFree=
+-#RuntimeMaxFileSize=
+-#MaxRetentionSec=
+-#MaxFileSec=1month
+-#ForwardToSyslog=yes
+-#ForwardToKMsg=no
+-#ForwardToConsole=no
+-#ForwardToWall=yes
+-#TTYPath=/dev/console
+-#MaxLevelStore=debug
+-#MaxLevelSyslog=debug
+-#MaxLevelKMsg=notice
+-#MaxLevelConsole=info
+-#MaxLevelWall=emerg
+reverted:
+--- b/systemd/system.conf
++++ a/systemd/system.conf
+@@ -32,9 +32,9 @@
+ #DefaultStartLimitInterval=10s
+ #DefaultStartLimitBurst=5
+ #DefaultEnvironment=
++DefaultCPUAccounting=yes
++DefaultBlockIOAccounting=yes
++DefaultMemoryAccounting=yes
+-#DefaultCPUAccounting=no
+-#DefaultBlockIOAccounting=no
+-#DefaultMemoryAccounting=no
+ #DefaultLimitCPU=
+ #DefaultLimitFSIZE=
+ #DefaultLimitDATA=
+reverted:
+--- /dev/null
++++ a/systemd/system/crontab.target
+@@ -0,0 +1,7 @@
++[Install]
++WantedBy=multi-user.target
++
++[Unit]
++Description=Simulates cron, limited to /etc/cron.* 
++Requires=crontab@hour.timer crontab@day.timer
++Requires=crontab@week.timer crontab@month.timer
+reverted:
+--- /dev/null
++++ a/systemd/system/crontab@.service
+@@ -0,0 +1,11 @@
++[Unit]
++Description=%Ily job for /etc/cron.%Ily
++RefuseManualStart=yes
++RefuseManualStop=yes
++ConditionDirectoryNotEmpty=/etc/cron.%Ily
++
++[Service]
++Type=oneshot
++IgnoreSIGPIPE=no
++WorkingDirectory=/
++ExecStart=/bin/run-parts --report /etc/cron.%Ily
+reverted:
+--- /dev/null
++++ a/systemd/system/crontab@.timer
+@@ -0,0 +1,9 @@
++[Unit]
++Description=%Ily timer simulating /etc/cron.%Ily
++PartOf=crontab.target
++RefuseManualStart=yes
++RefuseManualStop=yes
++
++[Timer]
++OnCalendar=%I
++Persistent=yes
+reverted:
+--- /dev/null
++++ a/systemd/system/crontab@day.service
+@@ -0,0 +1,11 @@
++[Unit]
++Description=Daily job for /etc/cron.daily
++RefuseManualStart=yes
++RefuseManualStop=yes
++ConditionDirectoryNotEmpty=/etc/cron.daily
++
++[Service]
++Type=oneshot
++IgnoreSIGPIPE=no
++WorkingDirectory=/
++ExecStart=/bin/run-parts --report /etc/cron.daily
+reverted:
+--- b/systemd/system/getty.target.wants/getty@tty1.service
++++ a/systemd/system/getty.target.wants/getty@tty1.service
+@@ -1 +1 @@
++/lib/systemd/system/getty@.service
+\ No newline at end of file
+-../getty@.service
+reverted:
+--- /dev/null
++++ a/systemd/system/multi-user.target.wants/crontab.target
+@@ -0,0 +1 @@
++../crontab.target
+\ No newline at end of file
+reverted:
+--- /dev/null
++++ a/systemd/system/multi-user.target.wants/tor.service
+@@ -0,0 +1 @@
++/lib/systemd/system/tor.service
+\ No newline at end of file
+reverted:
+--- /dev/null
++++ a/systemd/system/multi-user.target.wants/unbound.service
+@@ -0,0 +1 @@
++/lib/systemd/system/unbound.service
+\ No newline at end of file
+reverted:
+--- /dev/null
++++ a/systemd/system/sysinit.target.wants/resolvconf.service
+@@ -0,0 +1 @@
++/lib/systemd/system/resolvconf.service
+\ No newline at end of file
+reverted:
+--- /dev/null
++++ a/systemd/system/unbound.service.wants/unbound-resolvconf.service
+@@ -0,0 +1 @@
++/lib/systemd/system/unbound-resolvconf.service
+\ No newline at end of file
+reverted:
+--- b/timezone
++++ a/timezone
+@@ -1 +1 @@
++Etc/UTC
+-America/New_York
+reverted:
+--- /dev/null
++++ a/tmpfiles.d/namespaces
+@@ -0,0 +1,5 @@
++#Type Path              Mode UID  GID  Age Argument
++d     /dev/inst         0000 root root -   -
++d     /tmp/inst         0000 root root -   -
++d     /var/tmp/inst     0000 root root -   -
++d     /run/lock/inst    0000 root root -   -
+reverted:
+--- b/tor/torsocks.conf
++++ a/tor/torsocks.conf
+@@ -27,4 +27,4 @@
+ 
+ # Set Torsocks to accept inbound connections. If set to 1, listen() and
+ # accept() will be allowed to be used with non localhost address. (Default: 0)
++AllowInbound 1
+-#AllowInbound 1
+reverted:
+--- /dev/null
++++ a/unbound/unbound.conf.d/debian.conf
+@@ -0,0 +1,3 @@
++server:
++  # Use DNS root hints from the dns-root-data Debian package
++  root-hints: "/usr/share/dns/root.hints"
+reverted:
+--- /dev/null
++++ a/unbound/unbound.conf.d/harden.conf
+@@ -0,0 +1,23 @@
++server:
++  # Do not expose information about the running deamon
++  hide-identity: yes
++  hide-version:  yes
++  
++  # Harden against ridiculously-short buffer sizes (potential DoS vector)
++  # This is against spec, but we aren't a public resolver.
++  harden-short-bufsize: yes
++  
++  # Harden against abnormaly large queries (same reasoning)
++  harden-large-queries: yes
++  
++  # Return NXDOMAIN for queries under a terminal known (and DNSSEC-validated)
++  #   to be NXDOMAIN.  Improves caching and avoids certain attacks
++  harden-below-nxdomain: yes
++  
++  # Use 0x20-encoded random nonces for authenticating queries.
++  # Implementation of draft-dns-0x20, makes DNS poisoning harder
++  use-caps-for-id: yes
++
++  # Minimises queries sent upstream
++  # Avoids information disclosure to root/TLD DNS servers & improves caching
++  qname-minimisation: yes
+reverted:
+--- /dev/null
++++ a/unbound/unbound.conf.d/prefetch.conf
+@@ -0,0 +1,4 @@
++server:
++  # Prefetch popular domains before the cache expires
++  prefetch:     yes
++  prefetch-key: yes
+\ No newline at end of file
+reverted:
+--- /dev/null
++++ a/unbound/unbound.conf.d/qname-minimisation.conf
+@@ -0,0 +1,9 @@
++server:
++    # Send minimum amount of information to upstream servers to enhance
++    # privacy. Only sends minimum required labels of the QNAME and sets
++    # QTYPE to NS when possible.
++
++    # See RFC 7816 "DNS Query Name Minimisation to Improve Privacy" for
++    # details.
++
++    qname-minimisation: yes
+reverted:
+--- b/zsh/zprofile
++++ a/zsh/zprofile
+@@ -5,3 +5,5 @@
+ # shells invoked with the -l flag.)
+ #
+ # Global Order: zshenv, zprofile, zshrc, zlogin
++umask 077
++emulate sh -c 'source /etc/profile'
