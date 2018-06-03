@@ -6,6 +6,7 @@
     "headless": "true",
     "iso_url": "https://cdimage.debian.org/debian-cd/9.4.0/amd64/iso-cd/debian-9.4.0-amd64-netinst.iso",
     "iso_checksum": "124d270006703f2111224dec3bf7a9d01450168be41d4834f88fdd035552b044",
+    "release": "stretch",
     "version": "{{ env `VERSION`}}"
   },
   "builders": [
@@ -16,7 +17,7 @@
       "template_name": "download",
       "template_parameters": [
         "--dist", "debian",
-        "--release", "stretch",
+        "--release", "{{ user `release` }}",
         "--arch", "amd64",
         "--keyserver", "hkp://p80.pool.sks-keyservers.net:80"
       ],
@@ -84,7 +85,7 @@
     {
       "name": "docker",
       "type": "docker",
-      "image": "debian:jessie",
+      "image": "debian:{{ user `release` }}",
       "changes": [
         "ENV container=docker",
         "VOLUME ['/sys/fs/cgroup','/run','/run/lock','/tmp']",
