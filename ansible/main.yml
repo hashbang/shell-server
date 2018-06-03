@@ -17,22 +17,14 @@
     when: dockerenv.stat.exists
     ignore_errors: True
   - include_tasks: tasks/packages.yml
-#- import_playbook: includes/setup/misc.yml
-
-# none of the templates for these exist yet
-#- import_playbook: includes/setup/install-config.yml
-
-# somehow conditionally include this only if target is docker
-#- import_playbook: includes/docker/resolvconf.yml
-
-# Everything under this point doesn't exist?
-#- import_playbook: includes/setup/apt/configure-selections.yml
-#- import_playbook: includes/config/tools/msmtp.yml
-
-# optional depending on whether or not we version-control the unit files
-# which we probably won't
-#- import_playbook: includes/docker/disable-systemd-units.yml
-
-#- import_playbook: includes/machine/setup-journal.yml
-#- import_playbook: includes/machine/update-grub.yml
-#- import_playbook: includes/machine/fstrim.yml
+  - include_tasks: tasks/tor.yml
+  - include_tasks: tasks/cron.yml
+  - include_tasks: tasks/dns.yml
+  - include_tasks: tasks/docker.yml
+  - include_tasks: tasks/hashbang.tf
+  - include_tasks: tasks/ldap-nss.yml
+  - include_tasks: tasks/logging.yml
+  - include_tasks: tasks/mail.yml
+  - include_tasks: tasks/misc.yml
+  - include_tasks: tasks/profile.yml
+  - include_tasks: tasks/security.yml
