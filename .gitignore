@@ -1,0 +1,4 @@
+.*
+dist
+config.json
+*.retry
