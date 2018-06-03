@@ -16,8 +16,7 @@
   - include_tasks: tasks/docker.yml
     when: dockerenv.stat.exists
     ignore_errors: True
-
-- import_tasks: tasks/packages.yml
+  - include_tasks: tasks/packages.yml
 #- import_playbook: includes/setup/misc.yml
 
 # none of the templates for these exist yet
