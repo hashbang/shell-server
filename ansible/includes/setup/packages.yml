@@ -132,7 +132,6 @@
       - emacs-nox
       - emacs24-bin-common
       - emacs24-common
-      - emacs24-common-non-dfsg
       - emacs24-nox
       - emacsen-common
       - encfs
@@ -647,7 +646,6 @@
       - xkb-data
       - xml-core
       - xz-utils
-      - zangband-data
       - zile
       - zip
       - zlib1g
