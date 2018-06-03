@@ -28,7 +28,13 @@ vagrant:
 	rm -rf .packer/build/virtualbox
 	$(PACKER) build -only virtualbox packer/build.json
 
+lxc:
+	rm -rf dist/*vagrant*
+	rm -rf dist/*virtualbox*
+	rm -rf .packer/build/virtualbox
+	$(PACKER) build -only virtualbox packer/build.json
+
 release:
 	bash scripts/release.sh
 
-.PHONY: all docker qemu vagrant clean
+.PHONY: all docker qemu vagrant lxc clean

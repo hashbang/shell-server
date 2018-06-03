@@ -10,6 +10,19 @@
   },
   "builders": [
     {
+      "type": "lxc",
+      "name": "lxc",
+      "config_file": "/usr/share/lxc/config/common.conf",
+      "template_name": "download",
+      "template_parameters": [
+        "--dist", "debian",
+        "--release", "stretch",
+        "--arch", "amd64",
+        "--keyserver", "hkp://p80.pool.sks-keyservers.net:80"
+      ],
+      "target_runlevel": 3
+    },
+    {
       "name": "qemu",
       "type": "qemu",
       "format": "qcow2",
@@ -82,10 +95,6 @@
     }
   ],
   "provisioners": [
-    {
-        "type": "shell",
-        "inline": ["apt install --yes python-apt"]
-    },
     {
       "type": "ansible",
       "playbook_file": "ansible/main.yml"

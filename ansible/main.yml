@@ -1,8 +1,8 @@
 ---
 - hosts: all
 
-- import_playbook: includes/setup/apt/base.yml
-- import_playbook: includes/setup/misc.yml
+- import_playbook: includes/setup/packages.yml
+#- import_playbook: includes/setup/misc.yml
 
 # none of the templates for these exist yet
 #- import_playbook: includes/setup/install-config.yml
