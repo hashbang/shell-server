@@ -1,0 +1,234 @@
+---
+- hosts: all
+  tasks:
+
+  - name: Restrict tempfile namespaces
+    copy:
+      dest: /etc/tmpfiles.d/namespaces
+      content: |
+        #Type Path              Mode UID  GID  Age Argument
+        d     /dev/inst         0000 root root -   -
+        d     /tmp/inst         0000 root root -   -
+        d     /var/tmp/inst     0000 root root -   -
+        d     /run/lock/inst    0000 root root -   -
+
+  - name: Setup default security limits
+    block:
+    - name: Setup security limits.conf
+      copy:
+        dest: /etc/security/limits.conf
+        content: |
+          1000:65535           soft    nproc           150
+          1000:65535           hard    nproc           200
+          1000:65535           soft    nofile          4096
+          1000:65535           hard    nofile          10240
+    - name:
+      copy:
+        dest: /etc/security/limits.sh
+        content: |
+          #!/bin/sh -e
+
+          PAM_UID=$(getent passwd "${PAM_USER}" | cut -d: -f3)
+
+          if [ "${PAM_UID}" -ge 1000 ]; then
+              /bin/systemctl set-property "user-${PAM_UID}.slice" \
+                             CPUQuota=50% MemoryLimit=512M BlockIOWeight=10
+          fi
+    - name:
+      copy:
+        dest: /etc/security/namespace.conf
+        content: |
+          /tmp      /tmp/inst/           user      root
+          /var/tmp  /var/tmp/inst/       user      root
+          /run/lock /run/lock/inst/      user      root
+    - name:
+      copy:
+        dest: /etc/security/namespace.init
+        content: |
+          #!/bin/sh -e
+          # It receives polydir path as $1, the instance path as $2,
+          # a flag whether the instance dir was newly created (0 - no, 1 - yes) in $3,
+          # and user name in $4.
+
+          if [ "$1" = "/dev" ]; then
+          	# If we are creating /dev
+          	if [ "$3" = 1 ]; then
+          		# Major and minor number for devices come from
+          		# https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/Documentation/devices.txt
+          		mknod -m 666 /dev/null      char  1   3
+          		mknod -m 666 /dev/zero      char  1   5
+          		mknod -m 666 /dev/full      char  1   7
+          		mknod -m 666 /dev/random    char  1   8
+          		mknod -m 666 /dev/urandom   char  1   9
+          		mknod -m 666 /dev/fuse      char 10 229
+          		mknod -m 666 /dev/tty       char  5   0
+          		chown root:tty /dev/tty
+
+          		# Create devpts mountpoint
+          		mkdir -m 755 /dev/pts
+
+          		# Create the shm directory
+          		mkdir -m 1777 /dev/shm
+
+          		# Mandatory symlinks
+          		ln -s /proc/self/fd  /dev/fd
+          		ln -s fd/0           /dev/stdin
+          		ln -s fd/1           /dev/stdout
+          		ln -s fd/2           /dev/stderr
+          		ln -s null           /dev/X0R
+
+          		# Recommended symlinks
+          		ln -s /run/systemd/journal/dev-log /dev/log
+          	fi
+
+          	mount -o gid=5,mode=620,ptmxmode=0666 \
+          		  -t devpts devpts /dev/pts
+          	ln -sf pts/ptmx /dev/ptmx
+          fi
+
+          exit 0
+
+  - name: Update default umask to 027
+    lineinfile:
+      path: /etc/login.defs
+      regexp: "^UMASK"
+      line: "UMASK      027"
+
+  - name: Default logrotate wtmp to 0660
+    lineinfile:
+      path: /etc/logrotate.conf
+      regexp: "create 0664 root utmp"
+      line: "create 0660 root utmp"
+
+  - name: Ferm firewall policy
+    copy:
+      dest: /etc/ferm/ferm.conf
+      content: |
+        table filter {
+          chain INPUT {
+            policy ACCEPT;
+            mod state state INVALID DROP;
+          }
+          chain OUTPUT {
+            policy ACCEPT;
+
+            # connection tracking
+            mod state state INVALID DROP;
+
+            # Feathercoin mining pool
+            daddr (176.31.126.191 188.165.223.132) REJECT;
+
+            # bitcoinshell.mooo.com
+            daddr (92.222.41.125) REJECT;
+
+            # Bitcoin-related protocols
+            proto (udp tcp) dport (8082 8332 8333 50002) REJECT;
+          }
+        }
+
+  - name: Filesystem security settings
+    blockinfile:
+      path: /etc/fstab
+      block: |
+        proc   /proc    proc     defaults,hidepid=2                  0 0
+        udev   /dev     devtmpfs defaults,nosuid,noatime             0 0
+        devpts /dev/pts devpts   defaults,newinstance,ptmxmode=0666  0 0
+
+  - name: Use pty instead of tty for sudoers
+    blockinfile:
+      path: /etc/sudoers
+      block: |
+        Defaults	!requiretty, !tty_tickets
+        Defaults	use_pty
+
+  - name: Allow shell configuration tool with sudo pinhole
+    copy:
+      dest: /etc/sudoers.d/hashbangctl
+      content: "ALL ALL = NOEXEC: NOPASSWD: /usr/local/bin/hashbangctl"
+
+  - name: Ensure haveged uses 2048 bit watermark
+    lineinfile:
+      path: /etc/default/haveged
+      regexp: "^DAEMON_ARGS="
+      line: "DAEMON_ARGS=\"-w 2048\""
+
+  - name: Restrict potentially sensitive kernel dmesg output
+    lineinfile:
+      path: /etc/sysctl.d/10-dmsg.conf
+      line: "kernel.dmesg_restrict = 1"
+
+  - name: Prevent user access to some sensitive files
+    block:
+      - file:
+          mode: 0660
+          path: '{{ item }}'
+        with_items:
+          - /var/run/utmp
+          - /var/log/wtmp
+          - /var/log/lastlog
+      - acl:
+          path: '{{ item }}'
+          entry: 'group:adm:r'
+          state: present
+        with_items:
+          - /var/run/utmp
+          - /var/log/wtmp
+          - /var/log/lastlog
+
+  - name: sysctl security settings
+    block:
+    - name: enable spoof protection via reverse-path filter
+      blockinfile:
+        path: /etc/sysctl.conf
+        block: |
+          net.ipv4.conf.default.rp_filter=1
+          net.ipv4.conf.all.rp_filter=1
+    - name: Enable arp notifications for eth0
+      lineinfile:
+        path: /etc/sysctl.conf
+        line: "net.ipv4.conf.eth0.arp_notify = 1"
+    - name: Adjust VM Swappiness to more sane default
+      lineinfile:
+        path: /etc/sysctl.conf
+        line: "vm.swappiness = 60"
+    - name: Use Controlled Delay to avoid bufferbloat
+      lineinfile:
+        path: /etc/sysctl.conf
+        line: "net.core.default_qdisc = fq_codel"
+    - name: Deny use of perf_event_open to unprivileged processes
+      lineinfile:
+        path: /etc/sysctl.conf
+        line: "kernel.perf_event_paranoid = 2"
+
+
+
+  - name: ssh security settings
+    block:
+    - name: Don't allow Roaming for ssh clients
+      lineinfile:
+        path: /etc/ssh_config
+        line: "UseRoaming no"
+    - name: Don't use dsa keys in sshd_config
+      lineinfile:
+        path: /etc/sshd_config
+        line: "HostKey /etc/ssh/ssh_host_dsa_key"
+        state: absent
+    - name: Use ssh privilege separation sandboxing
+      lineinfile:
+        path: /etc/sshd_config
+        line: "UsePrivilegeSeparation sandbox"
+    - name: Disable password authentication
+      lineinfile:
+        path: /etc/sshd_config
+        line: "PasswordAuthentication no"
+    - name: Allow use of client-specified gateway ports
+      lineinfile:
+        path: /etc/sshd_config
+        line: "GatewayPorts clientspecified"
+    - name: Allow root ssh via hardcoded keys as failsafe
+      blockinfile:
+        path: /etc/sshd_config
+        block: |
+          Match User root
+               AuthorizedKeysFile        .ssh/authorized_keys
+               AuthorizedKeysCommand     /bin/true

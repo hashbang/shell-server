@@ -2,89 +2,28 @@
 - hosts: all
   tasks:
 
-  - name: Prevent user access to some sensitive files
-    block:
-      - file:
-          mode: 0660
-          path: '{{ item }}'
-        with_items:
-          - /var/run/utmp
-          - /var/log/wtmp
-          - /var/log/lastlog
-      - acl:
-          path: '{{ item }}'
-          entry: 'group:adm:r'
-          state: present
-        with_items:
-          - /var/run/utmp
-          - /var/log/wtmp
-          - /var/log/lastlog
-
-  - name: Install Postfix Aliases
-    lineinfile:
-      path: /etc/aliases
-      line: 'root: root@hashbang.sh'
-
-  - name: Install Administrator PGP keys
-    block:
-      - name: create temporary build directory
-        tempfile:
-          state: directory
-          register: gnupghome
-      - name: Import administrator PGP keys from keyserver
-        shell: |
-          GNUPGHOME={{ gnupghome.path }} \
-          gpg \
-            -q \
-            --batch \
-            --keyserver pool.sks-keyservers.net \
-            --recv-keys {{ item }};
-        args:
-          executable: /bin/bash
-        with_items:
-          - 0x954A3772D62EF90E4B31FBC6C91A9911192C187A # daurnimator
-          - 0x0A1F87C7936EB2461C6A9D9BAD9970F98EB884FD # DeviaVir
-          - 0xC92FE5A3FBD58DD3EC5AA26BB10116B8193F2DBD # drGrove
-          - 0xF2B7999666D83093F8D4212926CDD32189AA2885 # dpflug
-          - 0xAE2D535ABD2E5B42CE1E97110527B4EFFB4A3AEB # kellerfuchs
-          - 0x6B61ECD76088748C70590D55E90A401336C8AAA9 # lrvick
-          - 0xA251FDF79171F98674EB2176FCC2D6E33BA86209 # ryan
-      - name: Export administrator pgp keys to combined keychain file
-        shell: |
-          GNUPGHOME={{ gnupghome.path }} \
-          gpg \
-            -q \
-            --batch \
-            --yes \
-            --export \
-            --export-options export-clean,export-minimal \
-            -o /var/lib/hashbang/admins.gpg
-        args:
-          executable: /bin/bash
-
-  - name: Setup cron job to kill processes of stale accounts
+  - name: Update pam for systemd-user support
     copy:
-      dest: /etc/cron.daily/clean-lurkers
+      dest: /etc/pam.d/systemd-user
       content: |
-        #!/bin/sh
-        # See https://xkcd.com/686/ -- Admin mourning
+        @include common-account
+        session  substack common-session-noninteractive
+        session  optional pam_systemd.so
+        auth     required pam_deny.so
+        password required pam_deny.so
 
-        DAYS=30
+  - name: Update pam to allow any user to chsh
+    copy:
+      dest: /etc/pam.d/chsch
+      content: "auth       sufficient  pam_wheel.so    trust   group=users use_uid"
 
-        for range in 1000-59999 65536-4294967293; do
-            for user in $(lastlog -b "$DAYS" -t "$((DAYS + 2))" -u "$range" | \
-                          tail -n +2 | cut -d' ' -f1); do
-                if [ ! -f "/home/${user}/.keep-account" ]; then
-                    loginctl terminate-user "$user"
-                fi
-            done
-        done
-
-  - name: Ensure haveged uses 2048 bit watermark
-    lineinfile:
-      path: /etc/default/haveged
-      regexp: "^DAEMON_ARGS="
-      line: "DAEMON_ARGS=\"-w 2048\""
+  - name: Configure systemd for increased resource accounting
+    blockinfile:
+      path: /etc/systemd/system.conf
+      block: |
+        DefaultCPUAccounting=yes
+        DefaultBlockIOAccounting=yes
+        DefaultMemoryAccounting=yes
 
   - name: Set default locale to en_US.UTF-8
     lineinfile:
@@ -92,141 +31,16 @@
       regexp: "^LANG"
       line: "LANG=en_US.UTF8"
 
+  - name: Set default timezone to UTC
+    copy:
+      dest: /etc/timezone
+      content: "Etc/UTC"
+
   - name: Set up filesystem checking at boot to automatically fix errors
     lineinfile:
       path: /etc/default/rcS
       regexp: "FSCKFIX"
       line: "FSCKFIX=yes"
-
-  - name: Default shell for new users to bash
-    lineinfile:
-      path: /etc/default/useradd
-      regexp: "SHELL="
-      line: "SHELL=/bin/bash"
-
-  - name: Default Mail location in homedir
-    lineinfile:
-      path: /etc/environment
-      line: "MAIL=~/Mail"
-
-  - name: Set Gem installs to homedirs
-    lineinfile:
-      path: /etc/gemrc
-      line: "gem: --user-install --bindir ~/.gem/bin"
-
-  - name: Set NPM installs to homedirs
-    lineinfile:
-      path: /etc/npmrc
-      line: "prefix = ${HOME}/.npm-packages"
-
-  - name: Filesystem security settings
-    blockinfile:
-      path: /etc/fstab
-      block: |
-        proc   /proc    proc     defaults,hidepid=2                  0 0
-        udev   /dev     devtmpfs defaults,nosuid,noatime             0 0
-        devpts /dev/pts devpts   defaults,newinstance,ptmxmode=0666  0 0
-
-  - name: Ferm firewall policy
-    copy:
-      dest: /etc/ferm/ferm.conf
-      content: |
-        table filter {
-          chain INPUT {
-            policy ACCEPT;
-            mod state state INVALID DROP;
-          }
-          chain OUTPUT {
-            policy ACCEPT;
-
-            # connection tracking
-            mod state state INVALID DROP;
-
-            # Feathercoin mining pool
-            daddr (176.31.126.191 188.165.223.132) REJECT;
-
-            # bitcoinshell.mooo.com
-            daddr (92.222.41.125) REJECT;
-
-            # Bitcoin-related protocols
-            proto (udp tcp) dport (8082 8332 8333 50002) REJECT;
-          }
-        }
-
-  - name: Install Welcome Message
-    block:
-    - name: Install welcome template script
-      copy:
-        dest: /etc/hashbang/welcome
-        content: |
-          #!/bin/sh
-
-          cat /etc/hashbang/welcome.pre
-
-          if [ -n "$TMUX" ]; then
-          	sed "s/\\\$USER/${USER}/" /etc/hashbang/welcome.tmux
-          else
-          	sed "s/\\\$USER/${USER}/" /etc/hashbang/welcome.notmux
-          fi
-
-          cat /etc/hashbang/welcome.post
-
-    - name: Install welcome header
-      copy:
-        dest: /etc/hashbang/welcome.pre
-        content: |
-             _  _    __
-           _| || |_ |  |  Welcome to #!. This network has three rules:
-          |_  __  _||  |
-           _| || |_ |  |  1. When people need help, teach. Don't do it for them
-          |_  __  _||__|  2. Don't use our resources for closed source projects
-            |_||_|  (__)  3. Be excellent to each other
-
-    - name: Install welcome body for non-tmux users
-      copy:
-        dest: /etc/hashbang/welcome.notmux
-        content: |
-           Things to explore:
-
-             * You can start 'tmux' to enter a tmux session.
-               Help will be displayed when tmux is started.
-
-             * You can resume a detached tmux session at any time.
-               Use 'tmux attach' to resume your tmux session.
-
-             * Your Hashbang email address is $USER@hashbang.sh
-               The `mutt` email client is preconfigured for you.
-
-    - name: Install welcome body for tmux users
-      copy:
-        dest: /etc/hashbang/welcome.notmux
-        content: |
-           Things to explore:
-
-             * You are in a 'tmux' session. There are three tabs below.
-               Navigate with <Ctrl-b> + a tab number.
-
-             * You are already in our IRC channel in "tab 1"
-               Type <Ctrl-B> + 1 to reach it and chat with us.
-
-             * Your Hashbang email address is: $USER@hashbang.sh
-               Type <Ctrl-B> + 2 to check your emails in mutt
-
-             * You can detach from this tmux session with <Ctrl-b> + <d>
-               You can also re-attach outside of tmux with 'tmux attach'
-
-    - name: Install welcome footer
-      copy:
-        dest: /etc/hashbang/welcome.post
-        content: |
-             * To learn more about us and our offerings type: man hashbang
-
-           Like what we're doing? Consider donating to expand our efforts.
-             * Bitcoin       - [ 1DtTvCLiUMhs21QcETQzLyiqxoopUjqBSU ]
-             * Google Wallet - [ donate@hashbang.sh ]
-             * PayPal        - [ http://goo.gl/aSQWy0 ]
-
-           Community shell servers generously sponsored by: (http://atlantic.net)
 
   - name: Install disk repartitioning script
     copy:
@@ -251,165 +65,25 @@
         echo -e "d\nn\n\n\n\n+20G\nn\np\n\n\n\nw\n" | fdisk /dev/sda
         mkfs.ext4 /dev/sda2
 
-  - name: Update default umask to 027
-    lineinfile:
-      path: /etc/login.defs
-      regexp: "^UMASK"
-      line: "UMASK      027"
+  - name: enable getty
+    systemd:
+      name: getty@tty1
+      enabled: yes
 
-  - name: Default logrotate wtmp to 0660
-    lineinfile:
-      path: /etc/logrotate.conf
-      regexp: "create 0664 root utmp"
-      line: "create 0660 root utmp"
-
-  - name: Update mailname to hashbang
-    lineinfile:
-      path: /etc/mailname
-      line: "hashbang.sh"
-
-  - name: Setup msmtprc for hashbang smtp
+  - name: Setup cron job to kill processes of stale accounts
     copy:
-      dest: /etc/msmtprc
+      dest: /etc/cron.daily/clean-lurkers
       content: |
-        # Global defaults
-        defaults
-        aliases /etc/aliases
-        logfile ~/.msmtp.log
+        #!/bin/sh
+        # See https://xkcd.com/686/ -- Admin mourning
 
-        # Hashbang account
-        # Required for msmtp to function as sendmail
-        account hashbang.sh
-        host mail.hashbang.sh
+        DAYS=30
 
-        # Sender address
-        auto_from on
-        maildomain hashbang.sh
-
-        # TLS configuration
-        tls on
-        tls_trust_file /etc/ssl/certs/ca-certificates.crt
-
-        # Syslog logging with facility LOG_MAIL instead of the default LOG_USER.
-        # Only applies to the #! account
-        syslog LOG_MAIL
-
-        # Make hashbang the default account
-        account default : hashbang.sh
-
-  - name: Setup NSLCD to ldap hashbang settings
-    copy:
-      dest: /etc/nslcd.conf
-      content: |
-        uid nslcd
-        gid nslcd
-
-        uri ldaps://ldap.hashbang.sh/
-
-        base dc=hashbang,dc=sh
-
-        tls_reqcert never
-        tls_cacertfile /etc/ssl/certs/ca-certificates.crt
-
-  - name: Update Nsswitch to not use sss for sudoers
-    lineinfile:
-      path: /etc/nsswitch.conf
-      regexp: "^sudoers:"
-      line: "sudoers:        files"
-
-  - name: Update pam adt to use common-session-interactive as substack
-    lineinfile:
-      path: /etc/pam.d/adt
-      regexp: "^@include common-session-noninteractive"
-      line: "session    substack   common-session-noninteractive"
-
-  - name: Update pam cron to use common-session-interactive as substack
-    lineinfile:
-      path: /etc/pam.d/cron
-      regexp: "^@include common-session-noninteractive"
-      line: "session    substack   common-session-noninteractive"
-
-  - name: Update pam sudo to use common-session-interactive as substack
-    lineinfile:
-      path: /etc/pam.d/sudo
-      regexp: "^@include common-session-noninteractive"
-      line: "session    substack   common-session-noninteractive"
-
-  - name: Update pam for systemd-user support
-    copy:
-      dest: /etc/pam.d/systemd-user
-      content: |
-        @include common-account
-        session  substack common-session-noninteractive
-        session  optional pam_systemd.so
-        auth     required pam_deny.so
-        password required pam_deny.so
-
-  - name: Update pam to set maildir to ~/Mail
-    block:
-    - name: Update maildir for console login
-      lineinfile:
-        path: /etc/pam.d/login
-        regexp: "^session    optional   pam_mail.so standard"
-        line: "session    optional   pam_mail.so dir=~/Mail standard"
-    - name: Update maildir for sshd login
-      lineinfile:
-        path: /etc/pam.d/sshd
-        regexp: "^session    optional     pam_mail.so standard noenv"
-        line: "session    optional     pam_mail.so dir=~/Mail standard noenv"
-
-  - name: Update pam to allow any user to chsh
-    copy:
-      dest: /etc/pam.d/chsch
-      content: "auth       sufficient  pam_wheel.so    trust   group=users use_uid"
-
-  - name: Update pam to use sss
-    block:
-    - name: update pam common-account to use sss
-      copy:
-        dest: /etc/pam.d/common-account
-        content: |
-          account	required	  pam_nologin.so
-          account	sufficient	pam_sss.so
-          account	sufficient	pam_unix.so
-          account	sufficient	pam_localuser.so
-          account	required	  pam_deny.so
-
-    - name: update pam common-auth to use sss
-      copy:
-        dest: /etc/pam.d/common-auth
-        content: |
-          auth	sufficient  pam_sss.so
-          auth	sufficient  pam_unix.so use_first_pass
-          auth	required		pam_deny.so
-
-    - name: Update pam common-password to use sss
-      copy:
-        dest: /etc/pam.d/common-password
-        content: |
-          password  requisite	  pam_pwquality.so retry=3
-          password  sufficient  pam_sss.so use_authtok
-          password  sufficient  pam_unix.so obscure use_authtok try_first_pass sha512
-          password requisite	 pam_deny.so
-
-    - name: Update pam common-session to use sss
-      copy:
-        dest: /etc/pam.d/common-session
-        content: |
-          session	substack	common-session-noninteractive
-          session	optional	pam_mkhomedir.so
-          session	optional	pam_umask.so      usergroups
-
-    - name: Update pam common-session-noninteractive to use sss
-      copy:
-        dest: /etc/pam.d/common-session-noninteractive
-        content: |
-          session	required	  pam_env.so
-          session	required	  pam_namespace.so  unmnt_remnt
-          session	required	  pam_limits.so
-          session	required	  pam_systemd.so
-          session	required	  pam_exec.so       type=open_session /etc/security/limits.sh
-          session	sufficient	pam_sss.so
-          session	sufficient	pam_unix.so
-          session	required	 pam_deny.so
-
+        for range in 1000-59999 65536-4294967293; do
+            for user in $(lastlog -b "$DAYS" -t "$((DAYS + 2))" -u "$range" | \
+                          tail -n +2 | cut -d' ' -f1); do
+                if [ ! -f "/home/${user}/.keep-account" ]; then
+                    loginctl terminate-user "$user"
+                fi
+            done
+        done

@@ -1,0 +1,30 @@
+---
+- hosts: all
+  tasks:
+
+  - name: setup localhost as default nameserver
+    lineinfile:
+      path: /etc/resolvconf/resolv.conf.d/base
+      create: true
+      line: "nameserver 127.0.0.1"
+
+  - name: setup hashbang.sh as default domain
+    lineinfile:
+      path: /etc/resolvconf/resolv.conf.d/tail
+      create: true
+      line: "domain hashbang.sh"
+
+  - name: enable unbound service
+    systemd:
+      name: unbound
+      enabled: yes
+
+  - name: enable resolvconf
+    systemd:
+      name: resolvconf
+      enabled: yes
+
+  - name: enable unbound-resolvconf
+    systemd:
+      name: unbound-resolvconf
+      enabled: yes

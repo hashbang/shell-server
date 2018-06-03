@@ -8,14 +8,6 @@
 
   - apt_key:
       keyserver: keys.gnupg.net
-      id: A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89
-
-  - apt_repository:
-      repo: deb https://deb.torproject.org/torproject.org stretch main
-      state: present
-
-  - apt_key:
-      keyserver: keys.gnupg.net
       id: 11E9DE8848F2B65222AA75B8D1820DB22A11534E
 
   - apt_repository:
@@ -104,7 +96,6 @@
       - dconf-gsettings-backend
       - dconf-service
       - dctrl-tools
-      - deb.torproject.org-keyring
       - debconf
       - debconf-i18n
       - debconf-utils
@@ -492,7 +483,6 @@
       - python-sss
       - python-stevedore
       - python-talloc
-      - python-torctl
       - python-tox
       - python-twisted
       - python-twisted-bin
@@ -617,9 +607,6 @@
       - toilet
       - toilet-fonts
       - topgit
-      - tor
-      - tor-arm
-      - torsocks
       - traceroute
       - tree
       - tudu
