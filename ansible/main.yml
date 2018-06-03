@@ -13,18 +13,18 @@
   - name: Determine if we are in a docker environment
     stat: path=/.dockerenv
     register: dockerenv
-  - include_tasks: tasks/docker.yml
+  - include_tasks: tasks/docker/main.yml
     when: dockerenv.stat.exists
     ignore_errors: True
-  - include_tasks: tasks/packages.yml
-  - include_tasks: tasks/tor.yml
-  - include_tasks: tasks/cron.yml
-  - include_tasks: tasks/dns.yml
-  - include_tasks: tasks/docker.yml
+  - include_tasks: tasks/packages/main.yml
+  - include_tasks: tasks/tor/main.yml
+  - include_tasks: tasks/cron/main.yml
+  - include_tasks: tasks/dns/main.yml
+  - include_tasks: tasks/docker/main.yml
   - include_tasks: tasks/hashbang.tf
-  - include_tasks: tasks/ldap-nss.yml
-  - include_tasks: tasks/logging.yml
-  - include_tasks: tasks/mail.yml
-  - include_tasks: tasks/misc.yml
-  - include_tasks: tasks/profile.yml
-  - include_tasks: tasks/security.yml
+  - include_tasks: tasks/ldap-nss/main.yml
+  - include_tasks: tasks/logging/main.yml
+  - include_tasks: tasks/mail/main.yml
+  - include_tasks: tasks/misc/main.yml
+  - include_tasks: tasks/profile/main.yml
+  - include_tasks: tasks/security/main.yml
