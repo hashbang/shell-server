@@ -1,3 +1,4 @@
+---
 - name: Install basic packages needed for Ansible
   apt:
     name: apt-transport-https

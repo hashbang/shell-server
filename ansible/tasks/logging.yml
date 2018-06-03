@@ -1,13 +1,9 @@
 ---
-- hosts: all
-  tasks:
-
-  - name: Configure journald
-    copy:
-      dest: /etc/journald.conf
-      content: |
-        [Journal]
-        MaxLevelStore=notice
-        MaxRetentionSec=1month
-        SystemMaxUse=1G
-
+- name: Configure journald
+  copy:
+    dest: /etc/journald.conf
+    content: |
+      [Journal]
+      MaxLevelStore=notice
+      MaxRetentionSec=1month
+      SystemMaxUse=1G

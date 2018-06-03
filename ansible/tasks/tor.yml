@@ -1,31 +1,28 @@
 ---
-- hosts: all
-  tasks:
+- apt_key:
+    keyserver: keys.gnupg.net
+    id: A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89
 
-  - apt_key:
-      keyserver: keys.gnupg.net
-      id: A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89
+- apt_repository:
+    repo: deb https://deb.torproject.org/torproject.org stretch main
+    state: present
 
-  - apt_repository:
-      repo: deb https://deb.torproject.org/torproject.org stretch main
-      state: present
+- name: Install tor packages
+  apt:
+    name: "{{ item }}"
+  with_items:
+    - deb.torproject.org-keyring
+    - python-torctl
+    - tor
+    - torsocks
+    - tor-arm
 
-  - name: Install tor packages
-    apt:
-      name: "{{ item }}"
-    with_items:
-      - deb.torproject.org-keyring
-      - python-torctl
-      - tor
-      - torsocks
-      - tor-arm
+- name: enable tor service
+  systemd:
+    name: tor
+    enabled: yes
 
-  - name: enable tor service
-    systemd:
-      name: tor
-      enabled: yes
-
-  - name: setup torsocks to accept inbound connections
-    lineinfile:
-      path: /etc/tor/torsocks.conf
-      line: "AllowInbound 1"
+- name: setup torsocks to accept inbound connections
+  lineinfile:
+    path: /etc/tor/torsocks.conf
+    line: "AllowInbound 1"

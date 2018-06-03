@@ -1,69 +1,66 @@
 ---
-- hosts: all
-  tasks:
+- name: Enable classic cron emulation with systemd timers
+  block:
+    - name: Install crontab target
+      copy:
+        dest: /etc/systemd/system/crontab.target
+        content: |
+          [Install]
+          WantedBy=multi-user.target
 
-    - name: Enable classic cron emulation with systemd timers
-      block:
-        - name: Install crontab target
-          copy:
-            dest: /etc/systemd/system/crontab.target
-            content: |
-              [Install]
-              WantedBy=multi-user.target
+          [Unit]
+          Description=Simulates cron, limited to /etc/cron.*
+          Requires=crontab@hour.timer crontab@day.timer
+          Requires=crontab@week.timer crontab@month.timer
 
-              [Unit]
-              Description=Simulates cron, limited to /etc/cron.*
-              Requires=crontab@hour.timer crontab@day.timer
-              Requires=crontab@week.timer crontab@month.timer
+    - name: Install crontab service
+      copy:
+        dest: /etc/systemd/system/crontab@.service
+        content: |
+          [Unit]
+          Description=%Ily job for /etc/cron.%Ily
+          RefuseManualStart=yes
+          RefuseManualStop=yes
+          ConditionDirectoryNotEmpty=/etc/cron.%Ily
 
-        - name: Install crontab service
-          copy:
-            dest: /etc/systemd/system/crontab@.service
-            content: |
-              [Unit]
-              Description=%Ily job for /etc/cron.%Ily
-              RefuseManualStart=yes
-              RefuseManualStop=yes
-              ConditionDirectoryNotEmpty=/etc/cron.%Ily
+          [Service]
+          Type=oneshot
+          IgnoreSIGPIPE=no
+          WorkingDirectory=/
+          ExecStart=/bin/run-parts --report /etc/cron.%Ily
 
-              [Service]
-              Type=oneshot
-              IgnoreSIGPIPE=no
-              WorkingDirectory=/
-              ExecStart=/bin/run-parts --report /etc/cron.%Ily
+    - name: Install crontab generic timer
+      copy:
+        dest: /etc/systemd/system/crontab@.timer
+        content: |
+          [Unit]
+          Description=%Ily timer simulating /etc/cron.%Ily
+          PartOf=crontab.target
+          RefuseManualStart=yes
+          RefuseManualStop=yes
 
-        - name: Install crontab generic timer
-          copy:
-            dest: /etc/systemd/system/crontab@.timer
-            content: |
-              [Unit]
-              Description=%Ily timer simulating /etc/cron.%Ily
-              PartOf=crontab.target
-              RefuseManualStart=yes
-              RefuseManualStop=yes
+          [Timer]
+          OnCalendar=%I
+          Persistent=yes
 
-              [Timer]
-              OnCalendar=%I
-              Persistent=yes
+    - name: Install crontab daily service
+      copy:
+        dest: /etc/systemd/system/crontab@day.service
+        content: |
+          [Unit]
+          Description=Daily job for /etc/cron.daily
+          RefuseManualStart=yes
+          RefuseManualStop=yes
+          ConditionDirectoryNotEmpty=/etc/cron.daily
 
-        - name: Install crontab daily service
-          copy:
-            dest: /etc/systemd/system/crontab@day.service
-            content: |
-              [Unit]
-              Description=Daily job for /etc/cron.daily
-              RefuseManualStart=yes
-              RefuseManualStop=yes
-              ConditionDirectoryNotEmpty=/etc/cron.daily
+          [Service]
+          Type=oneshot
+          IgnoreSIGPIPE=no
+          WorkingDirectory=/
+          ExecStart=/bin/run-parts --report /etc/cron.daily
 
-              [Service]
-              Type=oneshot
-              IgnoreSIGPIPE=no
-              WorkingDirectory=/
-              ExecStart=/bin/run-parts --report /etc/cron.daily
-
-        - name: enable crontab service
-          systemd:
-            name: crontab
-            enabled: yes
-            masked: no
+    - name: enable crontab service
+      systemd:
+        name: crontab
+        enabled: yes
+        masked: no
