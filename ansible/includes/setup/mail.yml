@@ -1,0 +1,106 @@
+  - name: Update postfix to relay mail
+    block:
+    - name: Setup main postfix dynamic maps
+      lineinfile:
+        path: /etc/postfix/dynamicmaps.cf
+        line: "ldap	/usr/lib/postfix/dict_ldap.so		dict_ldap_open"
+    - name: Setup main postfix main config
+      copy:
+        dest: /etc/postfix/main.cf
+        content: |
+          smtpd_banner        = $myhostname ESMTP $mail_name (Debian/GNU)
+          biff                = no
+          append_dot_mydomain = no
+          readme_directory    = no
+
+          # We serve mail for hashbang.sh only
+          mydomain      = hashbang.sh
+          myorigin      = $mydomain
+          mydestination = $myhostname
+          alias_maps    = hash:/etc/aliases
+
+          # Relay settings
+          relayhost                       = mail.$mydomain
+          smtp_tls_security_level         = secure
+          smtp_tls_CAfile                 = /etc/ssl/certs/ca-certificates.crt
+          smtp_tls_fingerprint_digest     = sha1
+          smtp_tls_mandatory_protocols    = !SSLv2,!SSLv3,!TLSv1,!TLSv1.1
+          smtp_tls_protocols              = !SSLv2,!SSLv3,!TLSv1,!TLSv1.1
+          smtp_tls_exclude_ciphers        = NULL, MD5, DES, RC4
+          smtp_tls_mandatory_ciphers      = ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256
+
+          # TLS Settings
+          smtpd_use_tls                    = yes
+          smtpd_tls_cert_file              = /etc/ssl/certs/ssl-cert-snakeoil.pem
+          smtpd_tls_key_file               = /etc/ssl/private/ssl-cert-snakeoil.key
+          smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
+          smtp_tls_session_cache_database  = btree:${data_directory}/smtp_scache
+
+          # Delivery configuration
+          mailbox_command     = procmail -a "$EXTENSION"
+          mailbox_size_limit  = 0
+          message_size_limit  = 52428800
+          recipient_delimiter = +
+
+          # Access restrictions
+          authorized_flush_users = root
+          authorized_mailq_users = root
+
+  - name: Setup procmail to use homedir mail folder
+    copy:
+      dest: /etc/procmailrc
+      content: |
+        ORGMAIL=${HOME}/Mail/new
+        DEFAULT=${ORGMAIL}
+
+  - name: Update pam to set maildir to ~/Mail
+    block:
+    - name: Update maildir for console login
+      lineinfile:
+        path: /etc/pam.d/login
+        regexp: "^session    optional   pam_mail.so standard"
+        line: "session    optional   pam_mail.so dir=~/Mail standard"
+    - name: Update maildir for sshd login
+      lineinfile:
+        path: /etc/pam.d/sshd
+        regexp: "^session    optional     pam_mail.so standard noenv"
+        line: "session    optional     pam_mail.so dir=~/Mail standard noenv"
+
+  - name: Setup msmtprc for hashbang smtp
+    copy:
+      dest: /etc/msmtprc
+      content: |
+        # Global defaults
+        defaults
+        aliases /etc/aliases
+        logfile ~/.msmtp.log
+
+        # Hashbang account
+        # Required for msmtp to function as sendmail
+        account hashbang.sh
+        host mail.hashbang.sh
+
+        # Sender address
+        auto_from on
+        maildomain hashbang.sh
+
+        # TLS configuration
+        tls on
+        tls_trust_file /etc/ssl/certs/ca-certificates.crt
+
+        # Syslog logging with facility LOG_MAIL instead of the default LOG_USER.
+        # Only applies to the #! account
+        syslog LOG_MAIL
+
+        # Make hashbang the default account
+        account default : hashbang.sh
+
+  - name: Update mailname to hashbang
+    lineinfile:
+      path: /etc/mailname
+      line: "hashbang.sh"
+
+  - name: Install Postfix Aliases
+    lineinfile:
+      path: /etc/aliases
+      line: 'root: root@hashbang.sh'

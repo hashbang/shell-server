@@ -1,0 +1,98 @@
++++ a/unbound/unbound.conf.d/debian.conf
+@@ -0,0 +1,3 @@
++server:
++  # Use DNS root hints from the dns-root-data Debian package
++  root-hints: "/usr/share/dns/root.hints"
+reverted:
+--- /dev/null
++++ a/unbound/unbound.conf.d/harden.conf
+@@ -0,0 +1,23 @@
++server:
++  # Do not expose information about the running deamon
++  hide-identity: yes
++  hide-version:  yes
++  
++  # Harden against ridiculously-short buffer sizes (potential DoS vector)
++  # This is against spec, but we aren't a public resolver.
++  harden-short-bufsize: yes
++  
++  # Harden against abnormaly large queries (same reasoning)
++  harden-large-queries: yes
++  
++  # Return NXDOMAIN for queries under a terminal known (and DNSSEC-validated)
++  #   to be NXDOMAIN.  Improves caching and avoids certain attacks
++  harden-below-nxdomain: yes
++  
++  # Use 0x20-encoded random nonces for authenticating queries.
++  # Implementation of draft-dns-0x20, makes DNS poisoning harder
++  use-caps-for-id: yes
++
++  # Minimises queries sent upstream
++  # Avoids information disclosure to root/TLD DNS servers & improves caching
++  qname-minimisation: yes
+reverted:
+--- /dev/null
++++ a/unbound/unbound.conf.d/prefetch.conf
+@@ -0,0 +1,4 @@
++server:
++  # Prefetch popular domains before the cache expires
++  prefetch:     yes
++  prefetch-key: yes
+\ No newline at end of file
+reverted:
+--- /dev/null
++++ a/unbound/unbound.conf.d/qname-minimisation.conf
+@@ -0,0 +1,9 @@
++server:
++    # Send minimum amount of information to upstream servers to enhance
++    # privacy. Only sends minimum required labels of the QNAME and sets
++    # QTYPE to NS when possible.
++
++    # See RFC 7816 "DNS Query Name Minimisation to Improve Privacy" for
++    # details.
++
++    qname-minimisation: yes
+reverted:
+--- b/zsh/zprofile
++++ a/zsh/zprofile
+@@ -5,3 +5,5 @@
+ # shells invoked with the -l flag.)
+ #
+ # Global Order: zshenv, zprofile, zshrc, zlogin
++umask 077
++emulate sh -c 'source /etc/profile'
+
+reverted:
+--- b/luarocks/config-5.1.lua
++++ a/luarocks/config-5.1.lua
+@@ -1,4 +1,5 @@
++variables = {
++	LUA_INTERPRETER = "/usr/bin/lua5.1";
++	LUA_INCDIR = "/usr/include/lua5.1";
+-rocks_trees = {
+-   home..[[/.luarocks]],
+-   [[/usr/local]]
+ }
++rocks_subdir = "/lib/luarocks/rocks-5.1"
+reverted:
+--- /dev/null
++++ a/luarocks/config-5.2.lua
+@@ -0,0 +1,7 @@
++export_lua_path = "export LUA_PATH_5_2='%s'";
++export_lua_cpath = "export LUA_CPATH_5_2='%s'";
++variables = {
++	LUA_INTERPRETER = "/usr/bin/lua5.2";
++	LUA_INCDIR = "/usr/include/lua5.2";
++}
++rocks_subdir = "/lib/luarocks/rocks-5.2"
+reverted:
+--- /dev/null
++++ a/luarocks/config-5.3.lua
+@@ -0,0 +1,7 @@
++export_lua_path = "export LUA_PATH_5_3='%s'";
++export_lua_cpath = "export LUA_CPATH_5_3='%s'";
++variables = {
++	LUA_INTERPRETER = "/usr/bin/lua5.3";
++	LUA_INCDIR = "/usr/include/lua5.3";
++}
++rocks_subdir = "/lib/luarocks/rocks-5.3"

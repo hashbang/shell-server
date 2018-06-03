@@ -1,0 +1,89 @@
+---
+- hosts: all
+  tasks:
+
+  - name: Update pam for systemd-user support
+    copy:
+      dest: /etc/pam.d/systemd-user
+      content: |
+        @include common-account
+        session  substack common-session-noninteractive
+        session  optional pam_systemd.so
+        auth     required pam_deny.so
+        password required pam_deny.so
+
+  - name: Update pam to allow any user to chsh
+    copy:
+      dest: /etc/pam.d/chsch
+      content: "auth       sufficient  pam_wheel.so    trust   group=users use_uid"
+
+  - name: Configure systemd for increased resource accounting
+    blockinfile:
+      path: /etc/systemd/system.conf
+      block: |
+        DefaultCPUAccounting=yes
+        DefaultBlockIOAccounting=yes
+        DefaultMemoryAccounting=yes
+
+  - name: Set default locale to en_US.UTF-8
+    lineinfile:
+      path: /etc/default/locale
+      regexp: "^LANG"
+      line: "LANG=en_US.UTF8"
+
+  - name: Set default timezone to UTC
+    copy:
+      dest: /etc/timezone
+      content: "Etc/UTC"
+
+  - name: Set up filesystem checking at boot to automatically fix errors
+    lineinfile:
+      path: /etc/default/rcS
+      regexp: "FSCKFIX"
+      line: "FSCKFIX=yes"
+
+  - name: Install disk repartitioning script
+    copy:
+      dest: /etc/initramfs-tools/scripts/repartition-drive
+      content: |
+        #!/bin/bash
+
+        mount | grep /dev/sda && echo "/dev/sda mounted. Aborting" && exit
+        test -e /dev/sda2 && echo "/dev/sda2 already exists. Aborting" && exit
+
+        mkdir /mnt
+        modprobe ext4
+        mount /dev/sda1 /mnt
+        cp -R /mnt/lib /
+        cp -R /mnt/lib64 /
+        cp -R /mnt/bin /
+        cp -R /mnt/sbin /
+        cp -R /mnt/usr /
+        umount /dev/sda1
+        e2fsck -f /dev/sda1
+        resize2fs /dev/sda1 20G
+        echo -e "d\nn\n\n\n\n+20G\nn\np\n\n\n\nw\n" | fdisk /dev/sda
+        mkfs.ext4 /dev/sda2
+
+  - name: enable getty
+    systemd:
+      name: getty@tty1
+      enabled: yes
+
+  - name: Setup cron job to kill processes of stale accounts
+    copy:
+      dest: /etc/cron.daily/clean-lurkers
+      content: |
+        #!/bin/sh
+        # See https://xkcd.com/686/ -- Admin mourning
+
+        DAYS=30
+
+        for range in 1000-59999 65536-4294967293; do
+            for user in $(lastlog -b "$DAYS" -t "$((DAYS + 2))" -u "$range" | \
+                          tail -n +2 | cut -d' ' -f1); do
+                if [ ! -f "/home/${user}/.keep-account" ]; then
+                    loginctl terminate-user "$user"
+                fi
+            done
+        done

@@ -1,0 +1,121 @@
+{
+  "variables": {
+    "disk_size": "100000",
+    "headless": "true",
+    "atlas_token": "{{ env `ATLAS_TOKEN` }}",
+    "docker_user": "{{ env `DOCKER_USER` }}",
+    "docker_pass": "{{ env `DOCKER_PASS` }}",
+    "version": "{{ env `ATLAS_TOKEN` }}",
+    "iso_url": "https://cdimage.debian.org/debian-cd/8.7.1/amd64/iso-cd/debian-8.7.1-amd64-netinst.iso",
+    "iso_checksum": "749a15b7690769dd99e85d6104182a03d370b04b36106ec7cfaf6a551aa89fb4"
+  },
+  "builders": [
+    {
+      "name": "qemu",
+      "type": "qemu",
+      "format": "qcow2",
+      "headless": "{{ user `headless` }}",
+      "accelerator": "kvm",
+      "disk_interface": "virtio-scsi",
+      "disk_size": "{{ user `disk_size` }}",
+      "iso_url": "{{ user `iso_url` }}",
+      "iso_checksum": "{{ user `iso_checksum` }}",
+      "iso_checksum_type": "sha256",
+      "http_directory": "http",
+      "ssh_username": "root",
+      "ssh_password": "shell",
+      "shutdown_command": "shutdown -h now",
+      "ssh_wait_timeout": "60m",
+      "boot_wait": "2s",
+      "boot_command": [
+        "<esc><wait><wait>",
+        "install ",
+        "auto=true ",
+        "priority=critical ",
+        "interface=auto ",
+        "url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
+        "<enter>"
+      ],
+      "output_directory": "dist"
+    },
+    {
+      "name": "vagrant",
+      "type": "virtualbox-iso",
+      "headless": "{{ user `headless` }}",
+      "disk_size": "{{ user `disk_size` }}",
+      "guest_os_type": "Debian_64",
+      "iso_url": "{{ user `iso_url` }}",
+      "iso_checksum": "{{ user `iso_checksum` }}",
+      "iso_checksum_type": "sha256",
+      "http_directory": "http",
+      "ssh_username": "root",
+      "ssh_password": "shell",
+      "shutdown_command": "shutdown -h now",
+      "ssh_wait_timeout": "60m",
+      "boot_wait": "2s",
+      "boot_command": [
+        "<esc><wait><wait>",
+        "install ",
+        "auto=true ",
+        "priority=critical ",
+        "interface=auto ",
+        "url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
+        "<enter>"
+      ],
+      "output_directory": "dist"
+    },
+    {
+      "name": "docker",
+      "type": "docker",
+      "image": "debian:jessie",
+      "commit": "true",
+      "changes": [
+        "ENV container=docker",
+        "VOLUME ['/sys/fs/cgroup','/run','/run/lock','/tmp']",
+        "EXPOSE 20 80 443",
+        "ENTRYPOINT /sbin/init"
+      ]
+    }
+  ],
+  "post-processors": [[
+    {
+      "type": "docker-tag",
+      "only": ["docker"],
+      "repository": "hashbang/shell-server",
+      "tag": "latest"
+    },
+    {
+      "type": "docker-tag",
+      "only": ["docker"],
+      "repository": "hashbang/shell-server",
+      "tag": "{{user `version`}}"
+    },
+    {
+      "type": "docker-save",
+      "only": ["docker"],
+      "path": "dist/docker.tar"
+    },
+    {
+      "type": "docker-push",
+      "only": ["docker"]
+    },
+    {
+      "type": "vagrant",
+      "only": ["vagrant"],
+      "output": "dist/{{.BuildName}}_{{.Provider}}.box"
+    },
+    {
+      "type": "vagrant-cloud",
+      "only": ["vagrant"],
+      "box_tag": "hashbang/shell-server",
+      "access_token": "{{user `atlas_token`}}",
+      "version": "{{user `version`}}"
+    }
+  ]],
+  "provisioners": [
+    {
+      "type": "shell",
+      "script": "setup.sh"
+    }
+  ]
+}

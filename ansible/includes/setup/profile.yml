@@ -1,0 +1,169 @@
+---
+- hosts: all
+  tasks:
+
+  - name: Setup default user profile to use .local/bin in PATH
+    copy:
+      dest: /etc/profile.d/local_path.sh
+      content: |
+        export PATH="$HOME/.local/bin:$PATH"
+
+  - name: Setup golang to use home directory dir
+    copy:
+      dest: /etc/profile.d/go.sh
+      content: |
+        export GOPATH="/usr/share/gocode:$HOME/.local/gocode"
+        export PATH="$GOPATH/bin:$PATH"
+
+  - name: Block wall messages from unprivileged users
+    copy:
+      dest: /etc/profile.d/wall.sh
+      content: |
+        mesg n
+
+  - name: Setup zsh manpath
+    copy:
+      dest: /etc/profile.d/z_manpath.sh
+      content: |
+        export MANPATH="${MANPATH:-$(manpath)}"
+
+  - name: Setup ruby to use home directory
+    copy:
+      dest: /etc/profile.d/ruby.sh
+      content: |
+        export PATH="$HOME/.gem/bin:$PATH"
+
+  - name: Setup nvm to use home directory
+    copy:
+      dest: /etc/profile.d/nvm.sh
+      content: |
+        export NVM_DIR="$HOME/.nvm"
+        install_nvm() {
+          git clone https://github.com/creationix/nvm "$NVM_DIR"
+          git -C "$NVM_DIR" checkout $(git -C "$NVM_DIR" describe --abbrev=0 --tags --match "v[0-9]*" origin)
+          . "$NVM_DIR/nvm.sh"
+        }
+        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+
+  - name: Setup npm to use home directory
+    copy:
+      dest: /etc/profile.d/npm.sh
+      content: |
+        export PATH="$HOME/.npm-packages/bin:$PATH" # man 1 sh
+        export NODE_PATH="$HOME/.npm-packages/lib/node_modules" # man 1 node
+        export NPM_CONFIG_PREFIX="$HOME/.npm-packages" # man 7 npm-config
+        export N_PREFIX="$HOME/.npm-packages" # installs under ~/.npm-packages/n
+
+        install_node_version() {
+          mv "$HOME/.npm-packages" "$HOME/.npm-packages-$(node -v)"
+          echo "The previous versions of your NPM packages have moved. They are now"
+          echo "accessible at: $HOME/.npm-packages-$(node -v)"
+          command npm install -g npm
+          command npm install -g n
+          n "$1"
+          command npm install yarn
+        }
+
+        npm() {
+          echo "Use yarn instead!" >&2
+          if ! command -v yarn >/dev/null; then
+            echo 'Run `install_node_version latest` to update Node and install Yarn' >&2
+            echo 'You can also specify an alias, such as `lts`, `latest`, etc.' >&2
+          fi
+          return 1
+        }
+
+  - name: Setup luarocks versions to use home directory
+    copy:
+      dest: /etc/profile.d/luarocks_aliases.sh
+      content: |
+        #!/bin/sh
+        alias luarocks-5.1="lua5.1 /usr/bin/luarocks --local"
+        alias luarocks-5.2="lua5.2 /usr/bin/luarocks --local"
+        alias luarocks-5.3="lua5.3 /usr/bin/luarocks --local"
+        # Need to do 5.1 last, as it adds to LUA_PATH, which would be picked up by the other commands
+        eval `lua5.3 /usr/bin/luarocks --bin path`
+        eval `lua5.2 /usr/bin/luarocks --bin path`
+        eval `lua5.1 /usr/bin/luarocks --bin path`
+
+
+
+  - name: Set umask 077 in default profile
+    lineinfile:
+      path: /etc/profile
+      line: "umask 077"
+
+  - name: Provision dotfiles for new accounts from git
+    copy:
+      dest: /etc/profile.d/dotfiles.sh
+      content: |
+        # check if the dotfiles must be recreated
+        # Check both ~/.dotfiles and ~/.bash_profile as we
+        # don't want to run if the user has “old style” dotfiles.
+        if [ -d ~/.dotfiles ] || [ -f ~/.bash_profile ]; then
+            return
+        fi
+
+        # Prepare GnuPG homedir
+        export GNUPGHOME=$(mktemp -d --tmpdir gpg.XXXXXX)
+        trap "rm -rf -- '${GNUPGHOME}'; unset GNUPGHOME" EXIT
+        cat > "${GNUPGHOME}/gpg.conf" <<EOF
+        # Never, ever, ever do this in your personal gpg.conf
+        # However, this is sane when you know you use an empty GNUPGHOME
+        keyring /var/lib/hashbang/admins.gpg
+        trust-model always
+        EOF
+
+        # cloning
+        if ! git clone --recursive https://github.com/hashbang/dotfiles ~/.dotfiles; then
+            cat >&2 <<EOF
+        CRITICAL: Failed to clone your dotfiles from
+                  https://github.com/hashbang/dotfiles
+        EOF
+            rm -rf ~/.dotfiles
+            return
+        fi
+        if ! git -C ~/.dotfiles verify-commit HEAD; then
+            echo "CRITICAL: Failed to verify signature on dotfiles" >&2
+            rm -rf ~/.dotfiles
+            return
+        fi
+        rm -rf -- "${GNUPGHOME}"
+        unset GNUPGHOME
+        trap - EXIT
+
+        # stowing
+        cd ~/.dotfiles
+        stow bash git gnupg hashbang ssh tmux weechat zsh
+        cd
+
+        # Make sure a proper maildir is in place
+        mkdir -p ~/Mail/cur ~/Mail/new ~/Mail/tmp
+
+        # Edit the welcome message
+        sed -i "s/{date}/$(date '+%a, %-d %b %Y %T %Z')/g" Mail/new/msg.welcome
+        sed -i "s/{username}/$(whoami)/g"                  Mail/new/msg.welcome
+
+  - name: Default shell for new users to bash
+    lineinfile:
+      path: /etc/default/useradd
+      regexp: "SHELL="
+      line: "SHELL=/bin/bash"
+
+  - name: Default Mail location in homedir
+    lineinfile:
+      path: /etc/environment
+      line: "MAIL=~/Mail"
+
+  - name: Set Gem installs to homedirs
+    lineinfile:
+      path: /etc/gemrc
+      line: "gem: --user-install --bindir ~/.gem/bin"
+
+  - name: Set NPM installs to homedirs
+    lineinfile:
+      path: /etc/npmrc
+      line: "prefix = ${HOME}/.npm-packages"
+
+
