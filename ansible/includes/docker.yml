@@ -1,0 +1,7 @@
+---
+- name: Ensure resolvconf package does not link
+  debconf:
+    name: resolvconf
+    question: resolvconf/linkify-resolvconf
+    value: false
+    vtype: boolean

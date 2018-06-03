@@ -9,6 +9,13 @@
   - name: Gathering Facts
     setup:
 
+  tasks:
+  - stat: path=/.dockerenv
+    register: dockerenv
+  - include_tasks: includes/docker/resolvconf.yml
+    when: dockerenv.stat.exists
+    ignore_errors: True
+
 - import_playbook: includes/setup/packages.yml
 #- import_playbook: includes/setup/misc.yml
 
