@@ -7,7 +7,8 @@
     "iso_url": "https://cdimage.debian.org/debian-cd/9.4.0/amd64/iso-cd/debian-9.4.0-amd64-netinst.iso",
     "iso_checksum": "124d270006703f2111224dec3bf7a9d01450168be41d4834f88fdd035552b044",
     "release": "stretch",
-    "version": "{{ env `VERSION`}}"
+    "version": "{{ env `VERSION`}}",
+    "extra_arguments": "{{ env `ANSIBLE_ARGS` }}"
   },
   "builders": [
     {
@@ -98,6 +99,7 @@
   "provisioners": [
     {
       "type": "ansible",
+      "extra_arguments": "{{ user `extra_arguments`}}",
       "playbook_file": "ansible/main.yml"
     }
   ],
