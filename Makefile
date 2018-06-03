@@ -4,6 +4,9 @@ export CHECKPOINT_DISABLE := 1
 export PACKER_CACHE_DIR := \
 	$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))/.packer/cache
 export VERSION := $(shell date -u +%Y%m%d%H%M)
+EXECUTABLES = packer ansible qemu-system-x86_64
+K := $(foreach exec,$(EXECUTABLES),\
+        $(if $(shell which $(exec)),some string,$(error "No $(exec) in PATH)))
 
 all: clean
 	$(PACKER) build --parallel=false packer/build.json
@@ -29,10 +32,9 @@ vagrant:
 	$(PACKER) build -only virtualbox packer/build.json
 
 lxc:
-	rm -rf dist/*vagrant*
-	rm -rf dist/*virtualbox*
-	rm -rf .packer/build/virtualbox
-	$(PACKER) build -only virtualbox packer/build.json
+	rm -rf dist/*lxc*
+	rm -rf .packer/build/lxc
+	$(PACKER) build -only lxc packer/build.json
 
 release:
 	bash scripts/release.sh
