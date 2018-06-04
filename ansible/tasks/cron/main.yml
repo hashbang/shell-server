@@ -10,8 +10,10 @@
 
           [Unit]
           Description=Simulates cron, limited to /etc/cron.*
-          Requires=crontab@hour.timer crontab@day.timer
-          Requires=crontab@week.timer crontab@month.timer
+          Requires=crontab@hour.timer
+          Requires=crontab@day.timer
+          Requires=crontab@week.timer
+          Requires=crontab@month.timer
 
     - name: Install crontab service
       copy:
@@ -43,24 +45,10 @@
           OnCalendar=%I
           Persistent=yes
 
-    - name: Install crontab daily service
-      copy:
-        dest: /etc/systemd/system/crontab@day.service
-        content: |
-          [Unit]
-          Description=Daily job for /etc/cron.daily
-          RefuseManualStart=yes
-          RefuseManualStop=yes
-          ConditionDirectoryNotEmpty=/etc/cron.daily
-
-          [Service]
-          Type=oneshot
-          IgnoreSIGPIPE=no
-          WorkingDirectory=/
-          ExecStart=/bin/run-parts --report /etc/cron.daily
-
     - name: enable crontab service
-      systemd:
-        name: crontab
-        enabled: yes
-        masked: no
+      command: systemctl enable crontab.target
+      # workaround for systemd module expecting running systemd
+      #systemd:
+      #  name: crontab
+      #  enabled: yes
+      #  masked: no

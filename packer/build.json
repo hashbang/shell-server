@@ -91,7 +91,18 @@
         "ENV container=docker",
         "VOLUME ['/sys/fs/cgroup','/run','/run/lock','/tmp']",
         "EXPOSE 20 80 443",
-        "ENTRYPOINT /sbin/init"
+        "STOPSIGNAL SIGRTMIN+3",
+        "ENTRYPOINT /lib/systemd/systemd"
+      ],
+      "volumes": {
+        "/sys/fs/cgroup":"/sys/fs/cgroup:ro"
+      },
+      "run_command": [
+        "-dit",
+        "-e", "container=docker" ,
+        "--security-opt", "seccomp=unconfined",
+        "{{.Image}}",
+        "/bin/bash"
       ],
       "export_path": ".packer/build/docker/docker.tar"
     }

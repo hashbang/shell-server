@@ -10,21 +10,43 @@
     setup:
 
   tasks:
+
+  - name: Install minimum system packages
+    apt:
+      name: "{{ item }}"
+    with_items:
+    - git
+    - gnupg
+    - apt-transport-https
+    - unattended-upgrades
+    - systemd
+    - apt-utils
+    - lsb-release
+    - curl
+    - initscripts
+    - systemd
+    - udev
+    - util-linux
+
   - name: Determine if we are in a docker environment
     stat: path=/.dockerenv
     register: dockerenv
   - include_tasks: tasks/docker/main.yml
     when: dockerenv.stat.exists
     ignore_errors: True
-  - include_tasks: tasks/packages/main.yml
+
   - include_tasks: tasks/tor/main.yml
   - include_tasks: tasks/cron/main.yml
   - include_tasks: tasks/dns/main.yml
-  - include_tasks: tasks/docker/main.yml
-  - include_tasks: tasks/hashbang.tf
-  - include_tasks: tasks/ldap-nss/main.yml
-  - include_tasks: tasks/logging/main.yml
-  - include_tasks: tasks/mail/main.yml
-  - include_tasks: tasks/misc/main.yml
-  - include_tasks: tasks/profile/main.yml
-  - include_tasks: tasks/security/main.yml
+
+  # These need debugging/testing still.
+  # Help welcome
+  #- include_tasks: tasks/hashbang/main.tf
+  #- include_tasks: tasks/ldap-nss/main.yml
+  #- include_tasks: tasks/logging/main.yml
+  #- include_tasks: tasks/mail/main.yml
+  #- include_tasks: tasks/misc/main.yml
+  #- include_tasks: tasks/profile/main.yml
+  #- include_tasks: tasks/security/main.yml
+
+  - include_tasks: tasks/packages/main.yml

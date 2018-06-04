@@ -5,3 +5,34 @@
     question: resolvconf/linkify-resolvconf
     value: false
     vtype: boolean
+
+- name: Remove systemd units that don't make sense in a container
+  file:
+    state: absent
+    path: "{{ item }}"
+  with_items:
+    - /lib/systemd/system/sysinit.target.wants/dev-hugepages.mount
+    - /lib/systemd/system/sysinit.target.wants/dev-mqueue.mount
+    - /lib/systemd/system/sysinit.target.wants/kmod-static-nodes.service
+    - /lib/systemd/system/sysinit.target.wants/proc-sys-fs-binfmt_misc.automount
+    - /lib/systemd/system/sysinit.target.wants/sys-fs-fuse-connections.mount
+    - /lib/systemd/system/sysinit.target.wants/sys-kernel-config.mount
+    - /lib/systemd/system/sysinit.target.wants/sys-kernel-debug.mount
+    - /lib/systemd/system/sysinit.target.wants/systemd-ask-password-console.path
+    - /lib/systemd/system/sysinit.target.wants/systemd-binfmt.service
+    - /lib/systemd/system/sysinit.target.wants/systemd-hwdb-update.service
+    - /lib/systemd/system/sysinit.target.wants/systemd-journal-flush.service
+    - /lib/systemd/system/sysinit.target.wants/systemd-journald.service
+    - /lib/systemd/system/sysinit.target.wants/systemd-machine-id-commit.service
+    - /lib/systemd/system/sysinit.target.wants/systemd-modules-load.service
+    - /lib/systemd/system/sysinit.target.wants/systemd-random-seed.service
+    - /lib/systemd/system/sysinit.target.wants/systemd-sysctl.service
+    - /lib/systemd/system/sysinit.target.wants/systemd-tmpfiles-setup-dev.service
+    - /lib/systemd/system/sysinit.target.wants/systemd-udev-trigger.service
+    - /lib/systemd/system/sysinit.target.wants/systemd-udevd.service
+    - /lib/systemd/system/sysinit.target.wants/systemd-update-utmp.service
+    - /lib/systemd/system/sockets.target.wants/systemd-udevd-control.socket
+    - /lib/systemd/system/sockets.target.wants/systemd-udevd-kernel.socket
+
+- name: Set multi-user as default runlevel
+  command: systemctl set-default multi-user.target

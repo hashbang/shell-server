@@ -1,6 +1,6 @@
 ---
 - apt_key:
-    keyserver: keys.gnupg.net
+    keyserver: pool.sks-keyservers.net
     id: A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89
 
 - apt_repository:
@@ -17,12 +17,15 @@
     - torsocks
     - tor-arm
 
-- name: enable tor service
-  systemd:
-    name: tor
-    enabled: yes
-
 - name: setup torsocks to accept inbound connections
   lineinfile:
     path: /etc/tor/torsocks.conf
     line: "AllowInbound 1"
+
+- name: enable tor service
+  command: systemctl enable tor
+  # workaround for systemd module expecting running systemd
+  #systemd:
+  #  name: tor
+  #  enabled: yes
+  #  masked: no

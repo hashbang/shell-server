@@ -1,8 +1,4 @@
 ---
-- name: Install basic packages needed for Ansible
-  apt:
-    name: apt-transport-https
-
 - apt_key:
     keyserver: keys.gnupg.net
     id: 11E9DE8848F2B65222AA75B8D1820DB22A11534E
@@ -23,7 +19,6 @@
   apt:
     name: "{{ item }}"
   with_items:
-    - apt-transport-https
     - acl
     - acpi
     - acpi-support-base
@@ -114,8 +109,6 @@
     - distro-info-data
     - dmidecode
     - dmsetup
-    - dns-root-data
-    - dnsutils
     - docutils-common
     - dos2unix
     - dpkg
@@ -173,7 +166,6 @@
     - gforth-lib
     - ghc
     - gir1.2-glib-2.0
-    - git
     - git-email
     - git-man
     - glances
@@ -182,7 +174,6 @@
     - glib-networking-services
     - gnuchess
     - gnugo
-    - gnupg
     - gnupg-agent
     - gnupg2
     - gnuplot-data
@@ -253,7 +244,6 @@
     - krb5-locales
     - ksh
     - ldap-utils
-    - ldnsutils
     - less
     - lftp
     - linux-image-amd64
@@ -609,9 +599,6 @@
     - tzdata
     - ucf
     - udev
-    - unattended-upgrades
-    - unbound
-    - unbound-anchor
     - units
     - unzip
     - urlview
