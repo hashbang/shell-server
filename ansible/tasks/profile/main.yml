@@ -162,3 +162,44 @@
   lineinfile:
     path: /etc/npmrc
     line: "prefix = ${HOME}/.npm-packages"
+
+- name: Setup umask/profile for zsh
+  copy:
+    dest: /etc/zsh/zprofile
+    content: |
+      umask 077
+      emulate sh -c 'source /etc/profile'
+
+- name: Setup luarocks config for various versions
+  block:
+  - name: Install Luarocks config for lua 5.1
+    copy:
+      path: /etc/luarocks/config-5.1.lua
+      content: |
+        variables = {
+        	LUA_INTERPRETER = "/usr/bin/lua5.1";
+        	LUA_INCDIR = "/usr/include/lua5.1";
+        }
+        rocks_subdir = "/lib/luarocks/rocks-5.1"
+  - name: Install Luarocks config for lua 5.2
+    copy:
+      path: /etc/luarocks/config-5.2.lua
+      content: |
+        export_lua_path = "export LUA_PATH_5_2='%s'";
+        export_lua_cpath = "export LUA_CPATH_5_2='%s'";
+        variables = {
+        	LUA_INTERPRETER = "/usr/bin/lua5.2";
+        	LUA_INCDIR = "/usr/include/lua5.2";
+        }
+        rocks_subdir = "/lib/luarocks/rocks-5.2"
+  - name: Install Luarocks config for lua 5.3
+    copy:
+      path: /etc/luarocks/config-5.3.lua
+      content: |
+        export_lua_path = "export LUA_PATH_5_3='%s'";
+        export_lua_cpath = "export LUA_CPATH_5_3='%s'";
+        variables = {
+        	LUA_INTERPRETER = "/usr/bin/lua5.3";
+        	LUA_INCDIR = "/usr/include/lua5.3";
+        }
+        rocks_subdir = "/lib/luarocks/rocks-5.3"

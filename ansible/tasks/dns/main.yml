@@ -25,3 +25,26 @@
   systemd:
     name: unbound-resolvconf
     enabled: yes
+
+- name: Setup unbound configuration
+  block:
+  - name: Use DNS root hints from the dns-root-data Debian package
+    blockinfile:
+      path: /etc/unbound/unbound.conf.d/debian.conf
+      block: |
+        server:
+          root-hints: "/usr/share/dns/root.hints"
+  - name: Prefetch popular domains before the cache expires
+    blockinfile:
+      path: /etc/unbound/unbound.conf.d/prefetch.conf
+      block: |
+        server:
+          prefetch:     yes
+          prefetch-key: yes
+  - name: Enable RFC 7816 "DNS Query Name Minimisation to Improve Privacy"
+    blockinfile:
+      path: /etc/unbound/unbound.conf.d/qname-minimisation.conf
+      block: |
+        server:
+            qname-minimisation: yes
+
