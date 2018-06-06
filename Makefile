@@ -6,7 +6,7 @@ export PACKER_CACHE_DIR := \
 export VERSION := $(shell date -u +%Y%m%d%H%M)
 EXECUTABLES = packer ansible qemu-system-x86_64
 K := $(foreach exec,$(EXECUTABLES),\
-        $(if $(shell which $(exec)),some string,$(error "No $(exec) in PATH)))
+        $(if $(shell which $(exec)),some string,$(error "No $(exec) in PATH")))
 
 all: clean
 	$(PACKER) build --parallel=false packer/build.json
