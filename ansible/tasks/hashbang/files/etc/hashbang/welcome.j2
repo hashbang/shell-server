@@ -1,0 +1,11 @@
+#!/bin/sh
+
+cat /etc/hashbang/welcome.pre
+
+if [ -n "$TMUX" ]; then
+	sed "s/\\\$USER/${USER}/" /etc/hashbang/welcome.tmux
+else
+	sed "s/\\\$USER/${USER}/" /etc/hashbang/welcome.notmux
+fi
+
+cat /etc/hashbang/welcome.post

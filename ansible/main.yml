@@ -40,10 +40,9 @@
     with_items:
     - tor
     - cron
-    - dns
+    - hashbang
 
     # These all have syntax errors and need love
-    #- hashbang
     #- ldap-nss
     #- logging
     #- mail
@@ -51,4 +50,5 @@
     #- profile/
     #- security
 
+    - dns
     - packages
