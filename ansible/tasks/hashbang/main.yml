@@ -41,7 +41,14 @@
         executable: /bin/bash
 
 - name: Install Welcome Templates and Man page
-  template: src={{ item.src }} dest=/{{ item.path | basename | regex_replace('\.j2','') }}
-  with_filetree:
-    - templates/
-  when: item.state == 'file'
+  block:
+  - file:
+      state: directory
+    with_filetree: templates/
+    when: item.state == 'directory'
+  - template:
+      src: "{{ item.src }}"
+      dest: "{{ item.path | basename | regex_replace('.j2','') }}"
+      mode: "{{ item.mode }}"
+    with_filetree: templates/
+    when: item.state == 'file'
