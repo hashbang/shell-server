@@ -92,7 +92,7 @@
         "VOLUME ['/sys/fs/cgroup','/run','/run/lock','/tmp']",
         "EXPOSE 20 80 443",
         "STOPSIGNAL SIGRTMIN+3",
-        "ENTRYPOINT /lib/systemd/systemd"
+        "CMD ['/lib/systemd/systemd']"
       ],
       "volumes": {
         "/sys/fs/cgroup":"/sys/fs/cgroup:ro"
@@ -123,7 +123,8 @@
     {
       "type": "shell-local",
       "inline": [
-        "ln -s docker-{{ user `version` }}.tar.gz dist/docker-latest.tar.gz"
+        "cd dist/",
+        "ln -s docker-{{ user `version` }}.tar.gz docker-latest.tar.gz"
       ],
       "only": ["docker"]
     },
