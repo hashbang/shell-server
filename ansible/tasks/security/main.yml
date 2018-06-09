@@ -230,6 +230,7 @@
         Match User root
              AuthorizedKeysFile        .ssh/authorized_keys
              AuthorizedKeysCommand     /bin/true
+        Match all
   - name: Add unbound hardening configuration
     copy:
       dest: /etc/unbound/unbound.conf.d/harden.conf
