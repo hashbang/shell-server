@@ -44,8 +44,8 @@ Generally you want to use our pre-built images.
 
 The following will get you a standalone shell-server locally to develop on.
 
-You will need a #! account to use these, as they authenticate users against
-our NSS services by default.
+You will normally need a #! account to use these, as they authenticate users
+against our NSS services by default.
 
 These are intended to mirror the flow of you setting up a federated server as
 per the [Deployment] section of this Readme.
@@ -55,7 +55,17 @@ testing/development suite found in the [hashbang] repo.
 
 ### Docker ###
 
-Start server:
+Build image:
+```
+make docker
+```
+
+Import image:
+```
+cat dist/docker-20*.tar.gz | docker import - hashbang/shell-server:local-latest
+```
+
+Start container:
 ```
 docker run \
   -it \
@@ -65,8 +75,7 @@ docker run \
   --stop-signal SIGRTMIN+3 \
   --cap-add SYS_ADMIN \
   --cap-add SYS_RESOURCE \
-  hashbang/shell-server:latest \
-  /sbin/init
+  hashbang/shell-server:local-latest
 ```
 
 Root shell:
@@ -132,6 +141,7 @@ virsh --connect qemu+ssh://username@shell-server/system
 TBD
 
 ## Deployment ##
+
 ### Amazon ###
 TBD
 
@@ -139,63 +149,7 @@ TBD
 TBD
 
 ### Bare Metal ###
-To set this up on a live server, perform the following:
 
-1. Adjust partitions to match [fstab.sample]
-
-    Typically you would specify a secondary drive for /home when you provision
-    your server allowing you to use fstab.sample almost as-is.
-
-    Sometimes that is not an option.
-
-    To reprovision a single disk live system consider these steps:
-
-    1. Go to the "Virtual Console" feature in your provider.
-    2. Reboot to Grub bootloader screen
-    3. Hit <Enter> on first boot option
-    4. Add ```break=premount``` to the end of the kernel line
-    5. <Ctrl-X> to boot
-    6. Copy rootfs files into ram
-      ```
-      mkdir /mnt
-      modprobe ext4
-      mount /dev/sda1 /mnt
-      cp -R /mnt/* /
-      umount /dev/sda1
-      ```
-    7. Shrink rootfs and create /home partition
-      ```
-      e2fsck -f /dev/sda1
-      resize2fs /dev/sda1 20G
-      echo "d
-      1
-      n
-      p
-      1
-
-      +20G
-      w
-      n
-      p
-      2
-
-
-      " | fdisk /dev/sda1
-      ```
-    8. Reboot
-    9. Adjust fstab to match: [fstab.sample]
-    10. Reboot
-
-2. Run setup script
-
-    ```bash
-    ssh $INSTANCE_IP
-    wget https://raw.githubusercontent.com/hashbang/shell-server/master/scripts/setup.sh
-    bash setup.sh
-    ```
-[Deployment]: #deployment
-[etckeeper]: http://etckeeper.branchable.com/
-[hashbang]: http://github.com/hashbang/hashbang/
-[shell-etc]: https://github.com/hashbang/shell-etc/
-[dotfiles]:  https://github.com/hashbang/dotfiles/
-[fstab.sample]: https://raw.githubusercontent.com/hashbang/shell-etc/master/fstab.sample
+```
+ansible-playbook -u root -i "target-server.com," ansible/main.yml
+```
