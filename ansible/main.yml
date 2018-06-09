@@ -27,6 +27,7 @@
     - systemd
     - udev
     - util-linux
+    - openssh-server
 
   - name: Determine if we are in a docker environment
     stat: path=/.dockerenv
@@ -41,14 +42,11 @@
     - tor
     - cron
     - hashbang
-
-    # These all have syntax errors and need love
-    #- ldap-nss
-    #- logging
-    #- mail
-    #- misc
-    #- profile/
-    #- security
-
+    - logging
     - dns
+    - mail
     - packages
+    - profile
+    - misc
+    - ldap-nss
+    - security

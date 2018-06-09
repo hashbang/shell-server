@@ -1,6 +1,20 @@
 ---
+- name: Update apt repositories
+  apt:
+    update_cache: yes
+
+- name: Install mail packages
+  apt:
+    name: "{{ item }}"
+  with_items:
+    - postfix
+    - procmail
+    - msmtp
+
 - name: Update postfix to relay mail
   block:
+  - name: Ensure postfix directory exists
+    file: path=/etc/postfix state=directory
   - name: Setup main postfix dynamic maps
     lineinfile:
       path: /etc/postfix/dynamicmaps.cf

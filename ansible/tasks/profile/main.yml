@@ -155,11 +155,13 @@
 
 - name: Set Gem installs to homedirs
   lineinfile:
+    create: true
     path: /etc/gemrc
     line: "gem: --user-install --bindir ~/.gem/bin"
 
 - name: Set NPM installs to homedirs
   lineinfile:
+    create: true
     path: /etc/npmrc
     line: "prefix = ${HOME}/.npm-packages"
 
@@ -174,7 +176,7 @@
   block:
   - name: Install Luarocks config for lua 5.1
     copy:
-      path: /etc/luarocks/config-5.1.lua
+      dest: /etc/luarocks/config-5.1.lua
       content: |
         variables = {
         	LUA_INTERPRETER = "/usr/bin/lua5.1";
@@ -183,7 +185,7 @@
         rocks_subdir = "/lib/luarocks/rocks-5.1"
   - name: Install Luarocks config for lua 5.2
     copy:
-      path: /etc/luarocks/config-5.2.lua
+      dest: /etc/luarocks/config-5.2.lua
       content: |
         export_lua_path = "export LUA_PATH_5_2='%s'";
         export_lua_cpath = "export LUA_CPATH_5_2='%s'";
@@ -194,7 +196,7 @@
         rocks_subdir = "/lib/luarocks/rocks-5.2"
   - name: Install Luarocks config for lua 5.3
     copy:
-      path: /etc/luarocks/config-5.3.lua
+      dest: /etc/luarocks/config-5.3.lua
       content: |
         export_lua_path = "export LUA_PATH_5_3='%s'";
         export_lua_cpath = "export LUA_CPATH_5_3='%s'";

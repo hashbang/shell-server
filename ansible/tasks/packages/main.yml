@@ -17,7 +17,7 @@
 
 - name: Install all system packages
   apt:
-    name: "{{ item }}"
+    name={{ item }}
   with_items:
     - acl
     - acpi
@@ -277,7 +277,6 @@
     - mlock
     - mosh
     - mount
-    - msmtp
     - mtr
     - multiarch-support
     - mutt
@@ -353,7 +352,6 @@
     - openhackware
     - openntpd
     - openssh-client
-    - openssh-server
     - openssh-sftp-server
     - openssl
     - os-prober
@@ -384,8 +382,6 @@
     - po-debconf
     - policykit-1
     - poppler-data
-    - postfix
-    - procmail
     - procps
     - psmisc
     - pv

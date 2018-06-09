@@ -63,9 +63,11 @@
       mkfs.ext4 /dev/sda2
 
 - name: enable getty
-  systemd:
-    name: getty@tty1
-    enabled: yes
+  command: systemctl enable getty@tty1
+  # workaround for systemd module expecting running systemd
+  # systemd:
+  #   name: getty@tty1
+  #   enabled: yes
 
 - name: Setup cron job to kill processes of stale accounts
   copy:

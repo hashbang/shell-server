@@ -151,6 +151,7 @@
 
 - name: Restrict potentially sensitive kernel dmesg output
   lineinfile:
+    create: true
     path: /etc/sysctl.d/10-dmsg.conf
     line: "kernel.dmesg_restrict = 1"
 
@@ -203,33 +204,33 @@
   block:
   - name: Don't allow Roaming for ssh clients
     lineinfile:
-      path: /etc/ssh_config
+      path: /etc/ssh/ssh_config
       line: "UseRoaming no"
   - name: Don't use dsa keys in sshd_config
     lineinfile:
-      path: /etc/sshd_config
+      path: /etc/ssh/sshd_config
       line: "HostKey /etc/ssh/ssh_host_dsa_key"
       state: absent
   - name: Use ssh privilege separation sandboxing
     lineinfile:
-      path: /etc/sshd_config
+      path: /etc/ssh/sshd_config
       line: "UsePrivilegeSeparation sandbox"
   - name: Disable password authentication
     lineinfile:
-      path: /etc/sshd_config
+      path: /etc/ssh/sshd_config
       line: "PasswordAuthentication no"
   - name: Allow use of client-specified gateway ports
     lineinfile:
-      path: /etc/sshd_config
+      path: /etc/ssh/sshd_config
       line: "GatewayPorts clientspecified"
   - name: Allow root ssh via hardcoded keys as failsafe
     blockinfile:
-      path: /etc/sshd_config
+      path: /etc/ssh/sshd_config
       block: |
         Match User root
              AuthorizedKeysFile        .ssh/authorized_keys
              AuthorizedKeysCommand     /bin/true
-
+  - name: Add unbound hardening configuration
     copy:
       dest: /etc/unbound/unbound.conf.d/harden.conf
       content: |

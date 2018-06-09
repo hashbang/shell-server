@@ -1,7 +1,7 @@
 ---
 - name: Configure ssh to use sss for authorized-keys
   blockinfile:
-    path: /etc/sshd_config
+    path: /etc/ssh/sshd_config
     block: |
       AuthorizedKeysFile        none
       AuthorizedKeysCommand     /usr/bin/sss_ssh_authorizedkeys
@@ -10,6 +10,7 @@
 - name: Configure sssd to use custom ldap server
   blockinfile:
     path: /etc/sssd/sssd.conf
+    create: true
     block: |
       [sssd]
       domains = HASHBANG
@@ -38,6 +39,7 @@
 
 - name: Update Nsswitch to not use sss for sudoers
   lineinfile:
+    create: true
     path: /etc/nsswitch.conf
     regexp: "^sudoers:"
     line: "sudoers:        files"
@@ -94,18 +96,21 @@
 
 - name: Update pam adt to use common-session-interactive as substack
   lineinfile:
+    create: true
     path: /etc/pam.d/adt
     regexp: "^@include common-session-noninteractive"
     line: "session    substack   common-session-noninteractive"
 
 - name: Update pam cron to use common-session-interactive as substack
   lineinfile:
+    create: true
     path: /etc/pam.d/cron
     regexp: "^@include common-session-noninteractive"
     line: "session    substack   common-session-noninteractive"
 
 - name: Update pam sudo to use common-session-interactive as substack
   lineinfile:
+    create: true
     path: /etc/pam.d/sudo
     regexp: "^@include common-session-noninteractive"
     line: "session    substack   common-session-noninteractive"
