@@ -118,6 +118,7 @@
     {
       "type": "compress",
       "output": "dist/docker-{{ user `version` }}.tar.gz",
+      "format": "gz",
       "only": ["docker"]
     },
     {
