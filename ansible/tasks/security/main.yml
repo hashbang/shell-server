@@ -22,6 +22,7 @@
   - name:
     copy:
       dest: /etc/security/limits.sh
+      mode: "a+x"
       content: |
         #!/bin/sh -e
 
