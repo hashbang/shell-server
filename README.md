@@ -62,20 +62,24 @@ make docker
 
 Import image:
 ```
-cat dist/docker-20*.tar.gz | docker import - hashbang/shell-server:local-latest
+gunzip -c dist/docker-20*.tar.gz | docker import - hashbang/shell-server:local-latest
 ```
 
 Start container:
 ```
 docker run \
   -it \
+  --rm \
   --name shell-server \
-  -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
   -p 2222:22 \
+  -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
   --stop-signal SIGRTMIN+3 \
   --cap-add SYS_ADMIN \
   --cap-add SYS_RESOURCE \
-  hashbang/shell-server:local-latest
+  --security-opt apparmor=unconfined \
+  --security-opt seccomp=unconfined \
+  hashbang/shell-server:local-latest \
+  /lib/systemd/systemd
 ```
 
 Root shell:
