@@ -6,7 +6,7 @@
       register: gnupghome
     - name: Import administrator PGP keys from keyserver
       shell: |
-        GNUPGHOME="{{ gnupghome.path }}"; \
+        export GNUPGHOME="{{ gnupghome.path }}"; \
         for server in $(shuf -e ha.pool.sks-keyservers.net \
                                 hkp://p80.pool.sks-keyservers.net:80 \
                                 keyserver.ubuntu.com \
@@ -29,7 +29,7 @@
       file: path=/var/lib/hashbang state=directory
     - name: Export administrator pgp keys to combined keychain file
       shell: |
-        GNUPGHOME={{ gnupghome.path }} \
+        export GNUPGHOME={{ gnupghome.path }}; \
         gpg \
           -q \
           --batch \
@@ -39,16 +39,19 @@
           -o /var/lib/hashbang/admins.gpg
       args:
         executable: /bin/bash
+    - file: path=/var/lib/hashbang/admins.gpg mode="755"
 
 - name: Install Welcome Templates and Man page
   block:
   - file:
+      path: "/{{ item.path }}"
       state: directory
-    with_filetree: templates/
+      mode: "755"
+    with_filetree: "tasks/hashbang/templates"
     when: item.state == 'directory'
   - template:
       src: "{{ item.src }}"
-      dest: "{{ item.path | basename | regex_replace('.j2','') }}"
+      dest: "/{{ item.path | regex_replace('.j2','') }}"
       mode: "{{ item.mode }}"
-    with_filetree: templates/
+    with_filetree: "tasks/hashbang/templates"
     when: item.state == 'file'

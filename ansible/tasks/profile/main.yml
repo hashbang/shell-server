@@ -91,6 +91,13 @@
     path: /etc/profile
     line: "umask 077"
 
+- name: Remove default /etc/skel directory
+  block:
+  - file: path=/etc/skel/.bash_logout state=absent
+  - file: path=/etc/skel/.bashrc state=absent
+  - file: path=/etc/skel/.kshrc state=absent
+  - file: path=/etc/skel/.mkshrc state=absent
+
 - name: Provision dotfiles for new accounts from git
   copy:
     dest: /etc/profile.d/dotfiles.sh
