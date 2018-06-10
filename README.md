@@ -71,6 +71,8 @@ docker run \
   -it \
   --rm \
   --name shell-server \
+  -p 8080:80 \
+  -p 4443:443 \
   -p 2222:22 \
   -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
   --stop-signal SIGRTMIN+3 \
