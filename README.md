@@ -96,7 +96,7 @@ vagrant ssh
 ssh -p2222 your-hashbang-user@localhost
 ```
 
-### Libvirt/KVM ###
+### Libvirt ###
 
 #### Build Image ####
 ```
@@ -105,16 +105,6 @@ make qemu
 
 #### Start server ####
 
-Qemu:
-```
-qemu-system-x86_64 \
-  -m 512M \
-  -machine type=pc,accel=kvm \
-  -net nic -net user,hostfwd=tcp::2222-:22 \
-  -drive format=qcow2,file=dist/qemu-latest.qcow2
-```
-
-libvirtd:
 ```
 virt-install \
   --name shell-server \
@@ -131,14 +121,7 @@ virt-install \
 
 #### User shell ####
 
-qemu:
 ```
-TBD
-```
-
-libvirtd:
-```
-# Not currently working, needs debugging
 virsh --connect qemu+ssh://username@shell-server/system
 ```
 
@@ -147,13 +130,39 @@ virsh --connect qemu+ssh://username@shell-server/system
 TBD
 ```
 
+### Qemu ###
+
+#### Build Image ####
+```
+make qemu
+```
+
+#### Start server ####
+
+```
+qemu-system-x86_64 \
+  -m 512M \
+  -machine type=pc,accel=kvm \
+  -net nic -net user,hostfwd=tcp::2222-:22 \
+  -drive format=qcow2,file=dist/qemu-latest.qcow2
+```
+
+#### User shell ####
+
+```
+TBD
+```
+
+#### Root shell ####
+
+```
+TBD
+```
+
 ## Development ##
 
-Once you have root access on a development #! server be it local or remote, you
-can test changes to local ansible playbooks as follows:
-
-For completely self-hosted development infrastructure consider the e2e
-testing/development suite found in the [hashbang] repo.
+Once you have root access on a development debian server be it local or remote,
+you can test your locally made ansible playbook changes as follows.
 
 ### Run Ansible Playbook
 ```
