@@ -46,14 +46,14 @@ docker run \
   /lib/systemd/systemd
 ```
 
-#### Root shell ####
-```
-docker exec -it shell-server bash
-```
-
 #### User shell ####
 ```
 ssh -p2222 your-hashbang-user@localhost
+```
+
+#### Root shell ####
+```
+docker exec -it shell-server bash
 ```
 
 ### LXC ###
@@ -86,14 +86,14 @@ vagrant init hashbang/shell-server
 vagrant up
 ```
 
-#### Root shell ####
-```
-vagrant ssh
-```
-
 #### User shell ####
 ```
 ssh -p2222 your-hashbang-user@localhost
+```
+
+#### Root shell ####
+```
+vagrant ssh
 ```
 
 ### Libvirt ###
@@ -120,7 +120,6 @@ virt-install \
 ```
 
 #### User shell ####
-
 ```
 virsh --connect qemu+ssh://username@shell-server/system
 ```
@@ -169,7 +168,8 @@ you can test your locally made ansible playbook changes as follows.
 ansible-playbook \
   -u root \
   -i "localhost," \
-  -e ansible_ssh_port=2222 ansible/main.yml
+  -e ansible_ssh_port=2222 \
+  ansible/main.yml
 ```
 
 ## Deployment ##
@@ -181,7 +181,6 @@ TBD
 TBD
 
 ### Bare Metal ###
-
 ```
 ansible-playbook -u root -i "target-server.com," ansible/main.yml
 ```
