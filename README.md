@@ -65,12 +65,12 @@ make lxc
 
 #### User shell ####
 ```
-TBD
+TODO
 ```
 
 #### Root shell ####
 ```
-TBD
+TODO
 ```
 
 ### Vagrant ###
@@ -126,7 +126,7 @@ virsh --connect qemu+ssh://username@shell-server/system
 
 #### Root shell ####
 ```
-TBD
+TODO
 ```
 
 ### Qemu ###
@@ -149,13 +149,13 @@ qemu-system-x86_64 \
 #### User shell ####
 
 ```
-TBD
+TODO
 ```
 
 #### Root shell ####
 
 ```
-TBD
+TODO
 ```
 
 ## Development ##
@@ -174,11 +174,20 @@ ansible-playbook \
 
 ## Deployment ##
 
+### Kubernetes ###
+TODO
+
 ### Amazon ###
-TBD
+TODO
 
 ### DigitalOcean ###
-TBD
+TODO
+
+### Google Cloud ###
+TODO
+
+### Azure ###
+TODO
 
 ### Bare Metal ###
 ```
