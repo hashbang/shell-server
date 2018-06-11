@@ -38,34 +38,25 @@ All artifacts will be placed in `$PWD/dist`.
     ```
     make build release
     ```
-## Development ##
 
-Generally you want to use our pre-built images.
-
-The following will get you a standalone shell-server locally to develop on.
+## Building ##
 
 You will normally need a #! account to use these, as they authenticate users
 against our NSS services by default.
 
-These are intended to mirror the flow of you setting up a federated server as
-per the [Deployment] section of this Readme.
-
-For completely self-hosted development infrastructure consider the e2e
-testing/development suite found in the [hashbang] repo.
-
 ### Docker ###
 
-Build image:
+#### Build image ####
 ```
 make docker
 ```
 
-Import image:
+#### Import image ####
 ```
 gunzip -c dist/docker-20*.tar.gz | docker import - hashbang/shell-server:local-latest
 ```
 
-Start container:
+#### Start container ####
 ```
 docker run \
   -it \
@@ -84,67 +75,122 @@ docker run \
   /lib/systemd/systemd
 ```
 
-Root shell:
+#### Root shell ####
 ```
 docker exec -it shell-server bash
 ```
 
-User shell:
+#### User shell ####
 ```
 ssh -p2222 your-hashbang-user@localhost
 ```
 
+### LXC ###
+
+#### Build image ####
+```
+make lxc
+```
+
+#### User shell ####
+```
+TBD
+```
+
+#### Root shell ####
+```
+TBD
+```
+
 ### Vagrant ###
 
-Start server:
+#### Build Image ####
+```
+make vagrant
+```
+
+#### Start server ####
 ```
 vagrant init hashbang/shell-server
 vagrant up
 ```
 
-Root shell:
+#### Root shell ####
 ```
 vagrant ssh
 ```
 
-User shell:
+#### User shell ####
 ```
 ssh -p2222 your-hashbang-user@localhost
 ```
 
 ### Libvirt/KVM ###
 
-Download Image:
+#### Build Image ####
 ```
-wget https://builds.hashbang.sh/shell-server/qemu-latest.qcow2
+make qemu
 ```
 
-Start server:
+#### Start server ####
+
+Qemu:
+```
+qemu-system-x86_64 \
+  -m 512M \
+  -machine type=pc,accel=kvm \
+  -net nic -net user,hostfwd=tcp::2222-:22 \
+  -drive format=qcow2,file=dist/qemu-latest.qcow2
+```
+
+libvirtd:
 ```
 virt-install \
   --name shell-server \
   --os-type linux \
+  --os-variant debian9 \
   --ram 512 \
   --vcpus 2 \
-  --disk path=qemu-latest.qcow2 \
-  --network network:default \
+  --disk path=dist/qemu-latest.qcow2 \
+  --network user \
   --noautoconsole \
   --import \
   --force
 ```
 
-Root shell:
+#### User shell ####
+
+qemu:
 ```
 TBD
 ```
 
-User shell:
+libvirtd:
 ```
+# Not currently working, needs debugging
 virsh --connect qemu+ssh://username@shell-server/system
 ```
 
-### LXC ###
+#### Root shell ####
+```
 TBD
+```
+
+## Development ##
+
+Once you have root access on a development #! server be it local or remote, you
+can test changes to local ansible playbooks as follows:
+
+For completely self-hosted development infrastructure consider the e2e
+testing/development suite found in the [hashbang] repo.
+
+### Run Ansible Playbook
+```
+ansible-playbook \
+  -u root \
+  -i "localhost," \
+  -e ansible_ssh_port=2222 ansible/main.yml
+```
 
 ## Deployment ##
 
