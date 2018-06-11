@@ -12,35 +12,6 @@ pulling data from several locations:
 
 ## Building ##
 
-Build all image types:
-
-```
-make all
-```
-
-Or build a specific image type such as vagrant:
-```
-make vagrant
-```
-
-All artifacts will be placed in `$PWD/dist`.
-
-## Releasing ##
-
-1. Copy config sample and populate with your credentials as desired:
-
-    ```
-    cp config.sample.json config.json
-    vim config.json
-    ```
-
-2. Build, sign, and publish all image types
-    ```
-    make build release
-    ```
-
-## Building ##
-
 You will normally need a #! account to use these, as they authenticate users
 against our NSS services by default.
 
@@ -205,3 +176,17 @@ TBD
 ```
 ansible-playbook -u root -i "target-server.com," ansible/main.yml
 ```
+
+## Releasing ##
+
+1. Copy config sample and populate with your credentials as desired:
+
+    ```
+    cp config.sample.json config.json
+    vim config.json
+    ```
+
+2. Build, sign, and publish all image types
+    ```
+    make build release
+    ```
