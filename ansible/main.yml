@@ -11,6 +11,13 @@
 
   tasks:
 
+  - name: Determine if we are in a docker environment
+    stat: path=/.dockerenv
+    register: dockerenv
+  - include_tasks: tasks/docker/main.yml
+    when: dockerenv.stat.exists
+    ignore_errors: True
+
   - name: Install minimum system packages
     apt:
       name: "{{ item }}"
@@ -42,10 +49,3 @@
     - misc
     - ldap-nss
     - security
-
-  - name: Determine if we are in a docker environment
-    stat: path=/.dockerenv
-    register: dockerenv
-  - include_tasks: tasks/docker/main.yml
-    when: dockerenv.stat.exists
-    ignore_errors: True
