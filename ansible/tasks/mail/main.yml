@@ -112,6 +112,7 @@
 
 - name: Update mailname to hashbang
   lineinfile:
+    create: true
     path: /etc/mailname
     line: "hashbang.sh"
 
