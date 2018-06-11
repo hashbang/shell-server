@@ -4,11 +4,25 @@
 
 ## About ##
 
-This repo contains the basic setup for a #! multi-user shell server,
-pulling data from several locations:
-- `/etc` is managed with [etckeeper], and kept in [shell-etc].
-- whenever a user's homedir is created, it is populated with
-  the contents of the (signed) [dotfiles] repository.
+This is the central build and management repository for #! shell servers.
+
+It should contain everything required to run your own #! shell server, or to
+develop changes to be deployed to all existing deployed servers.
+
+Existing servers automatically update from this repo via ansible-pull.
+
+## Requirements ##
+
+  | Tool       | Version | Needed for Builder   |
+  | ---------- | ------- | -------------------- |
+  | Ansible    | v2.5+   | all                  |
+  | Packer     | v1.2x+  | all                  |
+  | Docker     | v18.0+  | Docker               |
+  | qemu       | v2.12+  | qemu, libvirt        |
+  | Virtualbox | v5.2+   | virtualbox, vagrant  |
+  | Vagrant    | v2.1.1+ | vagrant              |
+  | Linux      | v4.16+  | lxc, libvirt         |
+  | lxc        | v3.0+   | lxc                  |
 
 ## Building ##
 
