@@ -32,10 +32,11 @@
   - name: Determine if we are in a docker environment
     stat: path=/.dockerenv
     register: dockerenv
-  - include_tasks: tasks/docker/main.yml
+
+  - name: Run Docker preinit task
+    include_tasks: tasks/docker/main.pre.yml
     when: dockerenv.stat.exists
     ignore_errors: True
-
 
   - name: Include tasks files
     include_tasks: "tasks/{{ item }}/main.yml"
@@ -50,3 +51,8 @@
     - misc
     - ldap-nss
     - security
+
+  - name: Run Docker postinit task
+    include_tasks: tasks/docker/main.post.yml
+    when: dockerenv.stat.exists
+    ignore_errors: True

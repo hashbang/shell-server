@@ -1,0 +1,2 @@
+- name: Disable unbound systemd unit
+  command: systemctl disable unbound
