@@ -3,34 +3,26 @@ services:
   - docker
 
 cache:
-  directories:
-    - $HOME/bootstrap-vz
   pip: {}
 
 addons:
   apt:
     packages:
-      - kpartx
-      - parted
-      - debootstrap
-      - python-termcolor
-      - python-jsonschema
-      - python-docopt
-      - python-yaml
+      - wget
+      - unzip
       - python-pip
+      - qemu-system-x86
 
 env:
   global:
     - REPO=hashbang/shell-server
 
 before_install:
-  - "[ -d ~/bootstrap-vz/.git ] || git clone https://github.com/hashbang/bootstrap-vz.git ~/bootstrap-vz"
-  - git -C ~/bootstrap-vz pull --ff-only
-  - sudo -H pip install fysom pyrfc3339
+  - test -f /usr/local/bin/packer || (wget -O packer.zip https://releases.hashicorp.com/packer/1.2.4/packer_1.2.4_linux_amd64.zip && unzip -o packer.zip && sudo mv packer /usr/local/bin/)
+  - sudo -H pip install 'ansible>=2.5'
   
 script:
-  - "[ -d ./etc/.git ] || git clone https://github.com/hashbang/shell-etc.git ./etc"
-  - sudo $HOME/bootstrap-vz/bootstrap-vz manifest.yml
+  - sudo make docker
 
-after_success:
-  - if [ "$TRAVIS_BRANCH" == "master" ]; then docker login -u $DOCKER_USER -p $DOCKER_PASS && docker tag shell-server $REPO:latest && docker push $REPO; fi
+# after_success:
+#   - if [ "$TRAVIS_BRANCH" == "master" ]; then docker login -u $DOCKER_USER -p $DOCKER_PASS && docker tag shell-server $REPO:latest && docker push $REPO; fi
