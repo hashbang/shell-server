@@ -22,7 +22,7 @@ before_install:
   - sudo -H pip install 'ansible>=2.5'
   
 script:
-  - sudo make docker
+  - make docker
 
 # after_success:
 #   - if [ "$TRAVIS_BRANCH" == "master" ]; then docker login -u $DOCKER_USER -p $DOCKER_PASS && docker tag shell-server $REPO:latest && docker push $REPO; fi
