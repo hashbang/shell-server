@@ -11,7 +11,6 @@ addons:
       - wget
       - unzip
       - python-pip
-      - qemu-system-x86
 
 env:
   global:

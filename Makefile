@@ -4,11 +4,13 @@ export CHECKPOINT_DISABLE := 1
 export PACKER_CACHE_DIR := \
 	$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))/.packer/cache
 export VERSION := $(shell date -u +%Y%m%d%H%M)
-EXECUTABLES = packer ansible qemu-system-x86_64
+
+EXECUTABLES = packer ansible
 K := $(foreach exec,$(EXECUTABLES),\
         $(if $(shell which $(exec)),some string,$(error "No $(exec) in PATH")))
+WHICH-%: ; @which $* > /dev/null
 
-all: clean
+all: clean WHICH-qemu-system-x86_64
 	$(PACKER) build --parallel=false packer/build.json
 
 clean:
@@ -20,7 +22,7 @@ docker:
 	rm -rf .packer/build/docker
 	$(PACKER) build -only docker packer/build.json
 
-qemu:
+qemu: WHICH-qemu-system-x86_64
 	rm -rf dist/*qemu*
 	rm -rf .packer/build/qemu
 	$(PACKER) build -only qemu packer/build.json
