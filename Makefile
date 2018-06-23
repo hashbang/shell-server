@@ -5,7 +5,7 @@ export PACKER_CACHE_DIR := \
 	$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))/.packer/cache
 export VERSION := $(shell date -u +%Y%m%d%H%M)
 
-EXECUTABLES = packer ansible
+EXECUTABLES = $(PACKER) ansible
 K := $(foreach exec,$(EXECUTABLES),\
         $(if $(shell which $(exec)),some string,$(error "No $(exec) in PATH")))
 WHICH-%: ; @which $* > /dev/null
