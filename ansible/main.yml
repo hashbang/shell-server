@@ -11,12 +11,20 @@
 
   tasks:
 
+  - apt_key:
+      keyserver: keyserver.ubuntu.com
+      id: 93C4A3FD7BB9C367
+
+  - apt_repository:
+    repo: deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main
+    state: present
+
   - name: Install minimum system packages
     apt:
       name: "{{ item }}"
     with_items:
-    - git
     - ansible
+    - git
     - gnupg
     - apt-transport-https
     - unattended-upgrades
