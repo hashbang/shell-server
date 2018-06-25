@@ -11,14 +11,6 @@
 
   tasks:
 
-  - apt_key:
-      keyserver: keyserver.ubuntu.com
-      id: 93C4A3FD7BB9C367
-
-  - apt_repository:
-      repo: deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main
-      state: present
-
   - name: Install minimum system packages
     apt:
       name: "{{ item }}"
@@ -37,6 +29,17 @@
     - udev
     - util-linux
     - openssh-server
+
+  - apt_key:
+      keyserver: keyserver.ubuntu.com
+      id: 93C4A3FD7BB9C367
+
+  - apt_repository:
+      repo: deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main
+      state: present
+
+  - name: Install latest ansible
+    apt: name=ansible
 
   - name: Determine if we are in a docker environment
     stat: path=/.dockerenv
