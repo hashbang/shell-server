@@ -41,6 +41,81 @@
         executable: /bin/bash
     - file: path=/var/lib/hashbang/admins.gpg mode="755"
 
+    - name: Install trusted author PGP keys
+      block:
+      - file: path=/etc/ansible/keys/gnupg state=directory mode=0700
+      - shell: |
+          GNUPGHOME=/etc/ansible/keys/gnupg \
+          gpg --import /var/lib/hashbang/admins.gpg
+        args:
+          executable: /bin/bash
+
+    - name: Install ansible-pull config
+      copy:
+        dest: /etc/ansible/ansible-pull.env
+        content: |
+          GIT_REPO=git@github.com:hashbang/shell-server.git
+          GIT_BRANCH=master
+          GIT_PATH=/etc/ansible/repos/shell-server
+          PLAYBOOK_FILE=/etc/ansible/repos/shell-server/ansible/main.yml
+          GNUPGHOME=/etc/ansible/keys/gnupg/
+          ANSIBLE_LOCAL_TEMP=/root/.ansible/tmp
+          ANSIBLE_REMOTE_TEMP=/root/.ansible/tmp
+
+    - name: Ensure github.com is a known host
+      lineinfile:
+        dest: /root/.ssh/known_hosts
+        create: yes
+        state: present
+        line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
+        regexp: "^github\\.com"
+
+    - name: Install ansible-pull as systemd timer
+      block:
+      - copy:
+          dest: /etc/systemd/system/ansible-pull.service
+          content: |
+            [Unit]
+            Description=Run ansible-pull
+            After=network.target
+
+            [Service]
+            EnvironmentFile=/etc/ansible/ansible-pull.env
+            ExecStart=/bin/bash -c "/usr/bin/ansible-pull \
+              -U $GIT_REPO \
+              -C $GIT_BRANCH \
+              -d $GIT_PATH \
+              -c local \
+              --limit %H \
+              --verify-commit \
+              --key-file $GIT_PRIVATE_KEY_PATH \
+              $PLAYBOOK_FILE"
+            Type=oneshot
+
+            [Install]
+            WantedBy=multi-user.target
+      - copy:
+          dest: /etc/systemd/system/ansible-pull.timer
+          content: |
+            [Unit]
+            Description=Run ansible-pull every 15 mins
+
+            [Timer]
+            OnBootSec=15min
+            OnUnitActiveSec=15m
+
+            [Install]
+            WantedBy=timers.target
+      - systemd:
+          name: ansible-pull.service
+          daemon_reload: true
+          enabled: True
+      - systemd:
+          name: ansible-pull.timer
+          daemon_reload: true
+          state: started
+          enabled: True
+
 - name: Install Welcome Templates and Man page
   block:
   - file:

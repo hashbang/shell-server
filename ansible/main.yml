@@ -16,6 +16,7 @@
       name: "{{ item }}"
     with_items:
     - git
+    - ansible
     - gnupg
     - apt-transport-https
     - unattended-upgrades
