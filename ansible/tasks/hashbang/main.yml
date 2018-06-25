@@ -62,14 +62,6 @@
           ANSIBLE_LOCAL_TEMP=/root/.ansible/tmp
           ANSIBLE_REMOTE_TEMP=/root/.ansible/tmp
 
-    - name: Ensure github.com is a known host
-      lineinfile:
-        dest: /root/.ssh/known_hosts
-        create: yes
-        state: present
-        line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
-        regexp: "^github\\.com"
-
     - name: Install ansible-pull as systemd timer
       block:
       - copy:
