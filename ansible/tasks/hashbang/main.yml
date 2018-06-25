@@ -78,7 +78,7 @@
               -C $GIT_BRANCH \
               -d $GIT_PATH \
               -c local \
-              --limit %H \
+              -i '%H,' \
               --verify-commit \
               $PLAYBOOK_FILE"
             Type=oneshot
