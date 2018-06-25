@@ -54,7 +54,7 @@
       copy:
         dest: /etc/ansible/ansible-pull.env
         content: |
-          GIT_REPO=git@github.com:hashbang/shell-server.git
+          GIT_REPO=https://github.com/hashbang/shell-server.git
           GIT_BRANCH=master
           GIT_PATH=/etc/ansible/repos/shell-server
           PLAYBOOK_FILE=/etc/ansible/repos/shell-server/ansible/main.yml
@@ -88,7 +88,6 @@
               -c local \
               --limit %H \
               --verify-commit \
-              --key-file $GIT_PRIVATE_KEY_PATH \
               $PLAYBOOK_FILE"
             Type=oneshot
 
