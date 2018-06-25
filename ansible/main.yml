@@ -16,8 +16,8 @@
       id: 93C4A3FD7BB9C367
 
   - apt_repository:
-    repo: deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main
-    state: present
+      repo: deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main
+      state: present
 
   - name: Install minimum system packages
     apt:
