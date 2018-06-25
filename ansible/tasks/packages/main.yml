@@ -246,6 +246,7 @@
     - ldap-utils
     - less
     - lftp
+    - libpam-systemd
     - linux-image-amd64
     - lm-sensors
     - locales
