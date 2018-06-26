@@ -121,3 +121,6 @@
       mode: "{{ item.mode }}"
     with_filetree: "tasks/hashbang/templates"
     when: item.state == 'file'
+
+- name: Set welcome script executable
+  file: dest=/etc/hashbang/welcome mode=a+x
