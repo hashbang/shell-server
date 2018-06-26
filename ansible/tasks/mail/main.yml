@@ -73,13 +73,13 @@
   - name: Update maildir for console login
     lineinfile:
       path: /etc/pam.d/login
-      regexp: "^session    optional   pam_mail.so( dir=~/Mail)? standard"
-      line: "session    optional   pam_mail.so dir=~/Mail standard"
+      regexp: "^session +optional +pam_mail.so"
+      line: "session optional pam_mail.so dir=~/Mail standard"
   - name: Update maildir for sshd login
     lineinfile:
       path: /etc/pam.d/sshd
-      regexp: "^session    optional     pam_mail.so( dir=~/Mail)? standard noenv"
-      line: "session    optional     pam_mail.so dir=~/Mail standard noenv"
+      regexp: "^session +optional +pam_mail.so"
+      line: "session optional pam_mail.so dir=~/Mail standard noenv"
 
 - name: Setup msmtprc for hashbang smtp
   copy:
