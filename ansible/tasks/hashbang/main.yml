@@ -39,7 +39,7 @@
           -o /var/lib/hashbang/admins.gpg
       args:
         executable: /bin/bash
-    - file: path=/var/lib/hashbang/admins.gpg mode="755"
+    - file: path=/var/lib/hashbang/admins.gpg mode="0755"
 
     - name: Install trusted author PGP keys
       block:
@@ -112,7 +112,7 @@
   - file:
       path: "/{{ item.path }}"
       state: directory
-      mode: "755"
+      mode: "0755"
     with_filetree: "tasks/hashbang/templates"
     when: item.state == 'directory'
   - template:

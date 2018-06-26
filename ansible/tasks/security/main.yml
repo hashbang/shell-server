@@ -79,7 +79,7 @@
         		ln -s /run/systemd/journal/dev-log /dev/log
         	fi
 
-        	mount -o gid=5,mode=620,ptmxmode=0666 \
+        	mount -o gid=5,mode=0620,ptmxmode=0666 \
         		  -t devpts devpts /dev/pts
         	ln -sf pts/ptmx /dev/ptmx
         fi
