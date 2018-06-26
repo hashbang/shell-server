@@ -127,6 +127,7 @@
 - name: Filesystem security settings
   blockinfile:
     path: /etc/fstab
+    marker: "# {mark} ANSIBLE - Filesystem Security Settings"
     block: |
       proc   /proc    proc     defaults,hidepid=2                  0 0
       udev   /dev     devtmpfs defaults,nosuid,noatime             0 0
@@ -135,6 +136,7 @@
 - name: Use pty instead of tty for sudoers
   blockinfile:
     path: /etc/sudoers
+    marker: "# {mark} ANSIBLE - PTY configuration for users"
     block: |
       Defaults	!requiretty, !tty_tickets
       Defaults	use_pty
@@ -179,6 +181,7 @@
   - name: enable spoof protection via reverse-path filter
     blockinfile:
       path: /etc/sysctl.conf
+      marker: "# {mark} ANSIBLE - Spoof Protection via Reverse-Path Filter"
       block: |
         net.ipv4.conf.default.rp_filter=1
         net.ipv4.conf.all.rp_filter=1
@@ -227,6 +230,7 @@
   - name: Allow root ssh via hardcoded keys as failsafe
     blockinfile:
       path: /etc/ssh/sshd_config
+      marker: "# {mark} ANSIBLE - Root SSH via hardcoded keys"
       block: |
         Match User root
              AuthorizedKeysFile        .ssh/authorized_keys
