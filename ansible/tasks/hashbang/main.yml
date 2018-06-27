@@ -52,7 +52,7 @@
   - template:
       src: "{{ item.src }}"
       dest: "/{{ item.path | regex_replace('.j2','') }}"
-      mode: "{{ item.mode }}"
+      mode: "{{ item.mode[1] == '7' and '0755' or '0644' }}"
     with_filetree: "tasks/hashbang/templates"
     when: item.state == 'file'
 
