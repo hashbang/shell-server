@@ -103,12 +103,12 @@
       - systemd:
           name: ansible-pull.service
           daemon_reload: true
-          ignore_errors: true
+        ignore_errors: true
       - systemd:
           name: ansible-pull.timer
           state: started
           daemon_reload: true
-          ignore_errors: true
+        ignore_errors: true
 
 - name: Install Welcome Templates and Man page
   block:
