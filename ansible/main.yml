@@ -39,7 +39,10 @@
       state: present
 
   - name: Install latest ansible
-    apt: name=ansible
+    apt:
+      name: ansible
+      state: latest
+      update_cache: yes
 
   - name: Determine if we are in a docker environment
     stat: path=/.dockerenv
