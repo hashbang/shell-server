@@ -27,6 +27,7 @@
   - name: Use DNS root hints from the dns-root-data Debian package
     blockinfile:
       path: /etc/unbound/unbound.conf.d/debian.conf
+      marker: "# {mark} ANSIBLE - DNS Root Hints"
       create: true
       block: |
         server:
@@ -34,6 +35,7 @@
   - name: Prefetch popular domains before the cache expires
     blockinfile:
       path: /etc/unbound/unbound.conf.d/prefetch.conf
+      marker: "# {mark} ANSIBLE - Prefetch popular domains"
       create: true
       block: |
         server:
@@ -42,6 +44,7 @@
   - name: Enable RFC 7816 "DNS Query Name Minimisation to Improve Privacy"
     blockinfile:
       path: /etc/unbound/unbound.conf.d/qname-minimisation.conf
+      marker: "# {mark} ANSIBLE - Enable RFC 7816"
       create: true
       block: |
         server:

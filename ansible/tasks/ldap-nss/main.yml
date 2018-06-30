@@ -2,7 +2,7 @@
 - name: Configure ssh to use sss for authorized-keys
   blockinfile:
     path: /etc/ssh/sshd_config
-    marker: ""
+    marker: "# {mark} ANSIBLE - sss config for ssh"
     block: |
       AuthorizedKeysFile        none
       AuthorizedKeysCommand     /usr/bin/sss_ssh_authorizedkeys
@@ -11,6 +11,7 @@
 - name: Configure sssd to use custom ldap server
   blockinfile:
     path: /etc/sssd/sssd.conf
+    marker: "# {mark} ANSIBLE - LDAP configuration for sss"
     mode: 0600
     create: true
     block: |

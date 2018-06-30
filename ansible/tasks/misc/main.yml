@@ -17,6 +17,7 @@
 - name: Configure systemd for increased resource accounting
   blockinfile:
     path: /etc/systemd/system.conf
+    marker: "# {mark} ANSIBLE - Config for better resource accounting"
     block: |
       DefaultCPUAccounting=yes
       DefaultBlockIOAccounting=yes
