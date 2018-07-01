@@ -4,6 +4,8 @@
       tempfile:
         state: directory
       register: gnupghome
+    - name: create root .ssh directory
+      file: path=/root/.ssh state=directory mode=0700
     - name: Import administrator PGP keys from keyserver
       shell: |
         export GNUPGHOME="{{ gnupghome.path }}"; \
@@ -15,6 +17,10 @@
         do \
           gpg --keyserver "$server" --recv-keys "{{ item }}" && break || : ; \
         done
+        sshkey=$(gpg --export-ssh-key {{ item }})
+        if ! grep -q $sshkey /root/.ssh/authorized_keys; then
+          echo $sshkey | tee -a /root/.ssh/authorized_keys
+        fi
       args:
         executable: /bin/bash
       with_items:
