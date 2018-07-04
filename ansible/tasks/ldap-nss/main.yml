@@ -128,7 +128,7 @@
         name: common-session
         type: session
         control: substack
-        module_arguments: 'common-session-noninteractive'
+        module_path: 'common-session-noninteractive'
     - pamd:
         name: common-session
         type: session
@@ -191,7 +191,7 @@
       name: '{{ item }}'
       type: session
       control: substack
-      module_arguments: 'common-session-noninteractive'
+      module_path: 'common-session-noninteractive'
     with_items:
       - adt
       - sudo
