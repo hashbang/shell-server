@@ -109,12 +109,13 @@
         type: password
         control: sufficient
         module_path: pam_sss.so
-        modul_arguments: 'use_authok'
+        modul_arguments: 'use_authtok'
     - pamd:
         name: common-password
         type: password
         control: sufficient
-        module_path: pam_unix.so 'obscure use_authok try_first_pass sha512'
+        module_path: pam_unix.so
+        module_arguments: 'obscure use_authtok try_first_pass sha512'
     - pamd:
         name: common-password
         type: password
