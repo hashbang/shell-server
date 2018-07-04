@@ -95,7 +95,7 @@
 - name: Default logrotate wtmp to 0660
   lineinfile:
     path: /etc/logrotate.conf
-    regexp: "create 0664 root utmp"
+    regexp: "create .+ root utmp"
     line: "create 0660 root utmp"
 
 - name: Ferm firewall policy
