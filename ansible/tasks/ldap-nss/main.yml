@@ -50,73 +50,151 @@
 - name: Update pam to use sss
   block:
   - name: update pam common-account to use sss
-    copy:
-      dest: /etc/pam.d/common-account
-      content: |
-        account	required	  pam_nologin.so
-        account	sufficient	pam_sss.so
-        account	sufficient	pam_unix.so
-        account	sufficient	pam_localuser.so
-        account	required	  pam_deny.so
+    block:
+    - pamd:
+        name: common-account
+        type: account
+        control: required
+        module_path: pam_nologin.so
+    - pamd:
+        name: common-account
+        type: account
+        control: sufficient
+        module_path: pam_sss.so
+    - pamd:
+        name: common-account
+        type: account
+        control: sufficient
+        module_path: pam_unix.so
+    - pamd:
+        name: common-account
+        type: account
+        control: sufficient
+        module_path: pam_localuser.so
+    - pamd:
+        name: common-account
+        type: account
+        control: required
+        module_path: pam_deny.so
 
   - name: update pam common-auth to use sss
-    copy:
-      dest: /etc/pam.d/common-auth
-      content: |
-        auth	sufficient  pam_sss.so
-        auth	sufficient  pam_unix.so use_first_pass
-        auth	required		pam_deny.so
+    block:
+    - pamd:
+        name: common-auth
+        type: auth
+        control: sufficient
+        module_path: pam_sss.so
+    - pamd:
+        name: common-auth
+        type: auth
+        control: sufficient
+        module_path: pam_unix.so
+        modul_arguments: 'use_first_pass'
+    - pamd:
+        name: common-auth
+        type: auth
+        control: required
+        module_path: pam_deny.so
 
   - name: Update pam common-password to use sss
-    copy:
-      dest: /etc/pam.d/common-password
-      content: |
-        password  requisite	  pam_pwquality.so retry=3
-        password  sufficient  pam_sss.so use_authtok
-        password  sufficient  pam_unix.so obscure use_authtok try_first_pass sha512
-        password requisite	 pam_deny.so
+    block:
+    - pamd:
+        name: common-password
+        type: password
+        control: requisite
+        module_path: pam_pwquality.so
+        module_arguments: 'retry=3'
+    - pamd:
+        name: common-password
+        type: password
+        control: sufficient
+        module_path: pam_sss.so
+        modul_arguments: 'use_authok'
+    - pamd:
+        name: common-password
+        type: password
+        control: sufficient
+        module_path: pam_unix.so 'obscure use_authok try_first_pass sha512'
+    - pamd:
+        name: common-password
+        type: password
+        control: requisite
+        module_path: pam_deny.so
 
   - name: Update pam common-session to use sss
-    copy:
-      dest: /etc/pam.d/common-session
-      content: |
-        session	substack	common-session-noninteractive
-        session	optional	pam_mkhomedir.so
-        session	optional	pam_umask.so      usergroups
+    block:
+    - pamd:
+        name: common-session
+        type: session
+        control: substack
+        module_arguments: 'common-session-noninteractive'
+    - pamd:
+        name: common-session
+        type: session
+        control: optional
+        module_path: pam_mkhomedir.so
+    - pamd:
+        name: common-session
+        type: session
+        control: optional
+        module_path: pam_umask.so
+        module_arguments: 'usergroups'
 
   - name: Update pam common-session-noninteractive to use sss
-    copy:
-      dest: /etc/pam.d/common-session-noninteractive
-      content: |
-        session	required	  pam_env.so
-        session	required	  pam_namespace.so  unmnt_remnt
-        session	required	  pam_limits.so
-        session	required	  pam_systemd.so
-        session	required	  pam_exec.so       type=open_session /etc/security/limits.sh
-        session	sufficient	pam_sss.so
-        session	sufficient	pam_unix.so
-        session	required	 pam_deny.so
+    block:
+    - pamd:
+        name: common-session-noninteractive
+        type: session
+        control: required
+        module_path: pam_env.so
+    - pamd:
+        name: common-session-noninteractive
+        type: session
+        control: required
+        module_path: pam_namespace.so
+        module_arguments: 'unmnt_remnt'
+    - pamd:
+        name: common-session-noninteractive
+        type: session
+        control: required
+        module_path: pam_limits.so
+    - pamd:
+        name: common-session-noninteractive
+        type: session
+        control: required
+        module_path: pam_systemd.so
+    - pamd:
+        name: common-session-noninteractive
+        type: session
+        control: required
+        module_path: pam_exec.so
+        module_arguments: 'type=open_session /etc/security/limits.sh'
+    - pamd:
+        name: common-session-noninteractive
+        type: session
+        control: sufficient
+        module_path: pam_sss.so
+    - pamd:
+        name: common-session-noninteractive
+        type: session
+        control: sufficient
+        module_path: pam_unix.so
+    - pamd:
+        name: common-session-noninteractive
+        type: session
+        control: required
+        module_path: pam_deny.so
 
-- name: Update pam adt to use common-session-interactive as substack
-  lineinfile:
-    create: true
-    path: /etc/pam.d/adt
-    regexp: "session +substack +common-session-noninteractive"
-    line: "session    substack   common-session-noninteractive"
-
-- name: Update pam cron to use common-session-interactive as substack
-  lineinfile:
-    create: true
-    path: /etc/pam.d/cron
-    regexp: "session +substack +common-session-noninteractive"
-    line: "session    substack   common-session-noninteractive"
-
-- name: Update pam sudo to use common-session-interactive as substack
-  lineinfile:
-    create: true
-    path: /etc/pam.d/sudo
-    regexp: "session +substack +common-session-noninteractive"
-    line: "session    substack   common-session-noninteractive"
+  - name: Update adt/sudo/cron to use common-session-interactive as substack
+    pamd:
+      name: '{{ item }}'
+      type: session
+      control: substack
+      module_arguments: 'common-session-noninteractive'
+    with_items:
+      - adt
+      - sudo
+      - cron
 
 - name: Setup NSLCD to ldap hashbang settings
   copy:
