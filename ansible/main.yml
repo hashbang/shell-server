@@ -13,6 +13,7 @@
 
   - name: Install minimum system packages
     apt:
+      update_cache: true
       name: "{{ item }}"
     with_items:
     - ansible

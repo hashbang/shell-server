@@ -101,21 +101,21 @@
   lineinfile:
     create: true
     path: /etc/pam.d/adt
-    regexp: "^@include common-session-noninteractive"
+    regexp: "session +substack +common-session-noninteractive"
     line: "session    substack   common-session-noninteractive"
 
 - name: Update pam cron to use common-session-interactive as substack
   lineinfile:
     create: true
     path: /etc/pam.d/cron
-    regexp: "^@include common-session-noninteractive"
+    regexp: "session +substack +common-session-noninteractive"
     line: "session    substack   common-session-noninteractive"
 
 - name: Update pam sudo to use common-session-interactive as substack
   lineinfile:
     create: true
     path: /etc/pam.d/sudo
-    regexp: "^@include common-session-noninteractive"
+    regexp: "session +substack +common-session-noninteractive"
     line: "session    substack   common-session-noninteractive"
 
 - name: Setup NSLCD to ldap hashbang settings
