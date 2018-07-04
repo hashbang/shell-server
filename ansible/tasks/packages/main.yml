@@ -247,6 +247,7 @@
     - less
     - lftp
     - libpam-systemd
+    - libsqlite3-dev
     - linux-image-amd64
     - lm-sensors
     - locales
