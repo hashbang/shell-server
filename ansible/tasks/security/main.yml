@@ -144,7 +144,7 @@
 - name: Allow shell configuration tool with sudo pinhole
   copy:
     dest: /etc/sudoers.d/hashbangctl
-    content: "ALL ALL = NOEXEC: NOPASSWD: /usr/local/bin/hashbangctl"
+    content: "ALL ALL = NOEXEC: NOPASSWD: /usr/local/bin/hashbangctl\n"
 
 - name: Ensure haveged uses 2048 bit watermark
   lineinfile:
