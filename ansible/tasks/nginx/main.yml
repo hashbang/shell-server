@@ -48,5 +48,6 @@
    path: /etc/nginx/sites-enabled/default
 
 - name: Restart nginx
-  when: nginxconf.chnaged
+  when: nginxconf.changed
   service: name=nginx state=restarted enabled=yes
+  ignore_errors: yes  # ignore error when systemd isn't running
