@@ -1,21 +1,5 @@
 ---
-- apt_key:
-    url: https://nginx.org/keys/nginx_signing.key
-    state: present
-
-- apt_repository:
-    repo: deb http://nginx.org/packages/debian/ stretch nginx
-    state: present
-
-- apt_repository:
-    repo: deb-src http://nginx.org/packages/debian/ stretch nginx
-    state: present
-
-- name: Update apt repositories
-  apt:
-    update_cache: yes
-
-- name: Install nginx from nginx.org
+- name: Install nginx
   apt:
     name={{ item }}
   with_items:
