@@ -104,17 +104,12 @@
 
             [Install]
             WantedBy=timers.target
-      - command: systemctl enable ansible-pull.service
-      - command: systemctl enable ansible-pull.timer
-      - systemd:
-          name: ansible-pull.service
-          daemon_reload: true
-        ignore_errors: true
       - systemd:
           name: ansible-pull.timer
           state: started
-          daemon_reload: true
-        ignore_errors: true
+          enable: yes
+          daemon_reload: yes
+        ignore_errors: yes
 
 - name: Install Welcome Templates and Man page
   block:
