@@ -1,6 +1,6 @@
 ---
 - apt_key:
-    keyserver: keys.gnupg.net
+    data: "{{ lookup('file', 'apt/weechat.asc') }}"
     id: 11E9DE8848F2B65222AA75B8D1820DB22A11534E
     keyring: /etc/apt/trusted.gpg.d/weechat.gpg
 
