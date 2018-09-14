@@ -50,23 +50,15 @@
         server:
             qname-minimisation: yes
 
-- name: enable unbound service
-  command: systemctl enable unbound
-  # workaround for systemd module expecting running systemd
-  #systemd:
-  #  name: unbound
-  #  enabled: yes
+- name: Enable & reload services
+  when: not dockerenv.stat.exists
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+    masked: no
+    state: reloaded  # TODO: This should be a handler instead
 
-- name: enable resolvconf
-  command: systemctl enable resolvconf
-  # workaround for systemd module expecting running systemd
-  #systemd:
-  #  name: resolvconf
-  #  enabled: yes
-
-- name: enable unbound-resolvconf
-  command: systemctl enable unbound-resolvconf
-  # workaround for systemd module expecting running systemd
-  #systemd:
-  #  name: unbound-resolvconf
-  #  enabled: yes
+  with_items:
+    - unbound
+    - unbound-resolvconf
+    - resolvconf
