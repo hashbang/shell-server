@@ -46,22 +46,22 @@
       create: yes
       content: |
         # Backports.  Must be enabled per-package using a pin
-        deb http://deb.debian.org/debian/ stretch-backports main contrib non-free
-        deb-src http://deb.debian.org/debian/ stretch-backports main contrib non-free
+        deb http://deb.debian.org/debian/ {{ ansible_distribution_release }}-backports main contrib non-free
+        deb-src http://deb.debian.org/debian/ {{ ansible_distribution_release }}-backports main contrib non-free
 
   - name: Prefer the installed release over backports, by default
     copy:
       dest: /etc/apt/preferences
       mode: "0644"
       content: |
-        # Give stretch priority over everything
+        # Give {{ ansible_distribution_release }} priority over everything
         Package: *
-        Pin: release n=stretch
+        Pin: release n=
         Pin-Priority: 900
 
-        # Give backports priority over testing
+        # Give backports priority over other sources
         Package: *
-        Pin: release n=stretch-backports
+        Pin: release n={{ ansible_distribution_release }}-backports
         Pin-Priority: 800
 
   - name: Pin Ansible from backports
@@ -70,7 +70,7 @@
       mode: "0644"
       content: |
         Package: ansible ieee-data python-netaddr
-        Pin: release n=stretch-backports
+        Pin: release n={{ ansible_distribution_release }}-backports
         Pin-Priority: 990
 
 
