@@ -64,6 +64,16 @@
         Pin: release n=stretch-backports
         Pin-Priority: 800
 
+  - name: Pin Ansible from backports
+    copy:
+      dest: /etc/apt/preferences.d/ansible
+      mode: "0644"
+      content: |
+        Package: ansible ieee-data python-netaddr
+        Pin: release n=stretch-backports
+        Pin-Priority: 990
+
+
   - name: Install latest ansible
     apt:
       name: ansible
