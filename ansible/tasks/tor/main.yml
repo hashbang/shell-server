@@ -23,9 +23,9 @@
     line: "AllowInbound 1"
 
 - name: enable tor service
-  command: systemctl enable tor
-  # workaround for systemd module expecting running systemd
-  #systemd:
-  #  name: tor
-  #  enabled: yes
-  #  masked: no
+  systemd:
+    name: tor
+    enabled: yes
+    masked: no
+    state: started
+  when: not dockerenv.stat.exists
