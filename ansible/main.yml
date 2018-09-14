@@ -40,6 +40,29 @@
       - # We aren't running Ubuntu ...
         sources.list.d/ppa_launchpad_net_ansible_ansible_ubuntu.list
 
+  - name: Add the backports suite
+    blockinfile:
+      path: /etc/apt/sources.list
+      create: yes
+      content: |
+        # Backports.  Must be enabled per-package using a pin
+        deb http://deb.debian.org/debian/ stretch-backports main contrib non-free
+        deb-src http://deb.debian.org/debian/ stretch-backports main contrib non-free
+
+  - name: Prefer the installed release over backports, by default
+    copy:
+      dest: /etc/apt/preferences
+      mode: "0644"
+      content: |
+        # Give stretch priority over everything
+        Package: *
+        Pin: release n=stretch
+        Pin-Priority: 900
+
+        # Give backports priority over testing
+        Package: *
+        Pin: release n=stretch-backports
+        Pin-Priority: 800
 
   - name: Install latest ansible
     apt:
