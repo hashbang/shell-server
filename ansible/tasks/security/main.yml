@@ -9,6 +9,17 @@
       d     /var/tmp/inst     0000 root root -   -
       d     /run/lock/inst    0000 root root -   -
 
+
+- name: Disable services with known PAM escapes
+  when: not dockerenv.stat.exists
+  systemd:
+    name: "{{ item }}"
+    masked: yes
+    state: stopped
+  with_items:
+    - atd
+    - cron
+
 - name: Setup default security limits
   block:
   - name: Setup security limits.conf
