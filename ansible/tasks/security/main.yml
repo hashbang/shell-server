@@ -245,31 +245,3 @@
            AuthorizedKeysFile        .ssh/authorized_keys
            AuthorizedKeysCommand     /bin/true
       Match all
-
-- name: unbound configuration hardening
-  copy:
-    dest: /etc/unbound/unbound.conf.d/harden.conf
-    content: |
-      server:
-        # Do not expose information about the running deamon
-        hide-identity: yes
-        hide-version:  yes
-
-        # Harden against ridiculously-short buffer sizes (potential DoS vector)
-        # This is against spec, but we aren't a public resolver.
-        harden-short-bufsize: yes
-
-        # Harden against abnormaly large queries (same reasoning)
-        harden-large-queries: yes
-
-        # Return NXDOMAIN for queries under a terminal known (and DNSSEC-validated)
-        #   to be NXDOMAIN.  Improves caching and avoids certain attacks
-        harden-below-nxdomain: yes
-
-        # Use 0x20-encoded random nonces for authenticating queries.
-        # Implementation of draft-dns-0x20, makes DNS poisoning harder
-        use-caps-for-id: yes
-
-        # Minimises queries sent upstream
-        # Avoids information disclosure to root/TLD DNS servers & improves caching
-        qname-minimisation: yes
