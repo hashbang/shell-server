@@ -102,6 +102,7 @@
     - misc
     - ldap-nss
     - security
+    - nginx
 
   - name: Run Docker postinit task
     include_tasks: tasks/docker/main.post.yml

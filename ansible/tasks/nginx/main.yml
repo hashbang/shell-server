@@ -1,0 +1,37 @@
+---
+- name: Install nginx
+  apt:
+    name={{ item }}
+  with_items:
+    - nginx
+
+- name: Setup sites-enabled/hashbang-http
+  register: nginxconf
+  copy:
+    dest: /etc/nginx/sites-enabled/hashbang-http
+    content: |
+      # Hashbang server configuration
+      # ref: https://gist.github.com/RyanSquared/e59c7e274abef06e63b0e47e46997b00
+      #
+      server {
+      	listen 80;
+      	listen [::]:80;
+      
+      	server_name "~^(?<user>[a-zA-Z0-9]+)\.(?<server>\w{2}\d{1})\.hashbang\.sh$";
+      
+      	location / {
+      		proxy_pass http://unix:/home/$user/.nginx.sock;
+                proxy_set_header X-Real-IP       $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      	}
+      }
+
+- name: Remove default nginx site
+  file:
+   state: absent
+   path: /etc/nginx/sites-enabled/default
+
+- name: Restart nginx
+  when: nginxconf.changed
+  service: name=nginx state=restarted enabled=yes
+  ignore_errors: yes  # ignore error when systemd isn't running
