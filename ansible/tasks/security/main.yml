@@ -189,53 +189,55 @@
     path: /etc/sysctl.d/10-dmsg.conf
     line: "kernel.dmesg_restrict = 1"
 
-- name: "sysctl:  enable spoof protection via reverse-path filter"
-  blockinfile:
-    path: /etc/sysctl.conf
-    marker: "# {mark} ANSIBLE - Spoof Protection via Reverse-Path Filter"
-    block: |
-      net.ipv4.conf.default.rp_filter=1
-      net.ipv4.conf.all.rp_filter=1
-- name: "sysctl:  Enable arp notifications for eth0"
+- name: "sysctl: Edit sysctl.conf"
   lineinfile:
     path: /etc/sysctl.conf
-    line: "net.ipv4.conf.eth0.arp_notify = 1"
-- name: "sysctl:  Adjust VM Swappiness to more sane default"
-  lineinfile:
-    path: /etc/sysctl.conf
-    line: "vm.swappiness = 60"
-- name: "sysctl:  Use Controlled Delay to avoid bufferbloat"
-  lineinfile:
-    path: /etc/sysctl.conf
-    line: "net.core.default_qdisc = fq_codel"
-- name: "sysctl:  Deny use of perf_event_open to unprivileged processes"
-  lineinfile:
-    path: /etc/sysctl.conf
-    line: "kernel.perf_event_paranoid = 2"
+    line: "{{ item.key }} = {{ item.value }}"
+    regexp: ^#?{{ item.key }}\w*=
+  with_dict:
+    # spoof protection via reverse-path filter
+    net.ipv4.conf.default.rp_filter: 1
+    net.ipv4.conf.all.rp_filter: 1
 
+    # Enable arp notifications for eth0
+    net.ipv4.conf.eth0.arp_notify: 1
+
+    # Adjust VM Swappiness to more sane default
+    vm.swappiness: 60
+
+    # Use Controlled Delay to avoid bufferbloat
+    net.core.default_qdisc: fq_codel
+
+    # Deny use of perf_event_open to unprivileged processes
+    kernel.perf_event_paranoid: 2
 
 
 - name: "ssh:  Don't allow Roaming for ssh clients"
   lineinfile:
     path: /etc/ssh/ssh_config
     line: "UseRoaming no"
+
 - name: "ssh:  Don't use dsa keys in sshd_config"
   lineinfile:
     path: /etc/ssh/sshd_config
     line: "HostKey /etc/ssh/ssh_host_dsa_key"
     state: absent
-- name: "ssh:  Use ssh privilege separation sandboxing"
+
+- name: "ssh:  Set global sshd_config settings"
   lineinfile:
     path: /etc/ssh/sshd_config
-    line: "UsePrivilegeSeparation sandbox"
-- name: "ssh:  Disable password authentication"
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    line: "PasswordAuthentication no"
-- name: "ssh:  Allow use of client-specified gateway ports"
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    line: "GatewayPorts clientspecified"
+    line: "{{ item.key }} {{ item.value }}"
+    regexp: "^#?{{ item.key }} "
+  with_dict:
+    # Use ssh privilege separation sandboxing
+    UsePrivilegeSeparation: sandbox
+
+    # Disable password authentication
+    PasswordAuthentication: "no"
+
+    # Allow use of client-specified gateway ports
+    GatewayPorts: clientspecified
+
 - name: "ssh:  Allow root ssh via hardcoded keys as failsafe"
   blockinfile:
     path: /etc/ssh/sshd_config
