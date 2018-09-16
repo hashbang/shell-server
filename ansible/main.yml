@@ -31,13 +31,48 @@
     - util-linux
     - openssh-server
 
-  - apt_key:
-      keyserver: keyserver.ubuntu.com
-      id: 93C4A3FD7BB9C367
+  - name: Remove undesirable apt files
+    file:
+      path: /etc/apt/{{ item }}
+      state: absent
+    with_items:
+      - trusted.gpg # Use trusted.gpg.d rather than a monolithic file!
+      - # We aren't running Ubuntu ...
+        sources.list.d/ppa_launchpad_net_ansible_ansible_ubuntu.list
 
-  - apt_repository:
-      repo: deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main
-      state: present
+  - name: Add the backports suite
+    blockinfile:
+      path: /etc/apt/sources.list
+      create: yes
+      content: |
+        # Backports.  Must be enabled per-package using a pin
+        deb http://deb.debian.org/debian/ {{ ansible_distribution_release }}-backports main contrib non-free
+        deb-src http://deb.debian.org/debian/ {{ ansible_distribution_release }}-backports main contrib non-free
+
+  - name: Prefer the installed release over backports, by default
+    copy:
+      dest: /etc/apt/preferences
+      mode: "0644"
+      content: |
+        # Give {{ ansible_distribution_release }} priority over everything
+        Package: *
+        Pin: release n={{ ansible_distribution_release }}
+        Pin-Priority: 900
+
+        # Give backports priority over other sources
+        Package: *
+        Pin: release n={{ ansible_distribution_release }}-backports
+        Pin-Priority: 800
+
+  - name: Pin Ansible from backports
+    copy:
+      dest: /etc/apt/preferences.d/ansible
+      mode: "0644"
+      content: |
+        Package: ansible ieee-data python-netaddr
+        Pin: release n={{ ansible_distribution_release }}-backports
+        Pin-Priority: 990
+
 
   - name: Install latest ansible
     apt:

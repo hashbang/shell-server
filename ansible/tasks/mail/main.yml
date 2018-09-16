@@ -1,15 +1,11 @@
 ---
-- name: Update apt repositories
-  apt:
-    update_cache: yes
-
 - name: Install mail packages
   apt:
-    name: "{{ item }}"
-  with_items:
-    - postfix
-    - procmail
-    - msmtp
+    update_cache: yes
+    name:
+      - postfix
+      - procmail
+      - msmtp
 
 - name: Update postfix to relay mail
   block:
