@@ -8,7 +8,16 @@
       1000:65535           soft    nofile          4096
       1000:65535           hard    nofile          10240
 
-- name: Install script for enforcing per-user ressource limits
+- name: "Per-user ressource limits: Configure systemd resource accounting"
+  blockinfile:
+    path: /etc/systemd/system.conf
+    marker: "# {mark} ANSIBLE - Config for better resource accounting"
+    block: |
+      DefaultCPUAccounting=yes
+      DefaultBlockIOAccounting=yes
+      DefaultMemoryAccounting=yes
+
+- name: "Per-user ressource limits: Install script for setting limits"
   copy:
     dest: /etc/security/limits.sh
     mode: "a+x"
@@ -21,6 +30,14 @@
           /bin/systemctl set-property "user-${PAM_UID}.slice" \
                          CPUQuota=50% MemoryLimit=512M BlockIOWeight=10
       fi
+
+- name: "Per-user ressource limits: Execute script with pam_exec"
+  lineinfile:
+    create: no
+    path: /etc/pam.d/common-session-noninteractive
+    insertafter: session	required	  pam_systemd.so
+    line: session	required	  pam_exec.so       type=open_session /etc/security/limits.sh
+
 
 - name: Uninstall services with known PAM escapes
   apt:
