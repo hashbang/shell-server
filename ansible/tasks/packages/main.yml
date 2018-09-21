@@ -42,6 +42,7 @@
       - automake
       - autopoint
       - autotools-dev
+      - awscli
       - base-files
       - base-passwd
       - bash
