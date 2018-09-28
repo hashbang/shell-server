@@ -122,6 +122,14 @@
 
       exit 0
 
+- name: "Per-user ressource limits: Execute script with pam_exec"
+  lineinfile:
+    create: no
+    path: /etc/pam.d/common-session-noninteractive
+    insertafter: session\w+required\w+pam_env.so
+    line: session	required	  pam_namespace.so  unmnt_remnt
+    regexp: ^session\w+required\w+pam_namespace.so
+
 - name: Update default umask to 027
   lineinfile:
     path: /etc/login.defs
