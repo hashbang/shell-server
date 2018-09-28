@@ -35,8 +35,9 @@
   lineinfile:
     create: no
     path: /etc/pam.d/common-session-noninteractive
-    insertafter: session	required	  pam_systemd.so
+    insertafter: session\w+required\w+pam_systemd.so
     line: session	required	  pam_exec.so       type=open_session /etc/security/limits.sh
+    regexp: ^session\w+required\w+pam_exec.so\w+type=open_session\w+/etc/security/limits.sh
 
 
 - name: Uninstall services with known PAM escapes
