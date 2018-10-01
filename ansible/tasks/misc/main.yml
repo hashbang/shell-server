@@ -14,15 +14,6 @@
     dest: /etc/pam.d/chsch
     content: "auth       sufficient  pam_wheel.so    trust   group=users use_uid"
 
-- name: Configure systemd for increased resource accounting
-  blockinfile:
-    path: /etc/systemd/system.conf
-    marker: "# {mark} ANSIBLE - Config for better resource accounting"
-    block: |
-      DefaultCPUAccounting=yes
-      DefaultBlockIOAccounting=yes
-      DefaultMemoryAccounting=yes
-
 - name: Set default locale to en_US.UTF-8
   lineinfile:
     path: /etc/default/locale

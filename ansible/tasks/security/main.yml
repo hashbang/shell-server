@@ -1,90 +1,134 @@
 ---
-- name: Restrict tempfile namespaces
+- name: Configure pam_limits(8)
+  copy:
+    dest: /etc/security/limits.conf
+    content: |
+      1000:65535           soft    nproc           150
+      1000:65535           hard    nproc           200
+      1000:65535           soft    nofile          4096
+      1000:65535           hard    nofile          10240
+
+- name: "Per-user ressource limits: Configure systemd resource accounting"
+  blockinfile:
+    path: /etc/systemd/system.conf
+    marker: "# {mark} ANSIBLE - Config for better resource accounting"
+    block: |
+      DefaultCPUAccounting=yes
+      DefaultBlockIOAccounting=yes
+      DefaultMemoryAccounting=yes
+
+- name: "Per-user ressource limits: Install script for setting limits"
+  copy:
+    dest: /etc/security/limits.sh
+    mode: "a+x"
+    content: |
+      #!/bin/sh -e
+
+      PAM_UID=$(getent passwd "${PAM_USER}" | cut -d: -f3)
+
+      if [ "${PAM_UID}" -ge 1000 ]; then
+          /bin/systemctl set-property "user-${PAM_UID}.slice" \
+                         CPUQuota=50% MemoryLimit=512M BlockIOWeight=10
+      fi
+
+- name: "Per-user ressource limits: Execute script with pam_exec"
+  lineinfile:
+    create: no
+    path: /etc/pam.d/common-session-noninteractive
+    insertafter: session\w+required\w+pam_systemd.so
+    line: session	required	  pam_exec.so       type=open_session /etc/security/limits.sh
+    regexp: ^session\w+required\w+pam_exec.so\w+type=open_session\w+/etc/security/limits.sh
+
+
+- name: Uninstall services with known PAM escapes
+  apt:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - at
+
+- name: Disable services with known PAM escapes
+  when: not dockerenv.stat.exists
+  systemd:
+    name: "{{ item }}"
+    masked: yes
+    state: stopped
+  with_items:
+    - cron
+
+- name: "pam_namespace:  Configure systemd-tmpfiles to manage the instances directories"
   copy:
     dest: /etc/tmpfiles.d/namespaces
     content: |
       #Type Path              Mode UID  GID  Age Argument
-      d     /dev/inst         0000 root root -   -
       d     /tmp/inst         0000 root root -   -
       d     /var/tmp/inst     0000 root root -   -
       d     /run/lock/inst    0000 root root -   -
 
-- name: Setup default security limits
-  block:
-  - name: Setup security limits.conf
-    copy:
-      dest: /etc/security/limits.conf
-      content: |
-        1000:65535           soft    nproc           150
-        1000:65535           hard    nproc           200
-        1000:65535           soft    nofile          4096
-        1000:65535           hard    nofile          10240
-  - name:
-    copy:
-      dest: /etc/security/limits.sh
-      mode: "a+x"
-      content: |
-        #!/bin/sh -e
 
-        PAM_UID=$(getent passwd "${PAM_USER}" | cut -d: -f3)
+- name: "pam_namespace:  Configure polyinstantiated directories"
+  copy:
+    dest: /etc/security/namespace.conf
+    content: |
+      /tmp      /tmp/inst/           user      root
+      /var/tmp  /var/tmp/inst/       user      root
+      /run/lock /run/lock/inst/      user      root
 
-        if [ "${PAM_UID}" -ge 1000 ]; then
-            /bin/systemctl set-property "user-${PAM_UID}.slice" \
-                           CPUQuota=50% MemoryLimit=512M BlockIOWeight=10
-        fi
-  - name:
-    copy:
-      dest: /etc/security/namespace.conf
-      content: |
-        /tmp      /tmp/inst/           user      root
-        /var/tmp  /var/tmp/inst/       user      root
-        /run/lock /run/lock/inst/      user      root
-  - name:
-    copy:
-      dest: /etc/security/namespace.init
-      content: |
-        #!/bin/sh -e
-        # It receives polydir path as $1, the instance path as $2,
-        # a flag whether the instance dir was newly created (0 - no, 1 - yes) in $3,
-        # and user name in $4.
+- name: "pam_namespace:  Install the script for setting up polyinstantiated /dev"
+  copy:
+    dest: /etc/security/namespace.init
+    mode: "0755"
+    content: |
+      #!/bin/sh -e
+      # It receives polydir path as $1, the instance path as $2,
+      # a flag whether the instance dir was newly created (0 - no, 1 - yes) in $3,
+      # and user name in $4.
 
-        if [ "$1" = "/dev" ]; then
-        	# If we are creating /dev
-        	if [ "$3" = 1 ]; then
-        		# Major and minor number for devices come from
-        		# https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/Documentation/devices.txt
-        		mknod -m 666 /dev/null      char  1   3
-        		mknod -m 666 /dev/zero      char  1   5
-        		mknod -m 666 /dev/full      char  1   7
-        		mknod -m 666 /dev/random    char  1   8
-        		mknod -m 666 /dev/urandom   char  1   9
-        		mknod -m 666 /dev/fuse      char 10 229
-        		mknod -m 666 /dev/tty       char  5   0
-        		chown root:tty /dev/tty
+      if [ "$1" = "/dev" ]; then
+      	# If we are creating /dev
+      	if [ "$3" = 1 ]; then
+      		# Major and minor number for devices come from
+      		# https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/Documentation/devices.txt
+      		mknod -m 666 /dev/null      char  1   3
+      		mknod -m 666 /dev/zero      char  1   5
+      		mknod -m 666 /dev/full      char  1   7
+      		mknod -m 666 /dev/random    char  1   8
+      		mknod -m 666 /dev/urandom   char  1   9
+      		mknod -m 666 /dev/fuse      char 10 229
+      		mknod -m 666 /dev/tty       char  5   0
+      		chown root:tty /dev/tty
 
-        		# Create devpts mountpoint
-        		mkdir -m 755 /dev/pts
+      		# Create devpts mountpoint
+      		mkdir -m 755 /dev/pts
 
-        		# Create the shm directory
-        		mkdir -m 1777 /dev/shm
+      		# Create the shm directory
+      		mkdir -m 1777 /dev/shm
 
-        		# Mandatory symlinks
-        		ln -s /proc/self/fd  /dev/fd
-        		ln -s fd/0           /dev/stdin
-        		ln -s fd/1           /dev/stdout
-        		ln -s fd/2           /dev/stderr
-        		ln -s null           /dev/X0R
+      		# Mandatory symlinks
+      		ln -s /proc/self/fd  /dev/fd
+      		ln -s fd/0           /dev/stdin
+      		ln -s fd/1           /dev/stdout
+      		ln -s fd/2           /dev/stderr
+      		ln -s null           /dev/X0R
 
-        		# Recommended symlinks
-        		ln -s /run/systemd/journal/dev-log /dev/log
-        	fi
+      		# Recommended symlinks
+      		ln -s /run/systemd/journal/dev-log /dev/log
+      	fi
 
-        	mount -o gid=5,mode=0620,ptmxmode=0666 \
-        		  -t devpts devpts /dev/pts
-        	ln -sf pts/ptmx /dev/ptmx
-        fi
+      	mount -o gid=5,mode=0620,ptmxmode=0666 \
+      		  -t devpts devpts /dev/pts
+      	ln -sf pts/ptmx /dev/ptmx
+      fi
 
-        exit 0
+      exit 0
+
+- name: "Per-user ressource limits: Execute script with pam_exec"
+  lineinfile:
+    create: no
+    path: /etc/pam.d/common-session-noninteractive
+    insertafter: session\w+required\w+pam_env.so
+    line: session	required	  pam_namespace.so  unmnt_remnt
+    regexp: ^session\w+required\w+pam_namespace.so
 
 - name: Update default umask to 027
   lineinfile:
@@ -133,7 +177,7 @@
       udev   /dev     devtmpfs defaults,nosuid,noatime             0 0
       devpts /dev/pts devpts   defaults,newinstance,ptmxmode=0666  0 0
 
-- name: Use pty instead of tty for sudoers
+- name: "sudo:  Change the default configuration"
   blockinfile:
     path: /etc/sudoers
     marker: "# {mark} ANSIBLE - PTY configuration for users"
@@ -141,22 +185,17 @@
       Defaults	!requiretty, !tty_tickets
       Defaults	use_pty
 
-- name: Allow shell configuration tool with sudo pinhole
+- name: "sudo:  Allow pinhole for shell hashbangctl"
   copy:
     dest: /etc/sudoers.d/hashbangctl
-    content: "ALL ALL = NOEXEC: NOPASSWD: /usr/local/bin/hashbangctl\n"
+    content: |
+      ALL ALL = NOEXEC: NOPASSWD: /usr/local/bin/hashbangctl
 
 - name: Ensure haveged uses 2048 bit watermark
   lineinfile:
     path: /etc/default/haveged
     regexp: "^DAEMON_ARGS="
     line: "DAEMON_ARGS=\"-w 2048\""
-
-- name: Restrict potentially sensitive kernel dmesg output
-  lineinfile:
-    create: true
-    path: /etc/sysctl.d/10-dmsg.conf
-    line: "kernel.dmesg_restrict = 1"
 
 - name: Prevent user access to some sensitive files
   block:
@@ -176,90 +215,67 @@
         - /var/log/wtmp
         - /var/log/lastlog
 
-- name: sysctl security settings
-  block:
-  - name: enable spoof protection via reverse-path filter
-    blockinfile:
-      path: /etc/sysctl.conf
-      marker: "# {mark} ANSIBLE - Spoof Protection via Reverse-Path Filter"
-      block: |
-        net.ipv4.conf.default.rp_filter=1
-        net.ipv4.conf.all.rp_filter=1
-  - name: Enable arp notifications for eth0
-    lineinfile:
-      path: /etc/sysctl.conf
-      line: "net.ipv4.conf.eth0.arp_notify = 1"
-  - name: Adjust VM Swappiness to more sane default
-    lineinfile:
-      path: /etc/sysctl.conf
-      line: "vm.swappiness = 60"
-  - name: Use Controlled Delay to avoid bufferbloat
-    lineinfile:
-      path: /etc/sysctl.conf
-      line: "net.core.default_qdisc = fq_codel"
-  - name: Deny use of perf_event_open to unprivileged processes
-    lineinfile:
-      path: /etc/sysctl.conf
-      line: "kernel.perf_event_paranoid = 2"
+- name: "sysctl:  Restrict potentially sensitive kernel dmesg output"
+  lineinfile:
+    create: true
+    path: /etc/sysctl.d/10-dmsg.conf
+    line: "kernel.dmesg_restrict = 1"
+
+- name: "sysctl: Edit sysctl.conf"
+  lineinfile:
+    path: /etc/sysctl.conf
+    line: "{{ item.key }} = {{ item.value }}"
+    regexp: ^#?{{ item.key }}\w*=
+  with_dict:
+    # spoof protection via reverse-path filter
+    net.ipv4.conf.default.rp_filter: 1
+    net.ipv4.conf.all.rp_filter: 1
+
+    # Enable arp notifications for eth0
+    net.ipv4.conf.eth0.arp_notify: 1
+
+    # Adjust VM Swappiness to more sane default
+    vm.swappiness: 60
+
+    # Use Controlled Delay to avoid bufferbloat
+    net.core.default_qdisc: fq_codel
+
+    # Deny use of perf_event_open to unprivileged processes
+    kernel.perf_event_paranoid: 2
 
 
+- name: "ssh:  Don't allow Roaming for ssh clients"
+  lineinfile:
+    path: /etc/ssh/ssh_config
+    line: "UseRoaming no"
 
-- name: ssh security settings
-  block:
-  - name: Don't allow Roaming for ssh clients
-    lineinfile:
-      path: /etc/ssh/ssh_config
-      line: "UseRoaming no"
-  - name: Don't use dsa keys in sshd_config
-    lineinfile:
-      path: /etc/ssh/sshd_config
-      line: "HostKey /etc/ssh/ssh_host_dsa_key"
-      state: absent
-  - name: Use ssh privilege separation sandboxing
-    lineinfile:
-      path: /etc/ssh/sshd_config
-      line: "UsePrivilegeSeparation sandbox"
-  - name: Disable password authentication
-    lineinfile:
-      path: /etc/ssh/sshd_config
-      line: "PasswordAuthentication no"
-  - name: Allow use of client-specified gateway ports
-    lineinfile:
-      path: /etc/ssh/sshd_config
-      line: "GatewayPorts clientspecified"
-  - name: Allow root ssh via hardcoded keys as failsafe
-    blockinfile:
-      path: /etc/ssh/sshd_config
-      marker: "# {mark} ANSIBLE - Root SSH via hardcoded keys"
-      block: |
-        Match User root
-             AuthorizedKeysFile        .ssh/authorized_keys
-             AuthorizedKeysCommand     /bin/true
-        Match all
-  - name: Add unbound hardening configuration
-    copy:
-      dest: /etc/unbound/unbound.conf.d/harden.conf
-      content: |
-        server:
-          # Do not expose information about the running deamon
-          hide-identity: yes
-          hide-version:  yes
+- name: "ssh:  Don't use dsa keys in sshd_config"
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    line: "HostKey /etc/ssh/ssh_host_dsa_key"
+    state: absent
 
-          # Harden against ridiculously-short buffer sizes (potential DoS vector)
-          # This is against spec, but we aren't a public resolver.
-          harden-short-bufsize: yes
+- name: "ssh:  Set global sshd_config settings"
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    line: "{{ item.key }} {{ item.value }}"
+    regexp: "^#?{{ item.key }} "
+  with_dict:
+    # Use ssh privilege separation sandboxing
+    UsePrivilegeSeparation: sandbox
 
-          # Harden against abnormaly large queries (same reasoning)
-          harden-large-queries: yes
+    # Disable password authentication
+    PasswordAuthentication: "no"
 
-          # Return NXDOMAIN for queries under a terminal known (and DNSSEC-validated)
-          #   to be NXDOMAIN.  Improves caching and avoids certain attacks
-          harden-below-nxdomain: yes
+    # Allow use of client-specified gateway ports
+    GatewayPorts: clientspecified
 
-          # Use 0x20-encoded random nonces for authenticating queries.
-          # Implementation of draft-dns-0x20, makes DNS poisoning harder
-          use-caps-for-id: yes
-
-          # Minimises queries sent upstream
-          # Avoids information disclosure to root/TLD DNS servers & improves caching
-          qname-minimisation: yes
+- name: "ssh:  Allow root ssh via hardcoded keys as failsafe"
+  blockinfile:
+    path: /etc/ssh/sshd_config
+    marker: "# {mark} ANSIBLE - Root SSH via hardcoded keys"
+    block: |
+      Match User root
+           AuthorizedKeysFile        .ssh/authorized_keys
+           AuthorizedKeysCommand     /bin/true
+      Match all
