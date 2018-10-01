@@ -575,7 +575,6 @@
       - sudo
       - swaks
       - sysstat
-      - systemd-cron
       - tar
       - task-english
       - tasksel
