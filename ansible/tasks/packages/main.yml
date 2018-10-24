@@ -96,6 +96,7 @@
       - debian-keyring
       - debianutils
       - debsums
+      - default-jre
       - devscripts
       - dh-lua
       - dh-python
