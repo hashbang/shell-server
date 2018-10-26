@@ -25,6 +25,7 @@
       - adduser
       - aglfn
       - alpine
+      - anarchism
       - ansible
       - apt
       - apt-file
