@@ -10,33 +10,33 @@
 
           [Unit]
           Description=Simulates cron, limited to /etc/cron.*
-          Requires=crontab@hour.timer
-          Requires=crontab@day.timer
-          Requires=crontab@week.timer
-          Requires=crontab@month.timer
+          Requires=crontab@hourly.timer
+          Requires=crontab@daily.timer
+          Requires=crontab@weekly.timer
+          Requires=crontab@monthly.timer
 
     - name: Install crontab service
       copy:
         dest: /etc/systemd/system/crontab@.service
         content: |
           [Unit]
-          Description=%Ily job for /etc/cron.%Ily
+          Description=%I job for /etc/cron.%I
           RefuseManualStart=yes
           RefuseManualStop=yes
-          ConditionDirectoryNotEmpty=/etc/cron.%Ily
+          ConditionDirectoryNotEmpty=/etc/cron.%I
 
           [Service]
           Type=oneshot
           IgnoreSIGPIPE=no
           WorkingDirectory=/
-          ExecStart=/bin/run-parts --report /etc/cron.%Ily
+          ExecStart=/bin/run-parts --report /etc/cron.%I
 
     - name: Install crontab generic timer
       copy:
         dest: /etc/systemd/system/crontab@.timer
         content: |
           [Unit]
-          Description=%Ily timer simulating /etc/cron.%Ily
+          Description=%I timer simulating /etc/cron.%I
           PartOf=crontab.target
           RefuseManualStart=yes
           RefuseManualStop=yes
@@ -46,9 +46,8 @@
           Persistent=yes
 
     - name: enable crontab service
-      command: systemctl enable crontab.target
-      # workaround for systemd module expecting running systemd
-      #systemd:
-      #  name: crontab
-      #  enabled: yes
-      #  masked: no
+      when: not dockerenv.stat.exists
+      systemd:
+        name: crontab
+        enabled: yes
+        masked: no
