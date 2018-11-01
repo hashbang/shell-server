@@ -56,6 +56,30 @@
       Pin: release n={{ ansible_distribution_release }}-backports
       Pin-Priority: 990
 
+- name: Add 3rd-party repositories (1/2)
+  notify: apt update
+  with_dict: "{{ apt.repositories }}"
+  apt_repository:
+    repo: deb {{ item.value.url | mandatory }} {{ item.value.suite | default(ansible_distribution_release) }} {{ item.value.section | default('main') }}
+    state: present
+    update_cache: no
+    filename: "{{ item.key }}"
+
+  loop_control:
+    label: "{{ item.key }}"
+  
+- name: Add 3rd-party repositories (2/2)
+  notify: apt update
+  with_dict: "{{ apt.repositories }}"
+  apt_key:
+    data: "{{ lookup('file', 'apt/{{ item.key }}.asc') }}"
+    id: "{{ item.value.key }}"
+    keyring: /etc/apt/trusted.gpg.d/{{ item.value.keyring | default(item.key) }}.gpg
+
+  loop_control:
+    label: "{{ item.key }}"
+
+
 - # Required to re-run `apt update` before installing the latest Ansible version
   meta: flush_handlers
       

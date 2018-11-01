@@ -1,19 +1,4 @@
 ---
-- apt_key:
-    data: "{{ lookup('file', 'apt/weechat.asc') }}"
-    id: 11E9DE8848F2B65222AA75B8D1820DB22A11534E
-    keyring: /etc/apt/trusted.gpg.d/weechat.gpg
-
-- apt_repository:
-    repo: deb https://weechat.org/debian stretch main
-    state: present
-    filename: weechat
-
-- apt_repository:
-    repo: deb-src https://weechat.org/debian stretch main
-    state: present
-    filename: weechat
-
 - name: Install all system packages
   apt:
     update_cache: yes

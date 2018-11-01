@@ -1,0 +1,10 @@
+apt:
+  repositories:
+    weechat:
+      url: https://weechat.org/debian
+      key: 11E9DE8848F2B65222AA75B8D1820DB22A11534E
+
+    tor:
+      url: https://deb.torproject.org/torproject.org
+      key: A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89
+      keyring: deb.torproject.org-keyring.gpg
