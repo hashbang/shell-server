@@ -25,6 +25,7 @@
   roles:
     - apt
     - systemd-cron.d
+    - systemd-journald
     - unbound
 
   tasks:
@@ -33,7 +34,6 @@
     with_items:
     - tor
     - hashbang
-    - logging
     - mail
     - profile
     - misc
