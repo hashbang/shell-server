@@ -6,4 +6,5 @@
       [Journal]
       MaxLevelStore=notice
       MaxRetentionSec=1month
+      Storage=persistent
       SystemMaxUse=1G
