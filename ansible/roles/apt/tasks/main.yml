@@ -87,3 +87,7 @@
   apt:
     name: ansible
     state: latest
+
+- name: Install extra packages
+  apt:
+    name: "{{ apt.packages.values() | flatten | map(attribute='name') | list }}"

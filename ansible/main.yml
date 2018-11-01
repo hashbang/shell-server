@@ -34,7 +34,6 @@
     - logging
     - dns
     - mail
-    - packages
     - profile
     - misc
     - ldap-nss

@@ -4,7 +4,6 @@
     name: "{{ item }}"
   with_items:
     - deb.torproject.org-keyring
-    - python-torctl
     - tor
     - torsocks
     - tor-arm
