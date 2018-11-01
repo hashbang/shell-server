@@ -1,18 +1,18 @@
 ---
-- name: Install DNS packages
+- name: Install necessary packages
   apt:
     name:
       - unbound
       - dns-root-data
       - resolvconf
 
-- name: setup localhost as default nameserver
+- name: Setup localhost as the default nameserver
   lineinfile:
     path: /etc/resolvconf/resolv.conf.d/base
     create: true
     line: "nameserver 127.0.0.1"
 
-- name: setup hashbang.sh as default domain
+- name: Setup hashbang.sh as default domain
   lineinfile:
     path: /etc/resolvconf/resolv.conf.d/tail
     create: true
