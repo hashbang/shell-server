@@ -10,6 +10,11 @@ apt:
       keyring: deb.torproject.org-keyring.gpg
 
   packages:
+    dns:
+      - name: unbound
+      - name: dnsutils
+      - name: ldnsutils
+
     tor:
       - name: deb.torproject.org-keyring
       - name: python-torctl

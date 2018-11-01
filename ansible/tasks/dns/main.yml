@@ -1,13 +1,9 @@
 ---
 - name: Install DNS packages
   apt:
-    update_cache: yes
     name:
       - unbound
-      - unbound-anchor
       - dns-root-data
-      - dnsutils
-      - ldnsutils
       - resolvconf
 
 - name: setup localhost as default nameserver
