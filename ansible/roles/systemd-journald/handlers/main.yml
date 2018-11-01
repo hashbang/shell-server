@@ -1,0 +1,5 @@
+- name: reload journald
+  when: not in_docker
+  systemd:
+    name: systemd-journald
+    state: reloaded

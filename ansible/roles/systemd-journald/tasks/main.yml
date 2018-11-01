@@ -1,5 +1,6 @@
 ---
 - name: Configure journald
+  notify: reload journald
   copy:
     dest: /etc/journald.conf
     content: |
