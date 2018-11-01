@@ -79,7 +79,7 @@
           qname-minimisation: yes
 
 - name: Enable & reload services
-  when: not dockerenv.stat.exists
+  when: not in_docker
   systemd:
     name: "{{ item }}"
     enabled: yes

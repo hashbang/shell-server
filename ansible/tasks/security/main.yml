@@ -48,7 +48,7 @@
     - at
 
 - name: Disable services with known PAM escapes
-  when: not dockerenv.stat.exists
+  when: not in_docker
   systemd:
     name: "{{ item }}"
     masked: yes

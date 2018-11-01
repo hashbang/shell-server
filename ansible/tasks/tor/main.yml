@@ -19,4 +19,4 @@
     enabled: yes
     masked: no
     state: started
-  when: not dockerenv.stat.exists
+  when: not in_docker
