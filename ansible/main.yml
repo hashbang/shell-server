@@ -18,7 +18,7 @@
         in_docker: "{{ dockerenv.stat.exists }}"
 
     - name: Run Docker preinit task
-      include_tasks: tasks/docker/main.pre.yml
+      include_tasks: hacks/docker.pre.yml
       when: in_docker
       ignore_errors: True
 
@@ -42,6 +42,6 @@
     - nginx
 
   - name: Run Docker postinit task
-    include_tasks: tasks/docker/main.post.yml
+    include_tasks: hacks/docker.post.yml
     when: in_docker
     ignore_errors: True
