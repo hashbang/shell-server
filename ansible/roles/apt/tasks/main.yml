@@ -2,21 +2,14 @@
   apt:
     update_cache: true
 
-- name: Install minimum system packages
+- # Those are the packages required for our playbooks to function correctly
+  name: Install minimum system packages
   apt:
     name:
-      - ansible
       - git
       - gnupg
       - apt-transport-https
-      - unattended-upgrades
       - systemd
-      - apt-utils
-      - lsb-release
-      - curl
-      - initscripts
-      - udev
-      - util-linux
       - openssh-server
 
 - name: Remove undesirable apt files
