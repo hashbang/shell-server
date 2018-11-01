@@ -25,6 +25,7 @@
   roles:
     - apt
     - systemd-cron.d
+    - unbound
 
   tasks:
   - name: Include tasks files
@@ -33,7 +34,6 @@
     - tor
     - hashbang
     - logging
-    - dns
     - mail
     - profile
     - misc
