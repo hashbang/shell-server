@@ -1,0 +1,4 @@
+- name: systemd reload
+  when: not in_docker
+  systemd:
+    daemon_reload: yes
