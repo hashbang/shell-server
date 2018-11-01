@@ -1,0 +1,50 @@
+- name: Install crontab target
+  copy:
+    dest: /etc/systemd/system/crontab.target
+    content: |
+      [Install]
+      WantedBy=multi-user.target
+
+      [Unit]
+      Description=Simulates cron, limited to /etc/cron.*
+      Requires=crontab@hourly.timer
+      Requires=crontab@daily.timer
+      Requires=crontab@weekly.timer
+      Requires=crontab@monthly.timer
+
+- name: Install crontab service
+  copy:
+    dest: /etc/systemd/system/crontab@.service
+    content: |
+      [Unit]
+      Description=%I job for /etc/cron.%I
+      RefuseManualStart=yes
+      RefuseManualStop=yes
+      ConditionDirectoryNotEmpty=/etc/cron.%I
+
+      [Service]
+      Type=oneshot
+      IgnoreSIGPIPE=no
+      WorkingDirectory=/
+      ExecStart=/bin/run-parts --report /etc/cron.%I
+
+- name: Install crontab generic timer
+  copy:
+    dest: /etc/systemd/system/crontab@.timer
+    content: |
+      [Unit]
+      Description=%I timer simulating /etc/cron.%I
+      PartOf=crontab.target
+      RefuseManualStart=yes
+      RefuseManualStop=yes
+
+      [Timer]
+      OnCalendar=%I
+      Persistent=yes
+
+- name: Enable crontab service
+  when: not in_docker
+  systemd:
+    name: crontab
+    enabled: yes
+    masked: no

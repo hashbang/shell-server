@@ -24,6 +24,7 @@
 
   roles:
     - apt
+    - systemd-cron.d
 
   tasks:
   - name: Include tasks files
