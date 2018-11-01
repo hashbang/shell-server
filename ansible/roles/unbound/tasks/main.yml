@@ -79,5 +79,4 @@
 
   with_items:
     - unbound
-    - unbound-resolvconf
     - resolvconf
