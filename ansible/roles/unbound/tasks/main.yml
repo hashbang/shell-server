@@ -18,61 +18,53 @@
     create: true
     line: "domain hashbang.sh"
 
-- name: Setup unbound configuration
-  block:
-  - name: Use DNS root hints from the dns-root-data Debian package
-    blockinfile:
-      path: /etc/unbound/unbound.conf.d/debian.conf
-      marker: "# {mark} ANSIBLE - DNS Root Hints"
-      create: true
-      block: |
-        server:
-          root-hints: "/usr/share/dns/root.hints"
-  - name: Prefetch popular domains before the cache expires
-    blockinfile:
-      path: /etc/unbound/unbound.conf.d/prefetch.conf
-      marker: "# {mark} ANSIBLE - Prefetch popular domains"
-      create: true
-      block: |
-        server:
-          prefetch:     yes
-          prefetch-key: yes
-  - name: Enable RFC 7816 "DNS Query Name Minimisation to Improve Privacy"
-    blockinfile:
-      path: /etc/unbound/unbound.conf.d/qname-minimisation.conf
-      marker: "# {mark} ANSIBLE - Enable RFC 7816"
-      create: true
-      block: |
-        server:
-            qname-minimisation: yes
+- name: Configure unbound
+  copy:
+    dest: /etc/unbound/unbound.conf.d/{{ item.key }}.conf
+    content: |
+      # File managed with Ansible, do not edit manually
+      {{ item.value }}
 
-  - name: unbound configuration hardening
-    copy:
-      dest: /etc/unbound/unbound.conf.d/harden.conf
-      content: |
-        server:
-          # Do not expose information about the running deamon
-          hide-identity: yes
-          hide-version:  yes
+  with_dict:
+    debian: |
+      # Use DNS root hints from the dns-root-data Debian package
+      server:
+        root-hints: "/usr/share/dns/root.hints"
 
-          # Harden against ridiculously-short buffer sizes (potential DoS vector)
-          # This is against spec, but we aren't a public resolver.
-          harden-short-bufsize: yes
+    prefetch: |
+      # Prefetch popular domains before the cache expires
+      server:
+        prefetch:     yes
+        prefetch-key: yes
 
-          # Harden against abnormaly large queries (same reasoning)
-          harden-large-queries: yes
+    qname-minimisation: |
+      # Enable RFC 7816 "DNS Query Name Minimisation to Improve Privacy"
+      server:
+        # Minimises queries sent upstream
+        # Avoids information disclosure to root/TLD DNS servers & improves caching
+        qname-minimisation: yes
 
-          # Return NXDOMAIN for queries under a terminal known (and DNSSEC-validated)
-          #   to be NXDOMAIN.  Improves caching and avoids certain attacks
-          harden-below-nxdomain: yes
+    harden: |
+      # Unbound configuration hardening
+      server:
+        # Do not expose information about the running deamon
+        hide-identity: yes
+        hide-version:  yes
 
-          # Use 0x20-encoded random nonces for authenticating queries.
-          # Implementation of draft-dns-0x20, makes DNS poisoning harder
-          use-caps-for-id: yes
+        # Harden against ridiculously-short buffer sizes (potential DoS vector)
+        # This is against spec, but we aren't a public resolver.
+        harden-short-bufsize: yes
 
-          # Minimises queries sent upstream
-          # Avoids information disclosure to root/TLD DNS servers & improves caching
-          qname-minimisation: yes
+        # Harden against abnormaly large queries (same reasoning)
+        harden-large-queries: yes
+
+        # Return NXDOMAIN for queries under a terminal known (and DNSSEC-validated)
+        #   to be NXDOMAIN.  Improves caching and avoids certain attacks
+        harden-below-nxdomain: yes
+
+        # Use 0x20-encoded random nonces for authenticating queries.
+        # Implementation of draft-dns-0x20, makes DNS poisoning harder
+        use-caps-for-id: yes
 
 - name: Enable & reload services
   when: not in_docker
