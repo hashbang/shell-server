@@ -7,6 +7,7 @@
       - resolvconf
 
 - name: Setup localhost as the default nameserver
+  notify: reload resolvconf
   lineinfile:
     path: /etc/resolvconf/resolv.conf.d/base
     create: true
@@ -19,6 +20,7 @@
     line: "domain hashbang.sh"
 
 - name: Configure unbound
+  notify: reload unbound
   copy:
     dest: /etc/unbound/unbound.conf.d/{{ item.key }}.conf
     content: |
@@ -66,13 +68,14 @@
         # Implementation of draft-dns-0x20, makes DNS poisoning harder
         use-caps-for-id: yes
 
-- name: Enable & reload services
+
+- name: Enable services
   when: not in_docker
   systemd:
     name: "{{ item }}"
     enabled: yes
     masked: no
-    state: reloaded  # TODO: This should be a handler instead
+    state: started
 
   with_items:
     - unbound

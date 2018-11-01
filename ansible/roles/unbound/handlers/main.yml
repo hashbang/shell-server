@@ -1,0 +1,11 @@
+- name: reload resolvconf
+  when: not in_docker
+  systemd:
+    name: resolvconf
+    state: reloaded
+
+- name: reload unbound
+  when: not in_docker
+  systemd:
+    name: unbound
+    state: reloaded
