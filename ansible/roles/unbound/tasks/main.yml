@@ -1,0 +1,82 @@
+---
+- name: Install necessary packages
+  apt:
+    name:
+      - unbound
+      - dns-root-data
+      - resolvconf
+
+- name: Setup localhost as the default nameserver
+  notify: reload resolvconf
+  lineinfile:
+    path: /etc/resolvconf/resolv.conf.d/base
+    create: true
+    line: "nameserver 127.0.0.1"
+
+- name: Setup hashbang.sh as default domain
+  lineinfile:
+    path: /etc/resolvconf/resolv.conf.d/tail
+    create: true
+    line: "domain hashbang.sh"
+
+- name: Configure unbound
+  notify: reload unbound
+  copy:
+    dest: /etc/unbound/unbound.conf.d/{{ item.key }}.conf
+    content: |
+      # File managed with Ansible, do not edit manually
+      {{ item.value }}
+
+  with_dict:
+    debian: |
+      # Use DNS root hints from the dns-root-data Debian package
+      server:
+        root-hints: "/usr/share/dns/root.hints"
+
+    prefetch: |
+      # Prefetch popular domains before the cache expires
+      server:
+        prefetch:     yes
+        prefetch-key: yes
+
+    qname-minimisation: |
+      # Enable RFC 7816 "DNS Query Name Minimisation to Improve Privacy"
+      server:
+        # Minimises queries sent upstream
+        # Avoids information disclosure to root/TLD DNS servers & improves caching
+        qname-minimisation: yes
+
+    harden: |
+      # Unbound configuration hardening
+      server:
+        # Do not expose information about the running deamon
+        hide-identity: yes
+        hide-version:  yes
+
+        # Harden against ridiculously-short buffer sizes (potential DoS vector)
+        # This is against spec, but we aren't a public resolver.
+        harden-short-bufsize: yes
+
+        # Harden against abnormaly large queries (same reasoning)
+        harden-large-queries: yes
+
+        # Return NXDOMAIN for queries under a terminal known (and DNSSEC-validated)
+        #   to be NXDOMAIN.  Improves caching and avoids certain attacks
+        harden-below-nxdomain: yes
+
+        # Use 0x20-encoded random nonces for authenticating queries.
+        # Implementation of draft-dns-0x20, makes DNS poisoning harder
+        use-caps-for-id: yes
+
+
+- name: Enable services
+  when: not in_docker
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+    masked: no
+    state: started
+
+  with_items:
+    - unbound
+    - resolvconf

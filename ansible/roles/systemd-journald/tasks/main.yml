@@ -1,9 +1,11 @@
 ---
 - name: Configure journald
+  notify: reload journald
   copy:
     dest: /etc/journald.conf
     content: |
       [Journal]
       MaxLevelStore=notice
       MaxRetentionSec=1month
+      Storage=persistent
       SystemMaxUse=1G

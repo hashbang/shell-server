@@ -2,103 +2,40 @@
 - hosts: all
   gather_facts: false
   pre_tasks:
-  - name: Install python2 for Ansible
-    raw: bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qqy python-minimal)"
-    register: output
-    changed_when: output.stdout != ""
-  - name: Gathering Facts
-    setup:
+    - name: Install python2 for Ansible
+      raw: bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qqy python-minimal)"
+      register: output
+      changed_when: output.stdout != ""
+
+    - name: Gathering Facts
+      setup:
+
+    - name: Determine if we are in a docker environment
+      stat: path=/.dockerenv
+      register: dockerenv
+
+    - set_fact:
+        in_docker: "{{ dockerenv.stat.exists }}"
+
+    - name: Run Docker preinit task
+      include_tasks: hacks/docker.pre.yml
+      when: in_docker
+      ignore_errors: True
+
+  roles:
+    - apt
+    - systemd-cron.d
+    - systemd-journald
+    - unbound
 
   tasks:
-
-  - name: Install minimum system packages
-    apt:
-      update_cache: true
-      name: "{{ item }}"
-    with_items:
-    - ansible
-    - git
-    - gnupg
-    - apt-transport-https
-    - unattended-upgrades
-    - systemd
-    - apt-utils
-    - lsb-release
-    - curl
-    - initscripts
-    - systemd
-    - udev
-    - util-linux
-    - openssh-server
-
-  - name: Remove undesirable apt files
-    file:
-      path: /etc/apt/{{ item }}
-      state: absent
-    with_items:
-      - trusted.gpg # Use trusted.gpg.d rather than a monolithic file!
-      - # We aren't running Ubuntu ...
-        sources.list.d/ppa_launchpad_net_ansible_ansible_ubuntu.list
-
-  - name: Add the backports suite
-    blockinfile:
-      path: /etc/apt/sources.list
-      create: yes
-      content: |
-        # Backports.  Must be enabled per-package using a pin
-        deb http://deb.debian.org/debian/ {{ ansible_distribution_release }}-backports main contrib non-free
-        deb-src http://deb.debian.org/debian/ {{ ansible_distribution_release }}-backports main contrib non-free
-
-  - name: Prefer the installed release over backports, by default
-    copy:
-      dest: /etc/apt/preferences
-      mode: "0644"
-      content: |
-        # Give {{ ansible_distribution_release }} priority over everything
-        Package: *
-        Pin: release n={{ ansible_distribution_release }}
-        Pin-Priority: 900
-
-        # Give backports priority over other sources
-        Package: *
-        Pin: release n={{ ansible_distribution_release }}-backports
-        Pin-Priority: 800
-
-  - name: Pin Ansible from backports
-    copy:
-      dest: /etc/apt/preferences.d/ansible
-      mode: "0644"
-      content: |
-        Package: ansible ieee-data python-netaddr
-        Pin: release n={{ ansible_distribution_release }}-backports
-        Pin-Priority: 990
-
-
-  - name: Install latest ansible
-    apt:
-      name: ansible
-      state: latest
-      update_cache: yes
-
-  - name: Determine if we are in a docker environment
-    stat: path=/.dockerenv
-    register: dockerenv
-
-  - name: Run Docker preinit task
-    include_tasks: tasks/docker/main.pre.yml
-    when: dockerenv.stat.exists
-    ignore_errors: True
-
   - name: Include tasks files
     include_tasks: "tasks/{{ item }}/main.yml"
     with_items:
     - ecryptfs
     - tor
     - hashbang
-    - logging
-    - dns
     - mail
-    - packages
     - profile
     - misc
     - ldap-nss
@@ -106,6 +43,6 @@
     - nginx
 
   - name: Run Docker postinit task
-    include_tasks: tasks/docker/main.post.yml
-    when: dockerenv.stat.exists
+    include_tasks: hacks/docker.post.yml
+    when: in_docker
     ignore_errors: True

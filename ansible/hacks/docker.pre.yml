@@ -1,4 +1,8 @@
 ---
+- name: Ensure systemd is installed
+  apt:
+    name: systemd
+
 - name: Ensure resolvconf package does not link
   debconf:
     name: resolvconf

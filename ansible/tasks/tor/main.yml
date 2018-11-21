@@ -1,20 +1,9 @@
 ---
-- apt_key:
-    data: "{{ lookup('file', 'apt/tor.asc') }}"
-    id: A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89
-    keyring: /etc/apt/trusted.gpg.d/deb.torproject.org-keyring.gpg
-
-- apt_repository:
-    repo: deb https://deb.torproject.org/torproject.org stretch main
-    state: present
-    filename: tor
-
 - name: Install tor packages
   apt:
     name: "{{ item }}"
   with_items:
     - deb.torproject.org-keyring
-    - python-torctl
     - tor
     - torsocks
     - tor-arm
@@ -30,4 +19,4 @@
     enabled: yes
     masked: no
     state: started
-  when: not dockerenv.stat.exists
+  when: not in_docker

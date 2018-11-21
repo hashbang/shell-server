@@ -55,7 +55,7 @@
       mkfs.ext4 /dev/sda2
 
 - name: enable getty
-  when: not dockerenv.stat.exists
+  when: not in_docker
   systemd:
     name: getty@tty1
     enabled: yes
