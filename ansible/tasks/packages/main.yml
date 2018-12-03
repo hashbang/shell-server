@@ -634,6 +634,7 @@
       - zlib1g
       - zlib1g-dev
       - znc
+      - znc-dev
       - zpaq
       - zsh
       - zsh-common
