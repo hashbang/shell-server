@@ -88,5 +88,16 @@
 
   with_items:
     - unbound
+
+# TODO This is a hotfix, try and merge with above if possible
+- name: Enable & restat services
+  when: not dockerenv.stat.exists
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+    masked: no
+    state: restarted  # TODO: This should be a handler instead
+
+  with_items:
     - unbound-resolvconf
     - resolvconf
