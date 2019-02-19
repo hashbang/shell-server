@@ -11,13 +11,12 @@
 
 - name: Install tor packages
   apt:
-    name: "{{ item }}"
-  with_items:
-    - deb.torproject.org-keyring
-    - python-torctl
-    - tor
-    - torsocks
-    - tor-arm
+    name:
+      - deb.torproject.org-keyring
+      - python-torctl
+      - tor
+      - torsocks
+      - tor-arm
 
 - name: setup torsocks to accept inbound connections
   lineinfile:

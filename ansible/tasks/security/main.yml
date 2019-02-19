@@ -42,10 +42,9 @@
 
 - name: Uninstall services with known PAM escapes
   apt:
-    name: "{{ item }}"
+    name:
+      - at
     state: absent
-  with_items:
-    - at
 
 - name: Disable services with known PAM escapes
   when: not dockerenv.stat.exists

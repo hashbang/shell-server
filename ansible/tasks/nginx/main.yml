@@ -1,9 +1,8 @@
 ---
 - name: Install nginx
   apt:
-    name={{ item }}
-  with_items:
-    - nginx
+    name: 
+      - nginx
 
 - name: Setup sites-enabled/hashbang-http
   register: nginxconf
