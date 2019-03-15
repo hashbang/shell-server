@@ -213,3 +213,17 @@
         	LUA_INCDIR = "/usr/include/lua5.3";
         }
         rocks_subdir = "/lib/luarocks/rocks-5.3"
+
+- name: "Add custom MANDATORY_MANPATH"
+  lineinfile:
+    path: /etc/manpath.config
+    insertafter: ^MANDATORY_MANPATH\w
+    line: "MANDATORY_MANPATH			/etc/man"
+    regexp: "^MANDATORY_MANPATH\w+/etc/man$"
+
+- name: "Add custom MANDB_MAP"
+  lineinfile:
+    path: /etc/manpath.config
+    insertafter: ^MANDB_MAP\w
+    line: "MANDB_MAP	/etc/man		/var/cache/man/etc"
+    regexp: "^MANDB_MAP\w+/etc/man\w+/var/cache/man/etc$"
