@@ -586,7 +586,6 @@
       - tcl8.6
       - tcllib
       - tcpd
-      - tcsh
       - telnet
       - tig
       - tmux
