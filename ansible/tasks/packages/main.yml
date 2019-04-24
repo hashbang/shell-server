@@ -249,6 +249,7 @@
       - lftp
       - libpam-systemd
       - libsqlite3-dev
+      - libxml2-util
       - linux-image-amd64
       - lm-sensors
       - locales
