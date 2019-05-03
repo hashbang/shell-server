@@ -247,6 +247,7 @@
       - ldap-utils
       - less
       - lftp
+      - libcurl4-gnutls-dev
       - libpam-systemd
       - libsqlite3-dev
       - libxml2-utils
