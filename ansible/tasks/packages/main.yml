@@ -124,6 +124,7 @@
       - emacs24-bin-common
       - emacs24-common
       - emacs24-nox
+      - emacs25-nox
       - emacsen-common
       - encfs
       - erlang-asn1
