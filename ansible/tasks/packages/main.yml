@@ -355,7 +355,6 @@
       - openbios-ppc
       - openbios-sparc
       - openhackware
-      - openntpd
       - openssh-client
       - openssh-sftp-server
       - openssl
