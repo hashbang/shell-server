@@ -235,6 +235,13 @@
       udev   /dev     devtmpfs defaults,nosuid,noatime             0 0
       devpts /dev/pts devpts   defaults,newinstance,ptmxmode=0666  0 0
 
+- name: "Restrict access to kernel symbols"
+  copy:
+    dest: /etc/tmpfiles.d/kallsyms
+    content: |
+      #Type Path              Mode UID  GID  Age Argument
+      z     /proc/kallsyms    400  -    -    -
+
 - name: "sudo:  Change the default configuration"
   blockinfile:
     path: /etc/sudoers
