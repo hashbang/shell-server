@@ -5,7 +5,7 @@
     keyring: /etc/apt/trusted.gpg.d/deb.torproject.org-keyring.gpg
 
 - apt_repository:
-    repo: deb https://deb.torproject.org/torproject.org stretch main
+    repo: deb https://deb.torproject.org/torproject.org {{ ansible_distribution_release }} main
     state: present
     filename: tor
 
