@@ -6,37 +6,30 @@
       register: gnupghome
     - name: create root .ssh directory
       file: path=/root/.ssh state=directory mode=0700
-    - name: Import administrator PGP keys from keyserver
-      shell: |
-        export GNUPGHOME="{{ gnupghome.path }}"; \
-        for server in $(shuf -e ha.pool.sks-keyservers.net \
-                                hkp://p80.pool.sks-keyservers.net:80 \
-                                keyserver.ubuntu.com \
-                                hkp://keyserver.ubuntu.com:80 ) ; \
-        do \
-          gpg --keyserver "$server" --recv-keys "{{ item }}" && break || : ; \
-        done
-        sshkey=$(gpg --export-ssh-key {{ item }})
-        if ! grep -q "$sshkey" /root/.ssh/authorized_keys; then
-          echo $sshkey | tee -a /root/.ssh/authorized_keys
-        fi
-      args:
-        executable: /bin/bash
-      with_items:
-        - "FC2255B7BBC7EABD4EFAFA1068907D8BCCD85A5A" # benharri
-        - "954A3772D62EF90E4B31FBC6C91A9911192C187A" # daurnimator
-        - "0A1F87C7936EB2461C6A9D9BAD9970F98EB884FD" # DeviaVir
-        - "C92FE5A3FBD58DD3EC5AA26BB10116B8193F2DBD" # groved
-        - "F2B7999666D83093F8D4212926CDD32189AA2885" # dpflug
-        - "AE2D535ABD2E5B42CE1E97110527B4EFFB4A3AEB" # KellerFuchs
-        - "6B61ECD76088748C70590D55E90A401336C8AAA9" # lrvick
-        - "A251FDF79171F98674EB2176FCC2D6E33BA86209" # ryan
     - name: create hashbang lib directory
       file: path=/var/lib/hashbang state=directory
+    - name: Copy administrator PGP keys
+      git:
+        repo: "https://github.com/hashbang/keyring"
+        dest: "/var/lib/hashbang/keyring"
+    - name: Find copied admin keys
+      find:
+        paths: /var/lib/hashbang/keyring/admins
+      register: admin_keys
+    - name: Import admin keys into temporary keyring and add to root ssh authorized_keys
+      shell: |
+        gpg --homedir {{ gnupghome.path }} --import {{ item.path }}
+        keyid=$(gpg --dry-run --with-colons --show-keys {{ item.path }} \
+                | awk -F: '/^fpr:/ { print $10; exit; }')
+        sshkey=$(gpg --homedir {{ gnupghome.path }} --export-ssh-key $keyid)
+        if ! grep -q "$sshkey" /root/.ssh/authorized_keys; then
+          echo "$sshkey" | tee -a /root/.ssh/authorized_keys
+        fi
+      with_items: "{{ admin_keys.files }}"
     - name: Export administrator pgp keys to combined keychain file
       shell: |
-        export GNUPGHOME={{ gnupghome.path }}; \
         gpg \
+          --homedir {{ gnupghome.path }} \
           -q \
           --batch \
           --yes \
@@ -45,7 +38,7 @@
           -o /var/lib/hashbang/admins.gpg
       args:
         executable: /bin/bash
-    - file: path=/var/lib/hashbang/admins.gpg mode="0755"
+    - file: path=/var/lib/hashbang/admins.gpg mode="0644"
 
     - name: Install trusted author PGP keys
       block:
