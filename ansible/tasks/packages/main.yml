@@ -5,12 +5,12 @@
     keyring: /etc/apt/trusted.gpg.d/weechat.gpg
 
 - apt_repository:
-    repo: deb https://weechat.org/debian stretch main
+    repo: deb https://weechat.org/debian {{ ansible_distribution_release }} main
     state: present
     filename: weechat
 
 - apt_repository:
-    repo: deb-src https://weechat.org/debian stretch main
+    repo: deb-src https://weechat.org/debian {{ ansible_distribution_release }} main
     state: present
     filename: weechat
 
@@ -121,9 +121,6 @@
       - elinks-data
       - elixir
       - emacs-nox
-      - emacs24-bin-common
-      - emacs24-common
-      - emacs24-nox
       - emacsen-common
       - encfs
       - erlang-asn1
@@ -221,7 +218,6 @@
       - iotop
       - ipcalc
       - iperf
-      - iproute
       - iproute2
       - iptables
       - iputils-ping
@@ -268,7 +264,6 @@
       - luajit
       - luarocks
       - lynx
-      - lynx-cur
       - m4
       - man-db
       - manpages
@@ -346,8 +341,6 @@
       - node-underscore
       - node-which
       - nodejs
-      - nodejs-dev
-      - nodejs-legacy
       - nscd
       - nslcd
       - nslcd-utils
@@ -469,7 +462,6 @@
       - python-sss
       - python-stevedore
       - python-talloc
-      - python-tox
       - python-twisted
       - python-twisted-bin
       - python-twisted-conch
@@ -583,8 +575,6 @@
       - tasksel-data
       - tcl
       - tcl-tls
-      - tcl8.5
-      - tcl8.6
       - tcllib
       - tcpd
       - tcsh
