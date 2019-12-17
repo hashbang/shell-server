@@ -275,6 +275,7 @@
       - mime-support
       - mksh
       - mlock
+      - moreutils
       - mosh
       - mount
       - mtr
@@ -342,8 +343,6 @@
       - node-which
       - nodejs
       - nscd
-      - nslcd
-      - nslcd-utils
       - oidentd
       - openbios-ppc
       - openbios-sparc
@@ -552,21 +551,10 @@
       - sqlite3
       - ssh
       - ssl-cert
-      - sssd
-      - sssd-ad
-      - sssd-ad-common
-      - sssd-common
-      - sssd-ipa
-      - sssd-krb5
-      - sssd-krb5-common
-      - sssd-ldap
-      - sssd-proxy
-      - sssd-tools
       - startpar
       - stow
       - strace
       - subversion
-      - sudo
       - swaks
       - sysstat
       - tar

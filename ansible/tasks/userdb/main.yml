@@ -1,0 +1,100 @@
+---
+- name: Install required packages for userdb auth
+  apt:
+    name:
+    - libnss-pgsql2
+    - libpam-ssh-agent-auth
+    - postgresql-client
+
+- name: Add userdb-keys-command user
+  user:
+    name: userdb-keys-command
+    system: yes
+
+- name: Install userdb authorized-keys
+  block:
+  - file:
+      path: "/{{ item.path }}"
+      state: directory
+      mode: "0755"
+    with_filetree: "tasks/userdb/templates"
+    when: item.state == 'directory'
+  - template:
+      src: "{{ item.src }}"
+      dest: "/{{ item.path | regex_replace('.j2','') }}"
+      mode: "{{ item.mode[1] == '7' and '0755' or '0644' }}"
+    with_filetree: "tasks/userdb/templates"
+    when: item.state == 'file'
+
+- name: Configure ssh to use userdb for authorized-keys
+  blockinfile:
+    path: /etc/ssh/sshd_config
+    marker: "# {mark} ANSIBLE - sss config for ssh"
+    block: |
+      AuthorizedKeysFile        none
+      AuthorizedKeysCommand     /usr/local/bin/authorized-keys %u %k
+      AuthorizedKeysCommandUser userdb-keys-command
+
+- name: Update nsswitch to use pgsql for passwd
+  lineinfile:
+    path: /etc/nsswitch.conf
+    regexp: "^passwd:"
+    line: "passwd:         files pgsql"
+
+- name: Update nsswitch to use pgsql for group
+  lineinfile:
+    path: /etc/nsswitch.conf
+    regexp: "^group:"
+    line: "group:          files pgsql"
+
+- name: Update nsswitch to use pgsql for shadow
+  lineinfile:
+    path: /etc/nsswitch.conf
+    regexp: "^shadow:"
+    line: "shadow:         files pgsql"
+
+- name: Use libpam-ssh-agent-auth for sudo
+  apt:
+    name:
+    - sudo
+
+- name: Configure sudo to use userdb-keys-command
+  copy:
+    dest: /etc/pam.d/sudo
+    content: |
+      #%PAM-1.0
+
+      auth     sufficient   pam_ssh_agent_auth.so authorized_keys_command=/usr/local/bin/authorized-keys authorized_keys_user=userdb-keys-command
+      @include common-auth
+      @include common-account
+      @include common-session-noninteractive
+
+- name: Keep SSH_AUTH_SOCK for sudo sessions
+  blockinfile:
+    path: /etc/sudoers
+    marker: "# {mark} ANSIBLE - keep SSH_AUTH_SOCK for sudo sessions"
+    block: |
+      Defaults        env_keep += "SSH_AUTH_SOCK"
+
+- name: Configure libnss-pgsql2
+  block:
+  - copy:
+      dest: /etc/nss-pgsql.conf
+      # these db credentials have read-only permissions
+      content: |
+        connectionstring = host=userdb-attempt-too-do-user-989073-0.db.ondigitalocean.com port=25060 dbname=userdb user=nss_pgsql password=gei6Fucojie7Egei connect_timeout=1 sslmode=require
+        getgroupnamesbyid = select name from passwd where uid=$1 union select name from passwd inner join aux_groups on (passwd.uid=aux_groups.uid and aux_groups.gid=$1)
+        getpwnam = select name, 'x', data->>'gecos', '/home/' || name, data->>'shell', uid, uid from passwd where name = $1
+        getpwuid = select name, 'x', data->>'gecos', '/home/' || name, data->>'shell', uid, uid from passwd where uid = $1
+        allusers = select name, 'x', data->>'gecos', '/home/' || name, data->>'shell', uid, uid from passwd
+        getgrnam = select passwd.name, 'x', passwd.uid, ARRAY[passwd.name] from passwd where passwd.name=$1 union select name, 'x', gid, ARRAY(select passwd.name from passwd inner join aux_groups on(passwd.uid=aux_groups.uid and aux_groups.git = "group".gid)) as members from "group" where name = $1
+        getgrgid = select passwd.name, 'x', passwd.uid, ARRAY[passwd.name] from passwd where passwd.uid=$1 union select name, 'x', gid, ARRAY(select passwd.name from passwd inner join aux_groups on(passwd.uid=aux_groups.uid and aux_groups.git = "group".gid)) as members from "group" where gid = $1
+        groups_dyn = select gid from aux_groups inner join passwd on(aux_groups.uid = passwd.uid) where passwd.name = $1 and aux_groups.gid <> $2
+        allgroups = select name, 'x', gid, ARRAY(select passwd.name from passwd inner join aux_groups on (passwd.uid = aux_groups.uid) inner join "group" on (aux_groups.gid = "group".gid)) from "group" union select name, 'x', uid, ARRAY[passwd.name] as members from passwd
+  - copy:
+      dest: /etc/nss-pgsql-root.conf
+      content: |
+        shadowconnectionstring = host=userdb-attempt-too-do-user-989073-0.db.ondigitalocean.com port=25060 dbname=userdb user=nss_pgsql password=gei6Fucojei7Egei connect_timeout=1 sslmode=require
+        shadowbyname = select name, '!', 18086, 0, 99999, '', '', '99999', '' from passwd where name = $1
+        shadow = select name, '!', 18086, 0, 99999, '', '99999', '' from passwd
+

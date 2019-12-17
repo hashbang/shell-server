@@ -8,7 +8,7 @@
       1000:65535           soft    nofile          4096
       1000:65535           hard    nofile          10240
 
-- name: "Per-user ressource limits: Configure systemd resource accounting"
+- name: "Per-user resource limits: Configure systemd resource accounting"
   blockinfile:
     path: /etc/systemd/system.conf
     marker: "# {mark} ANSIBLE - Config for better resource accounting"
@@ -17,7 +17,7 @@
       DefaultBlockIOAccounting=yes
       DefaultMemoryAccounting=yes
 
-- name: "Per-user ressource limits: Install script for setting limits"
+- name: "Per-user resource limits: Install script for setting limits"
   copy:
     dest: /etc/security/limits.sh
     mode: "a+x"
@@ -31,7 +31,7 @@
                          CPUQuota=50% MemoryLimit=512M BlockIOWeight=10
       fi
 
-- name: "Per-user ressource limits: Execute script with pam_exec"
+- name: "Per-user resource limits: Execute script with pam_exec"
   lineinfile:
     create: no
     path: /etc/pam.d/common-session-noninteractive
@@ -39,6 +39,11 @@
     line: session	required	  pam_exec.so       type=open_session /etc/security/limits.sh
     regexp: ^session\w+required\w+pam_exec.so\w+type=open_session\w+/etc/security/limits.sh
 
+- name: Make sure oidentd can run
+  lineinfile:
+    path: /etc/oidentd.conf
+    regexp: "(deny|allow) numeric"
+    line: allow numeric
 
 - name: Uninstall services with known PAM escapes
   apt:

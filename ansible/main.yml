@@ -99,7 +99,7 @@
     - packages
     - profile
     - misc
-    - ldap-nss
+    - userdb
     - security
     - nginx
 
