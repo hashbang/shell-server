@@ -1,6 +1,0 @@
-#!/bin/sh
-
-user="$1"
-curl -s "https://userdb.hashbang.sh/passwd?name=eq.$user&select=data->ssh_keys" \
-  | jq -r '.[0] | .ssh_keys | .[]'
-

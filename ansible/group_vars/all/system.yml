@@ -1,2 +1,6 @@
 ---
 domain: "hashbang.sh"
+# readonly credentials for primary userdb
+userdb_connectionstring: "postgresql://nss_pgsql:gei6Fucojei7Egei@userdb-attempt-too-do-user-989073-0.db.ondigitalocean.com:25060/userdb?sslmode=require"
+userdb_apidomain: "https://userdb.hashbang.sh"
+

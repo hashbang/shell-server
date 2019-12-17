@@ -84,7 +84,7 @@
     name: "{{ item }}"
     enabled: yes
     masked: no
-    state: reloaded  # TODO: This should be a handler instead
+    state: restarted  # TODO: This should be a handler instead
 
   with_items:
     - unbound

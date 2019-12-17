@@ -6,6 +6,11 @@
     - libpam-ssh-agent-auth
     - postgresql-client
 
+- name: Ensure sssd is not installed
+  apt:
+    name: sssd
+    state: absent
+
 - name: Add userdb-keys-command user
   user:
     name: userdb-keys-command
@@ -29,10 +34,10 @@
 - name: Configure ssh to use userdb for authorized-keys
   blockinfile:
     path: /etc/ssh/sshd_config
-    marker: "# {mark} ANSIBLE - sss config for ssh"
+    marker: "# {mark} ANSIBLE - userdb config for ssh"
     block: |
       AuthorizedKeysFile        none
-      AuthorizedKeysCommand     /usr/local/bin/authorized-keys %u %k
+      AuthorizedKeysCommand     /usr/local/bin/authorized-keys %u
       AuthorizedKeysCommandUser userdb-keys-command
 
 - name: Update nsswitch to use pgsql for passwd
@@ -73,6 +78,7 @@
   blockinfile:
     path: /etc/sudoers
     marker: "# {mark} ANSIBLE - keep SSH_AUTH_SOCK for sudo sessions"
+    insertbefore: "Defaults        env_reset"
     block: |
       Defaults        env_keep += "SSH_AUTH_SOCK"
 
@@ -82,19 +88,39 @@
       dest: /etc/nss-pgsql.conf
       # these db credentials have read-only permissions
       content: |
-        connectionstring = host=userdb-attempt-too-do-user-989073-0.db.ondigitalocean.com port=25060 dbname=userdb user=nss_pgsql password=gei6Fucojie7Egei connect_timeout=1 sslmode=require
-        getgroupnamesbyid = select name from passwd where uid=$1 union select name from passwd inner join aux_groups on (passwd.uid=aux_groups.uid and aux_groups.gid=$1)
+        connectionstring = {{ userdb_connectionstring }}
+
+        # Must return "usernames", 1 column, list
+        getgroupmembersbygid = select name from passwd where uid=$1 union select name from passwd inner join aux_groups on(passwd.uid=aux_groups.uid and aux_groups.gid=$1)
+        # Must return passwd_name, passwd_passwd, passwd_gecos, passwd_dir, passwd_shell, passwd_uid, passwd_gid
         getpwnam = select name, 'x', data->>'gecos', '/home/' || name, data->>'shell', uid, uid from passwd where name = $1
+        # Must return passwd_name, passwd_passwd, passwd_gecos, passwd_dir, passwd_shell, passwd_uid, passwd_gid
         getpwuid = select name, 'x', data->>'gecos', '/home/' || name, data->>'shell', uid, uid from passwd where uid = $1
+        # All users
         allusers = select name, 'x', data->>'gecos', '/home/' || name, data->>'shell', uid, uid from passwd
-        getgrnam = select passwd.name, 'x', passwd.uid, ARRAY[passwd.name] from passwd where passwd.name=$1 union select name, 'x', gid, ARRAY(select passwd.name from passwd inner join aux_groups on(passwd.uid=aux_groups.uid and aux_groups.git = "group".gid)) as members from "group" where name = $1
-        getgrgid = select passwd.name, 'x', passwd.uid, ARRAY[passwd.name] from passwd where passwd.uid=$1 union select name, 'x', gid, ARRAY(select passwd.name from passwd inner join aux_groups on(passwd.uid=aux_groups.uid and aux_groups.git = "group".gid)) as members from "group" where gid = $1
+        # Must return group_name, group_passwd, group_gid
+        getgrnam = select passwd.name, 'x', passwd.uid, ARRAY[passwd.name] from passwd where passwd.name=$1 union select name, 'x', gid, ARRAY(select passwd.name from passwd inner join aux_groups on(passwd.uid=aux_groups.uid and aux_groups.gid = "group".gid)) as members from "group" where name = $1
+        # Must return group_name, group_passwd, group_gid
+        getgrgid = select passwd.name, 'x', passwd.uid, ARRAY[passwd.name] from passwd where passwd.uid=$1 union select name, 'x', gid, ARRAY(select passwd.name from passwd inner join aux_groups on(passwd.uid=aux_groups.uid and aux_groups.gid = "group".gid)) as members from "group" where gid = $1
+        # Must return gid.  %s MUST appear first for username match in where clause
         groups_dyn = select gid from aux_groups inner join passwd on(aux_groups.uid = passwd.uid) where passwd.name = $1 and aux_groups.gid <> $2
-        allgroups = select name, 'x', gid, ARRAY(select passwd.name from passwd inner join aux_groups on (passwd.uid = aux_groups.uid) inner join "group" on (aux_groups.gid = "group".gid)) from "group" union select name, 'x', uid, ARRAY[passwd.name] as members from passwd
+
+        allgroups = select name, 'x', gid, ARRAY(select passwd.name from passwd inner join aux_groups on (passwd.uid = aux_groups.uid) inner join "group" on(aux_groups.gid = "group".gid)) from "group" union select name, 'x', uid, ARRAY[passwd.name] as members from passwd
+
+        # A query returning shadow_name, shadow_passwd, shadow_lstchg, shadow_min, shadow_max, shadow_warn, shadow_inact, shadow_expire, shadow_flag for a given username
+        shadowbyname = select name, 'x', 18245, '', '', '', '', '', '' from passwd where name = $1
+
+        # A query returning shadow_name, shadow_passwd, shadow_lstchg, shadow_min, shadow_max, shadow_warn, shadow_inact, shadow_expire, shadow_flag for all users
+        shadow = select name, 'x', 18245, '', '', '', '', '', '' from passwd
+
   - copy:
       dest: /etc/nss-pgsql-root.conf
       content: |
-        shadowconnectionstring = host=userdb-attempt-too-do-user-989073-0.db.ondigitalocean.com port=25060 dbname=userdb user=nss_pgsql password=gei6Fucojei7Egei connect_timeout=1 sslmode=require
-        shadowbyname = select name, '!', 18086, 0, 99999, '', '', '99999', '' from passwd where name = $1
-        shadow = select name, '!', 18086, 0, 99999, '', '99999', '' from passwd
+          shadowconnectionstring = {{ userdb_connectionstring }}
+
+          # # A query returning shadow_name, shadow_passwd, shadow_lstchg, shadow_min, shadow_max, shadow_warn, shadow_inact, shadow_expire, shadow_flag for a given username
+          shadowbyname = select name, '!', 18086, 0, 99999, '', '', '99999', '' from passwd where name = $1
+          #
+          # # A query returning shadow_name, shadow_passwd, shadow_lstchg, shadow_min, shadow_max, shadow_warn, shadow_inact, shadow_expire, shadow_flag for all users
+          shadow = select name, '!', 18086, 0, 99999, '', '99999', '' from passwd
 

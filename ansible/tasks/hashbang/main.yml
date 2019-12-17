@@ -99,7 +99,7 @@
       - systemd:
           name: ansible-pull.timer
           state: started
-          enable: yes
+          enabled: yes
           daemon_reload: yes
         ignore_errors: yes
 
