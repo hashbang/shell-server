@@ -527,6 +527,7 @@
       - reportbug
       - reptyr
       - resolvconf
+      - ripgrep
       - rsync
       - rsyslog
       - rtorrent

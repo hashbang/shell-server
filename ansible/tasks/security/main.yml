@@ -189,12 +189,6 @@
       Defaults	!requiretty, !tty_tickets
       Defaults	use_pty
 
-- name: "sudo:  Allow pinhole for shell hashbangctl"
-  copy:
-    dest: /etc/sudoers.d/hashbangctl
-    content: |
-      ALL ALL = NOEXEC: NOPASSWD: /usr/local/bin/hashbangctl
-
 - name: Ensure haveged uses 2048 bit watermark
   lineinfile:
     path: /etc/default/haveged
