@@ -23,6 +23,7 @@
         biff                = no
         append_dot_mydomain = no
         readme_directory    = no
+        compatibility_level = 2
 
         # We serve mail for hashbang.sh only
         mydomain      = hashbang.sh
