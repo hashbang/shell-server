@@ -2,5 +2,6 @@
 
 user="$1"
 curl -s "{{ userdb_apidomain }}/passwd?name=eq.$user&select=data->ssh_keys" \
-  | jq -r '.[0] | .ssh_keys | .[]'
+  -H "Accept: application/vnd.pgrst.object+json" \
+  | jq -r '.ssh_keys | .[]'
 

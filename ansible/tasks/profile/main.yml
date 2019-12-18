@@ -1,10 +1,9 @@
 ---
 - name: Configure PAM to create $HOME if it doesn't exist
-  blockinfile:
+  lineinfile:
     path: /etc/pam.d/common-session
-    marker: "# {mark} ANSIBLE - create home if nonexistent"
-    block: |
-      session optional		pam_mkhomedir.so
+    regexp: "pam_mkhomedir.so$"
+    line: session optional		pam_mkhomedir.so
 
 - name: Setup default user profile to use .local/bin in PATH
   copy:
