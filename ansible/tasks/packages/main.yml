@@ -294,7 +294,6 @@
       - nethack-common
       - nethack-console
       - nfacct
-      - nmap
       - node-abbrev
       - node-ansi
       - node-ansi-color-table
