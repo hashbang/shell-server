@@ -78,7 +78,7 @@
   blockinfile:
     path: /etc/sudoers
     marker: "# {mark} ANSIBLE - keep SSH_AUTH_SOCK for sudo sessions"
-    insertbefore: "Defaults        env_reset"
+    insertbefore: "Defaults\\s+env_reset"
     block: |
       Defaults        env_keep += "SSH_AUTH_SOCK"
 
