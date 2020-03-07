@@ -16,7 +16,7 @@ Existing servers automatically update from this repo via ansible-pull.
   | Tool       | Version | Needed for Builder   |
   | ---------- | ------- | -------------------- |
   | Ansible    | v2.5+   | all                  |
-  | Packer     | v1.2x+  | all                  |
+  | Packer     | v1.3x+  | all                  |
   | Docker     | v18.0+  | Docker               |
   | qemu       | v2.12+  | qemu, libvirt        |
   | Virtualbox | v5.2+   | virtualbox, vagrant  |
@@ -32,17 +32,17 @@ against our NSS services by default.
 ### Docker ###
 
 #### Build image ####
-```
+```sh
 make docker
 ```
 
 #### Import image ####
-```
-gunzip -c dist/docker-20*.tar.gz | docker import - hashbang/shell-server:local-latest
+```sh
+docker import .packer/build/docker/docker.tar hashbang/shell-server:local-latest
 ```
 
 #### Start container ####
-```
+```sh
 docker run \
   -it \
   --rm \
@@ -61,19 +61,19 @@ docker run \
 ```
 
 #### User shell ####
-```
+```sh
 ssh -p2222 your-hashbang-user@localhost
 ```
 
 #### Root shell ####
-```
+```sh
 docker exec -it shell-server bash
 ```
 
 ### LXC ###
 
 #### Build image ####
-```
+```sh
 make lxc
 ```
 
@@ -90,43 +90,43 @@ TODO
 ### Vagrant ###
 
 #### Build Image ####
-```
+```sh
 make vagrant
 ```
 
 #### Start server ####
-```
+```sh
 vagrant init hashbang/shell-server
 vagrant up
 ```
 
 #### User shell ####
-```
+```sh
 ssh -p2222 your-hashbang-user@localhost
 ```
 
 #### Root shell ####
-```
+```sh
 vagrant ssh
 ```
 
 ### Libvirt ###
 
 #### Build Image ####
-```
+```sh
 make qemu
 ```
 
 #### Start server ####
 
-```
+```sh
 virt-install \
   --name shell-server \
   --os-type linux \
   --os-variant debian9 \
   --ram 512 \
   --vcpus 2 \
-  --disk path=dist/qemu-latest.qcow2 \
+  --disk path=.packer/build/qemu/packer-qemu \  # no file extension
   --network user \
   --noautoconsole \
   --import \
@@ -134,7 +134,7 @@ virt-install \
 ```
 
 #### User shell ####
-```
+```sh
 virsh --connect qemu+ssh://username@shell-server/system
 ```
 
@@ -146,7 +146,7 @@ TODO
 ### Qemu ###
 
 #### Build Image ####
-```
+```sh
 make qemu
 ```
 
@@ -157,7 +157,7 @@ qemu-system-x86_64 \
   -m 512M \
   -machine type=pc,accel=kvm \
   -net nic -net user,hostfwd=tcp::2222-:22 \
-  -drive format=qcow2,file=dist/qemu-latest.qcow2
+  -drive format=qcow2,file=.packer/build/qemu/packer-qemu  # no file extension
 ```
 
 #### User shell ####
@@ -178,7 +178,7 @@ Once you have root access on a development debian server be it local or remote,
 you can test your locally made ansible playbook changes as follows.
 
 ### Run Ansible Playbook
-```
+```sh
 ansible-playbook \
   -u root \
   -i "localhost," \
@@ -204,7 +204,7 @@ TODO
 TODO
 
 ### Bare Metal ###
-```
+```sh
 ansible-playbook -u root -i "target-server.com," ansible/main.yml
 ```
 
@@ -212,12 +212,12 @@ ansible-playbook -u root -i "target-server.com," ansible/main.yml
 
 1. Copy config sample and populate with your credentials as desired:
 
-    ```
+    ```sh
     cp config.sample.json config.json
     vim config.json
     ```
 
 2. Build, sign, and publish all image types
-    ```
+    ```sh
     make build release
     ```
