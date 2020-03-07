@@ -4,6 +4,7 @@
       tempfile:
         state: directory
       register: gnupghome
+      check_mode: no
     - name: create root .ssh directory
       file: path=/root/.ssh state=directory mode=0700
     - name: create hashbang lib directory
