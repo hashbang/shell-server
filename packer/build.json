@@ -1,11 +1,11 @@
 {
   "variables": {
-    "disk_size": "10000",
+    "disk_size": "100000",
     "memory": "4G",
     "cpus": "2",
     "headless": "true",
-    "iso_url": "https://cdimage.debian.org/debian-cd/10.1.0/amd64/iso-cd/debian-10.1.0-amd64-netinst.iso",
-    "iso_checksum": "7915fdb77a0c2623b4481fc5f0a8052330defe1cde1e0834ff233818dc6f301e",
+    "iso_url": "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-10.3.0-amd64-netinst.iso",
+    "iso_checksum": "6a901b5abe43d88b39d627e1339d15507cc38f980036b928f835e0f0e957d3d8",
     "release": "buster",
     "version": "{{ env `VERSION`}}",
     "extra_arguments": "{{ env `ANSIBLE_ARGS` }}"
