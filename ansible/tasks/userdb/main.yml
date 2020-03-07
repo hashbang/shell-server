@@ -8,8 +8,11 @@
 
 - name: Ensure sssd is not installed
   apt:
-    name: sssd
+    name: "{{ item }}"
     state: absent
+  with_items:
+  - sssd
+  - libpam-sss
 
 - name: Add userdb-keys-command user
   user:
