@@ -1,9 +1,6 @@
 ---
 - name: Configure PAM to create $HOME if it doesn't exist
-  lineinfile:
-    path: /etc/pam.d/common-session
-    regexp: "pam_mkhomedir.so$"
-    line: session optional		pam_mkhomedir.so
+  command: "pam-auth-update --package --enable mkhomedir"
 
 - name: Setup default user profile to use .local/bin in PATH
   copy:
