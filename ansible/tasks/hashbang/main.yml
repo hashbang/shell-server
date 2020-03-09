@@ -28,6 +28,7 @@
           echo "$sshkey" | tee -a /root/.ssh/authorized_keys
         fi
       with_items: "{{ admin_keys.files }}"
+      changed_when: False  # temporary build directory
     - name: Export administrator pgp keys to combined keychain file
       shell: |
         gpg \
