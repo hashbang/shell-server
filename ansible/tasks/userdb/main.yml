@@ -115,6 +115,7 @@
 
         # A query returning shadow_name, shadow_passwd, shadow_lstchg, shadow_min, shadow_max, shadow_warn, shadow_inact, shadow_expire, shadow_flag for all users
         shadow = select name, 'x', 18245, '', '', '', '', '', '' from passwd
+    register: nss_pgsql_copy
 
   - copy:
       dest: /etc/nss-pgsql-root.conf
@@ -126,7 +127,9 @@
           #
           # # A query returning shadow_name, shadow_passwd, shadow_lstchg, shadow_min, shadow_max, shadow_warn, shadow_inact, shadow_expire, shadow_flag for all users
           shadow = select name, '!', 18086, 0, 99999, '', '99999', '' from passwd
+    register: nss_pgsql_root_copy
 
   - systemd:
       name: nscd
       state: restarted
+    when: nss_pgsql_copy.changed or nss_pgsql_root_copy.changed
