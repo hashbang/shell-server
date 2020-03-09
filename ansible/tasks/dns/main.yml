@@ -32,6 +32,7 @@
       block: |
         server:
           root-hints: "/usr/share/dns/root.hints"
+    register: unbound_root_hints
   - name: Prefetch popular domains before the cache expires
     blockinfile:
       path: /etc/unbound/unbound.conf.d/prefetch.conf
@@ -41,6 +42,7 @@
         server:
           prefetch:     yes
           prefetch-key: yes
+    register: unbound_prefetch
   - name: Enable RFC 7816 "DNS Query Name Minimisation to Improve Privacy"
     blockinfile:
       path: /etc/unbound/unbound.conf.d/qname-minimisation.conf
@@ -49,6 +51,7 @@
       block: |
         server:
             qname-minimisation: yes
+    register: unbound_rfc_7816
 
   - name: unbound configuration hardening
     copy:
@@ -77,26 +80,32 @@
           # Minimises queries sent upstream
           # Avoids information disclosure to root/TLD DNS servers & improves caching
           qname-minimisation: yes
+    register: unbound_hardening
 
 - name: Enable & reload services
-  when: not dockerenv.stat.exists
+  when: |
+    not dockerenv.stat.exists and (
+    unbound_hardening.changed or unbound_rfc_7816.changed or
+    unbound_prefetch.changed or unbound_root_hints.changed)
   systemd:
     name: "{{ item }}"
     enabled: yes
     masked: no
-    state: restarted  # TODO: This should be a handler instead
+    state: restarted
 
   with_items:
     - unbound
 
-# TODO This is a hotfix, try and merge with above if possible
-- name: Enable & restat services
-  when: not dockerenv.stat.exists
+- name: Enable & restart services
+  when: |
+    not dockerenv.stat.exists and (
+    unbound_hardening.changed or unbound_rfc_7816.changed or
+    unbound_prefetch.changed or unbound_root_hints.changed)
   systemd:
     name: "{{ item }}"
     enabled: yes
     masked: no
-    state: restarted  # TODO: This should be a handler instead
+    state: restarted
 
   with_items:
     - unbound-resolvconf
