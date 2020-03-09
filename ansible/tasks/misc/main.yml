@@ -9,11 +9,6 @@
       auth     required pam_deny.so
       password required pam_deny.so
 
-- name: Update pam to allow any user to chsh
-  copy:
-    dest: /etc/pam.d/chsch
-    content: "auth       sufficient  pam_wheel.so    trust   group=users use_uid"
-
 - name: Set default locale to en_US.UTF-8
   lineinfile:
     path: /etc/default/locale
