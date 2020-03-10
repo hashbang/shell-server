@@ -62,7 +62,7 @@
         command npm install -g npm
         command npm install -g n
         n "$1"
-        command npm install yarn
+        command npm install -g yarn
       }
 
       npm() {
