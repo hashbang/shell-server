@@ -36,7 +36,7 @@
     create: no
     path: /etc/pam.d/common-session-noninteractive
     insertafter: session\w+required\w+pam_systemd.so
-    line: session	required	  pam_exec.so       type=open_session /etc/security/limits.sh
+    line: "session	required	  pam_exec.so       type=open_session /etc/security/limits.sh"
     regexp: ^session\w+required\w+pam_exec.so\w+type=open_session\w+/etc/security/limits.sh
 
 - name: Make sure oidentd can run
@@ -131,7 +131,7 @@
     create: no
     path: /etc/pam.d/common-session-noninteractive
     insertafter: session\w+required\w+pam_env.so
-    line: session	required	  pam_namespace.so  unmnt_remnt
+    line: "session	required	  pam_namespace.so  unmnt_remnt"
     regexp: ^session\w+required\w+pam_namespace.so
 
 - name: Update default umask to 027
