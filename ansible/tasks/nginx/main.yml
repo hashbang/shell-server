@@ -12,6 +12,10 @@
       # Hashbang server configuration
       # ref: https://gist.github.com/RyanSquared/e59c7e274abef06e63b0e47e46997b00
       #
+      map $http_upgrade $connection_upgrade {
+      	default close;
+      	WebSocket upgrade;
+      }
       server {
       	listen 80;
       	listen [::]:80;
@@ -20,8 +24,11 @@
       
       	location / {
       		proxy_pass http://unix:/home/$user/.nginx.sock;
-                proxy_set_header X-Real-IP       $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      		proxy_set_header X-Real-IP       $remote_addr;
+      		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      		# WebSockets need these: https://en.wikipedia.org/wiki/HTTP/1.1_Upgrade_header#Use_with_WebSockets
+      		proxy_set_header Upgrade $http_upgrade;
+      		proxy_set_header Connection $connection_upgrade;
       	}
       }
 
