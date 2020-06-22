@@ -18,7 +18,6 @@
   apt:
     update_cache: yes
     name:
-      - jekyll
       - acl
       - acpi
       - acpi-support-base
@@ -230,6 +229,7 @@
       - ispell
       - java-common
       - javascript-common
+      - jekyll
       - joe
       - john
       - john-data
