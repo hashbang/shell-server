@@ -18,6 +18,7 @@
   apt:
     update_cache: yes
     name:
+      - ruby-dev
       - acl
       - acpi
       - acpi-support-base
