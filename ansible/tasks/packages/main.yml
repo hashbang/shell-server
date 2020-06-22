@@ -18,6 +18,7 @@
   apt:
     update_cache: yes
     name:
+      - jekyll
       - acl
       - acpi
       - acpi-support-base
