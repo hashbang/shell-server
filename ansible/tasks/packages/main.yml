@@ -229,6 +229,7 @@
       - ispell
       - java-common
       - javascript-common
+      - jekyll
       - joe
       - john
       - john-data
