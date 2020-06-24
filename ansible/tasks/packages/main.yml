@@ -342,6 +342,7 @@
       - node-underscore
       - node-which
       - nodejs
+      - npm
       - nscd
       - oidentd
       - openbios-ppc
