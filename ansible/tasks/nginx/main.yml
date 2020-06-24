@@ -13,16 +13,18 @@
       # ref: https://gist.github.com/RyanSquared/e59c7e274abef06e63b0e47e46997b00
       #
       server {
-      	listen 80;
-      	listen [::]:80;
+        listen 80;
+        listen [::]:80;
       
-      	server_name "~^(?<user>[a-zA-Z0-9]+)\.(?<server>\w{2}\d{1})\.hashbang\.sh$";
+        server_name "~^(?<user>[a-zA-Z0-9]+)\.(?<server>\w{2}\d{1})\.hashbang\.sh$";
       
-      	location / {
-      		proxy_pass http://unix:/home/$user/.nginx.sock;
-                proxy_set_header X-Real-IP       $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      	}
+        location / {
+          proxy_pass http://unix:/home/$user/.nginx.sock;
+          proxy_http_version 1.1;  # enable for keep-alive http support soon(tm)
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
       }
 
 - name: Remove default nginx site
