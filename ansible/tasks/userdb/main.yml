@@ -132,4 +132,4 @@
   - systemd:
       name: nscd
       state: restarted
-    when: nss_pgsql_copy.changed or nss_pgsql_root_copy.changed
+    when: (nss_pgsql_copy.changed or nss_pgsql_root_copy.changed) and not dockerenv.stat.exists
