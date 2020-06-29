@@ -101,6 +101,7 @@
     - misc
     - userdb
     - security
+    - prometheus
     - nginx
 
   - name: Run Docker postinit task

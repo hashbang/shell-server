@@ -24,7 +24,7 @@
         listen 80;
         listen [::]:80;
       
-        server_name "~^(?<user>[a-zA-Z0-9]+)\.(?<server>\w{2}\d{1})\.hashbang\.sh$";
+        server_name "~^(?<user>[a-zA-Z0-9]+).{{ ansible_fqdn }}$";
       
         location / {
           proxy_pass http://unix:/home/$user/.nginx.sock;
@@ -36,6 +36,17 @@
           # websocket support
           proxy_set_header Upgrade $http_upgrade;
           proxy_set_header Connection $connection_upgrade;
+        }
+      }
+
+      server {
+        listen 80;
+        listen [::]:80;
+
+        server_name "{{ ansible_fqdn }}";
+        
+        location /metrics {
+          proxy_pass http://localhost:9100/metrics;
         }
       }
 

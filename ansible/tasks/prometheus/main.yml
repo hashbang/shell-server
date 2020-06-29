@@ -1,0 +1,10 @@
+- name: Configure prometheus-node-exporter to run on a specific port
+  copy:
+    dest: /etc/default/prometheus-node-exporter
+    content: |
+      ARGS="--web.listen-address=localhost:9100"
+
+- name: Install prometheus-node-exporter
+  apt:
+    name:
+    - prometheus-node-exporter
