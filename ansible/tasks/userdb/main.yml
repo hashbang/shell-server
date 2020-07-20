@@ -96,11 +96,11 @@
         # Must return "usernames", 1 column, list
         getgroupmembersbygid = select name from passwd where uid=$1 union select name from passwd inner join aux_groups on(passwd.uid=aux_groups.uid and aux_groups.gid=$1)
         # Must return passwd_name, passwd_passwd, passwd_gecos, passwd_dir, passwd_shell, passwd_uid, passwd_gid
-        getpwnam = select name, 'x', data->>'gecos', '/home/' || name, data->>'shell', uid, uid from passwd where name = $1
+        getpwnam = select name, 'x', data->>'gecos', '/home/' || name, shell, uid, uid from passwd where name = $1
         # Must return passwd_name, passwd_passwd, passwd_gecos, passwd_dir, passwd_shell, passwd_uid, passwd_gid
-        getpwuid = select name, 'x', data->>'gecos', '/home/' || name, data->>'shell', uid, uid from passwd where uid = $1
+        getpwuid = select name, 'x', data->>'gecos', '/home/' || name, shell, uid, uid from passwd where uid = $1
         # All users
-        allusers = select name, 'x', data->>'gecos', '/home/' || name, data->>'shell', uid, uid from passwd
+        allusers = select name, 'x', data->>'gecos', '/home/' || name, shell, uid, uid from passwd
         # Must return group_name, group_passwd, group_gid
         getgrnam = select passwd.name, 'x', passwd.uid, ARRAY[passwd.name] from passwd where passwd.name=$1 union select name, 'x', gid, ARRAY(select passwd.name from passwd inner join aux_groups on(passwd.uid=aux_groups.uid and aux_groups.gid = "group".gid)) as members from "group" where name = $1
         # Must return group_name, group_passwd, group_gid
