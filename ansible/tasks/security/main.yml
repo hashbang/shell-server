@@ -1,4 +1,22 @@
 ---
+- name: Disable Debian-provided systemd PAM configuration
+  command: "pam-auth-update --package --remove systemd --force"
+
+- name: Add hard-required pam_systemd in common-session-noninteractive
+  copy:
+    dest: /usr/share/pam-configs/systemd-hashbang
+    content: |
+      Name: Register user sessions in systemd hierarchy (Hashbang edition)
+      Default: yes
+      Priority: 0
+      Session-Interactive-Only: no
+      Session-Type: Additional
+      Session:
+        required pam_systemd.so
+
+- name: Enable custom systemd PAM configuration
+  command: "pam-auth-update --package --enable systemd-hashbang"
+
 - name: Configure pam_limits(8)
   copy:
     dest: /etc/security/limits.conf
