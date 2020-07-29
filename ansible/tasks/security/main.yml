@@ -57,11 +57,34 @@
     line: "session	required	  pam_exec.so       type=open_session /etc/security/limits.sh"
     regexp: ^session\w+required\w+pam_exec.so\w+type=open_session\w+/etc/security/limits.sh
 
-- name: Make sure oidentd can run
-  lineinfile:
-    path: /etc/oidentd.conf
-    regexp: "(deny|allow) numeric"
-    line: allow numeric
+- name: Make sure oidentd can only send proper responses
+  copy:
+    dest: /etc/oidentd.conf
+    content: |
+      /*
+       * This is the system-wide configuration file for oidentd.
+       * This file provides defaults for users. The settings in
+       * this system-wide file can be overridden by the per-user
+       * configuration files of users who have been granted
+       * sufficient capabilities through this file.
+       *
+       * See oidentd.conf(5) for more information.
+       *
+       * Managed by Ansible
+       */
+
+      default {
+        default {
+          deny spoof
+          deny spoof_all
+          deny spoof_privport
+          deny random
+          deny random_numeric
+          allow numeric
+          deny hide
+          deny forward
+        }
+      }
 
 - name: Uninstall services with known PAM escapes
   apt:
