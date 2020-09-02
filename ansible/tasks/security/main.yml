@@ -220,6 +220,11 @@
         }
       }
 
+- name: Enable Ferm firewall
+  lineinfile:
+    line: "ENABLED=\"yes\""
+    regexp: ^ENABLED
+
 - name: Filesystem security settings
   blockinfile:
     path: /etc/fstab
