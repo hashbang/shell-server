@@ -224,6 +224,7 @@
   lineinfile:
     line: "ENABLED=\"yes\""
     regexp: ^ENABLED
+    path: /etc/default/ferm
 
 - name: Filesystem security settings
   blockinfile:
