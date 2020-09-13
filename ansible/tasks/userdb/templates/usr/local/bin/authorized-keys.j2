@@ -1,7 +1,7 @@
 #!/bin/sh
 
-user="$1"
-curl -s "{{ userdb_apidomain }}/passwd?name=eq.$user&select=data->ssh_keys" \
+user="$(id -u "$1")"
+curl -s "{{ userdb_apidomain }}/v1/ssh_public_key?uid=eq.$user&select=type,key" \
   -H "Accept: application/vnd.pgrst.object+json" \
-  | jq -r '.ssh_keys | .[]'
+  | jq -r 'map(.type + " " + .key) | .[]'
 
