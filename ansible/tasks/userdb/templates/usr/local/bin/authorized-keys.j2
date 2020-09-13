@@ -2,6 +2,5 @@
 
 user="$(id -u "$1")"
 curl -s "{{ userdb_apidomain }}/v1/ssh_public_key?uid=eq.$user&select=type,key" \
-  -H "Accept: application/vnd.pgrst.object+json" \
   | jq -r 'map(.type + " " + .key) | .[]'
 
