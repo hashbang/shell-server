@@ -273,6 +273,7 @@
       - mawk
       - mc
       - mc-data
+      - meson
       - mime-support
       - mksh
       - mlock
@@ -284,6 +285,7 @@
       - mutt
       - mysql-common
       - nano
+      - nasm
       - ncdu
       - ncurses-base
       - ncurses-bin
@@ -295,6 +297,7 @@
       - nethack-common
       - nethack-console
       - nfacct
+      - ninja-build
       - node-abbrev
       - node-ansi
       - node-ansi-color-table
@@ -587,6 +590,7 @@
       - usbutils
       - util-linux
       - util-linux-locales
+      - valac
       - vim-common
       - vim-nox
       - vim-runtime
