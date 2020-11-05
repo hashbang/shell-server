@@ -40,6 +40,18 @@
       }
 
       server {
+        listen 443;
+        listen [::]:443;
+      
+        server_name "~^(?<user>[a-zA-Z0-9]+).{{ ansible_fqdn }}$";
+      
+        location / {
+          proxy_pass http://unix:/home/$user/.nginx.https.sock;
+          ssl_preread on;
+        }
+      }
+
+      server {
         listen 80;
         listen [::]:80;
 
