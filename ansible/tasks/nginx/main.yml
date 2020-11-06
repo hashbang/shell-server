@@ -6,7 +6,7 @@
       - libnginx-mod-stream
 
 - name: Setup sites-enabled/hashbang-http
-  register: nginxconf
+  register: httpconf
   copy:
     dest: /etc/nginx/sites-enabled/hashbang-http
     content: |
@@ -41,18 +41,6 @@
       }
 
       server {
-        listen 443;
-        listen [::]:443;
-      
-        server_name "~^(?<user>[a-zA-Z0-9]+).{{ ansible_fqdn }}$";
-      
-        location / {
-          proxy_pass http://unix:/home/$user/.nginx.https.sock;
-          ssl_preread on;
-        }
-      }
-
-      server {
         listen 80;
         listen [::]:80;
 
@@ -63,12 +51,31 @@
         }
       }
 
+- name: Add SSL preread stream to nginx master config
+  register: nginxconf
+  blockinfile:
+    path: /etc/nginx/nginx.conf
+    marker: "# -- {mark} ANSIBLE MANAGED BLOCK -- ssl_preload blocks"
+    block: |
+      stream {
+        map $ssl_preread_server_name $user_https {
+           "~^(?<user>[a-zA-Z0-9]+).{{ ansible_fqdn }}$" unix:/home/$user/.nginx.https.sock;
+        }
+
+        server {
+          listen 443;
+          listen [::]:443;
+          ssl_preread on;
+          proxy_pass $user_https;
+        }
+      }
+
 - name: Remove default nginx site
   file:
    state: absent
    path: /etc/nginx/sites-enabled/default
 
 - name: Restart nginx
-  when: nginxconf.changed
+  when: nginxconf.changed or httpconf.changed
   service: name=nginx state=restarted enabled=yes
   ignore_errors: yes  # ignore error when systemd isn't running
