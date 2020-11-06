@@ -3,6 +3,7 @@
   apt:
     name: 
       - nginx
+      - libnginx-mod-stream
 
 - name: Setup sites-enabled/hashbang-http
   register: nginxconf
