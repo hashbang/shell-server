@@ -249,6 +249,7 @@
       - libpam-systemd
       - libsqlite3-dev
       - libxml2-utils
+      - libnode-dev
       - linux-image-amd64
       - lm-sensors
       - locales
@@ -578,6 +579,7 @@
       - toilet
       - toilet-fonts
       - topgit
+      - tor
       - traceroute
       - tree
       - tsung

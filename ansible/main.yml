@@ -91,7 +91,6 @@
   - name: Include tasks files
     include_tasks: "tasks/{{ item }}/main.yml"
     with_items:
-    - tor
     - hashbang
     - logging
     - dns
