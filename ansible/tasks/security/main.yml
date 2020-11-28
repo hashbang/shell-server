@@ -21,10 +21,10 @@
   copy:
     dest: /etc/security/limits.conf
     content: |
-      1000:65535           soft    nproc           150
-      1000:65535           hard    nproc           200
-      1000:65535           soft    nofile          4096
-      1000:65535           hard    nofile          10240
+      1000:4294967294      soft    nproc           150
+      1000:4294967294      hard    nproc           200
+      1000:4294967294      soft    nofile          4096
+      1000:4294967294      hard    nofile          10240
 
 - name: "Per-user resource limits: Configure systemd resource accounting"
   blockinfile:
