@@ -89,8 +89,8 @@
     ignore_errors: True
 
   - name: Include tasks files
-    include_tasks: "tasks/{{ item }}/main.yml"
-    with_items:
+    include_tasks: "tasks/{{ task_name }}/main.yml"
+    loop:
     - hashbang
     - logging
     - dns
@@ -102,6 +102,8 @@
     - security
     - prometheus
     - nginx
+    loop_control:
+      loop_var: task_name
 
   - name: Run Docker postinit task
     include_tasks: tasks/docker/main.post.yml
