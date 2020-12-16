@@ -371,6 +371,7 @@
       - php-json
       - php-mysql
       - php-sqlite3
+      - php-xml
       - pidgin-data
       - pinentry-curses
       - pkg-config
