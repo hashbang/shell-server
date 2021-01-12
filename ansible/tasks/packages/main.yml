@@ -377,6 +377,7 @@
       - php-fpm
       - php-json
       - php-mysql
+      - php-redis
       - php-sqlite3
       - php-xml
       - pidgin-data
