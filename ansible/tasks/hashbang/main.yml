@@ -1,19 +1,37 @@
 - name: Install Administrator PGP keys
   block:
     - name: create temporary build directory
-      tempfile:
+      ansible.builtin.tempfile:
         state: directory
       register: gnupghome
       check_mode: no
       changed_when: False
     - name: create root .ssh directory
-      file: path=/root/.ssh state=directory mode=0700
+      file:
+        path: /root/.ssh
+        state: directory
+        mode: "0700"
     - name: create hashbang lib directory
-      file: path=/var/lib/hashbang state=directory
+      file: 
+        path: /var/lib/hashbang
+        state: directory
     - name: Copy administrator PGP keys
-      git:
-        repo: "https://github.com/hashbang/keyring"
-        dest: "/var/lib/hashbang/keyring"
+      shell:
+        cmd: |
+          export GNUPGHOME=$(mktemp -d)
+          NEW_REPO=$(mktemp -d)
+          cat > "${GNUPGHOME}/gpg.conf" << EOF
+          # Never, ever, ever do this in your personal gpg.conf
+          # However, this is sane when you know you use an empty GNUPGHOME
+          keyring /var/lib/hashbang/admins.gpg
+          trust-model always
+          EOF
+
+          git clone --recursive https://github.com/hashbang/keyring ${NEW_REPO}
+          # If this doesn't match, nuke it
+          if [ ! -f /var/lib/hashbang/admins.gpg ] || git -C ${NEW_REPO} verify-commit HEAD; then
+            mv ${NEW_REPO} /var/lib/hashbang/keyring
+          fi
     - name: Find copied admin keys
       find:
         paths: /var/lib/hashbang/keyring/admins
@@ -41,11 +59,16 @@
           -o /var/lib/hashbang/admins.gpg
       args:
         executable: /bin/bash
-    - file: path=/var/lib/hashbang/admins.gpg mode="0644"
+    - file:
+        path: /var/lib/hashbang/admins.gpg
+        mode: "0644"
 
     - name: Install trusted author PGP keys
       block:
-      - file: path=/etc/ansible/keys/gnupg state=directory mode=0700
+      - file:
+          path: /etc/ansible/keys/gnupg
+          state: directory
+          mode: 0700
       - shell: |
           GNUPGHOME=/etc/ansible/keys/gnupg \
           gpg --import /var/lib/hashbang/admins.gpg
