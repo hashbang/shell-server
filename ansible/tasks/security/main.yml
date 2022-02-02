@@ -75,14 +75,7 @@
 
       default {
         default {
-          deny spoof
-          deny spoof_all
-          deny spoof_privport
-          deny random
-          deny random_numeric
-          allow numeric
-          deny hide
-          deny forward
+          force numeric
         }
       }
 
