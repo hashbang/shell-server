@@ -129,6 +129,61 @@
           daemon_reload: yes
         ignore_errors: yes
 
+- name: Automatically ban users running open proxies
+  block:
+  - name: Install auto-banner
+    copy:
+      dest: /usr/local/bin/autoban
+      mode: "0755"
+      content: |
+        #!/bin/sh
+        for addr_family in 4 6; do
+          netstat -tulpn -${addr_family} | grep -v -e mosh -e syncthing -e weechat -e 127.0.0.1 | awk '{ print $4 }' | rev | cut -d: -f1 | rev | sort -un | uniq | while read port; do
+            for protocol in http https socks4 socks5; do
+              if timeout 1 curl -${addr_family} -s --proxy "${protocol}://localhost:${port}/" http://example.com | grep "Example Domain" >/dev/null; then
+                netstat -tulpn | awk '$4 ~ /'"$port"'/ { print $7 }' | cut -d/ -f1 | xargs ps -o user:30 -p | tail -n +2 | xargs echo loginctl terminate-user
+                netstat -tulpn | awk '$4 ~ /'"$port"'/ { print $7 }' | cut -d/ -f1 | xargs ps -o user:30 -p | tail -n +2 | xargs loginctl kill-user
+              fi
+            done
+          done
+        done
+  - name: Install systemd unit for autobanner
+    copy:
+      dest: /etc/systemd/system/autoban.service
+      content: |
+        [Unit]
+        Description=Run autoban to clean up users running open proxies
+        After=network.target
+
+        [Service]
+        ExecStart=/usr/local/bin/autoban
+        Type=oneshot
+
+        [Install]
+        WantedBy=multi-user.target
+
+  - name: Install systemd timer for autobanner
+    copy:
+      dest: /etc/systemd/system/autoban.timer
+      content: |
+        [Unit]
+        Description=Run autoban every 5 minutes
+
+        [Timer]
+        OnBootSec=5min
+        OnUnitInactiveSec=5min
+
+        [Install]
+        WantedBy=timers.target
+
+  - name: Start autoban
+    systemd:
+      name: autoban.timer
+      state: started
+      enabled: yes
+      daemon_reload: yes
+    ignore_errors: yes
+
 - name: Install Welcome Templates and Man page
   block:
   - file:
