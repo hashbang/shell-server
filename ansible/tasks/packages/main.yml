@@ -17,6 +17,7 @@
 - name: Install all system packages
   apt:
     update_cache: yes
+    upgrade: yes
     name:
       - acl
       - acpi
