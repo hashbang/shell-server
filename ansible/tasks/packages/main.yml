@@ -14,10 +14,13 @@
     state: present
     filename: weechat
 
-- name: Install all system packages
+- name: Upgrade existing packages
   apt:
     update_cache: yes
     upgrade: yes
+
+- name: Install all system packages
+  apt:
     name:
       - acl
       - acpi
