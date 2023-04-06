@@ -18,8 +18,9 @@
     - name: Copy administrator PGP keys
       shell:
         cmd: |
+          set -eo pipefail
           export GNUPGHOME=$(mktemp -d)
-          NEW_REPO=$(mktemp -d)
+          KEYRING_DIR=/var/lib/hashbang/keyring
           cat > "${GNUPGHOME}/gpg.conf" << EOF
           # Never, ever, ever do this in your personal gpg.conf
           # However, this is sane when you know you use an empty GNUPGHOME
@@ -27,10 +28,12 @@
           trust-model always
           EOF
 
-          git clone --recursive https://github.com/hashbang/keyring ${NEW_REPO}
-          # If this doesn't match, nuke it
-          if [ ! -f /var/lib/hashbang/admins.gpg ] || git -C ${NEW_REPO} verify-commit HEAD; then
-            mv ${NEW_REPO} /var/lib/hashbang/keyring
+          if test -d $KEYRING_DIR; then
+            git clone --recursive https://github.com/hashbang/keyring $KEYRING_DIR
+          else
+            git -C $KEYRING_DIR fetch
+            git -C $KEYRING_DIR verify-commit origin/master
+            git -C $KEYRING_DIR merge --ff-only origin/master
           fi
     - name: Find copied admin keys
       find:
