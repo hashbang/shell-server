@@ -28,7 +28,7 @@
           trust-model always
           EOF
 
-          if test -d $KEYRING_DIR; then
+          if ! test -d $KEYRING_DIR; then
             git clone --recursive https://github.com/hashbang/keyring $KEYRING_DIR
           else
             git -C $KEYRING_DIR fetch
