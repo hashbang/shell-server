@@ -85,7 +85,7 @@
       - at
     state: absent
 
-- name: Disable services with known PAM escapes
+- name: Disable services with known PAM or sandbox escapes
   when: not dockerenv.stat.exists
   systemd:
     name: "{{ item }}"
@@ -93,6 +93,7 @@
     state: stopped
   with_items:
     - cron
+    - glances
 
 - name: "pam_namespace:  Configure systemd-tmpfiles to manage the instances directories"
   copy:
