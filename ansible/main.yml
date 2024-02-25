@@ -3,7 +3,7 @@
   gather_facts: false
   pre_tasks:
   - name: Install python2 for Ansible
-    raw: bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qqy python-minimal)"
+    raw: bash -c "test -e /usr/bin/python3 || (apt-get -qqy update && apt install -qqy python3-minimal)"
     register: output
     changed_when: output.stdout != ""
   - name: Gathering Facts
