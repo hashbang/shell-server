@@ -11,6 +11,12 @@
 
   tasks:
 
+  - name: Remove prometheus-node-exporter
+    apt:
+      name:
+        - prometheus-node-exporter
+      state: absent
+
   - name: Install minimum system packages
     apt:
       update_cache: true
@@ -100,7 +106,8 @@
     - misc
     - userdb
     - security
-    - prometheus
+    # temporarily disabled until prometheus user is fixed
+    # - prometheus
     - nginx
     loop_control:
       loop_var: task_name
