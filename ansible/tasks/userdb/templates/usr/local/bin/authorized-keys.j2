@@ -1,6 +1,6 @@
 #!/bin/sh
 
 user="$(id -u "$1")"
-curl -s "{{ userdb_apidomain }}/v1/ssh_public_key?uid=eq.$user&select=type,key" \
+curl --pinnedpubkey "QUfPGxRcqlRoehidvMEsF/R1Ee1MXkb3Sxw+MNTARdY=" -s "{{ userdb_apidomain }}/v1/ssh_public_key?uid=eq.$user&select=type,key" \
   | jq -r 'map(.type + " " + .key) | .[]'
 
