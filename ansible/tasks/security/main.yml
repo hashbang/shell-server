@@ -191,7 +191,7 @@
           mod state state INVALID DROP;
 
           # torrent seeding
-          proto tcp dport 6881-6889 DROP;
+          proto tcp dport 6881:6889 DROP;
         }
         chain OUTPUT {
           policy ACCEPT;
