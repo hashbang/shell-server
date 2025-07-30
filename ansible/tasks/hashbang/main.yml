@@ -101,6 +101,7 @@
 
             [Service]
             EnvironmentFile=/etc/ansible/ansible-pull.env
+            ExecStartPre=/usr/bin/gpg --refresh-keys
             ExecStart=/bin/bash -c "/usr/bin/ansible-pull \
               -U $GIT_REPO \
               -C $GIT_BRANCH \
