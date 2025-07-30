@@ -84,10 +84,10 @@
       alias luarocks-5.3="lua5.3 /usr/bin/luarocks --local"
       alias luarocks-5.4="lua5.4 /usr/bin/luarocks --local"
       # Need to do 5.1 last, as it adds to LUA_PATH, which would be picked up by the other commands
-      eval `/usr/local/lua5.4 /usr/bin/luarocks path`
-      eval `/usr/local/lua5.3 /usr/bin/luarocks path`
-      eval `/usr/local/lua5.2 /usr/bin/luarocks path`
-      eval `/usr/local/lua5.1 /usr/bin/luarocks path`
+      eval `/usr/bin/lua5.4 /usr/bin/luarocks path`
+      eval `/usr/bin/lua5.3 /usr/bin/luarocks path`
+      eval `/usr/bin/lua5.2 /usr/bin/luarocks path`
+      eval `/usr/bin/lua5.1 /usr/bin/luarocks path`
 
 
 
