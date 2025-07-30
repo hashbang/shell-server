@@ -189,6 +189,9 @@
         chain INPUT {
           policy ACCEPT;
           mod state state INVALID DROP;
+
+          # torrent seeding
+          proto tcp dport 6881-6889 DROP;
         }
         chain OUTPUT {
           policy ACCEPT;
@@ -204,6 +207,9 @@
 
           # Bitcoin-related protocols
           proto (udp tcp) dport (8082 8332 8333 50002) REJECT;
+
+          # torrent clients
+          proto tcp dport 6881-6889 DROP;
 
           # Block outgoing traffic to RFC1918/RFC6598 NAT IP ranges
           mod iprange dst-range 10.0.0.0-10.255.255.255 REJECT;
