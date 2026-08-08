@@ -42,6 +42,12 @@ lxc:
 	rm -rf .packer/build/lxc
 	$(PACKER) build -only lxc packer/build.json
 
+lxd:
+	mkdir -p dist
+	rm -rf dist/*lxd*
+	rm -rf .packer/build/lxd
+	$(PACKER) build -only lxd packer/build.json
+
 release:
 	bash scripts/release.sh
 

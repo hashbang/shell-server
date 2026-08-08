@@ -25,6 +25,15 @@
       "target_runlevel": 3
     },
     {
+      "type": "lxd",
+      "name": "lxd",
+      "image": "images:debian/{{ user `release` }}",
+      "output_image": "shell-local",
+      "publish_properties": {
+        "description": "hashbang shell-server"
+      }
+    },
+    {
       "name": "qemu",
       "type": "qemu",
       "format": "qcow2",
